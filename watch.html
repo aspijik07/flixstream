@@ -26,13 +26,8 @@
         <!-- Player Wrapper -->
         <div class="player-wrapper">
             
-            <!-- Video Iframe m3a Sandbox Anti-Popups -->
-            <iframe id="movie-iframe" 
-                    src="" 
-                    allowfullscreen 
-                    allow="autoplay; encrypted-media"
-                    sandbox="allow-forms allow-scripts allow-same-origin allow-presentation">
-            </iframe>
+            <!-- Video Iframe (Clean - No Sandbox Restrictions) -->
+            <iframe id="movie-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
 
             <!-- Overlay Play Button -->
             <div id="play-trigger-overlay" onclick="startMovieStreaming()">
@@ -43,42 +38,13 @@
                 </div>
             </div>
 
-            <!-- PHOTO 3 EXACT VIP LOCKER MODAL -->
-            <div id="ogads-locker-modal" style="display: none;">
-                <div class="photo3-card" id="photo3-card">
-                    
-                    <!-- 1. Shield Badge -->
-                    <div class="shield-badge">🛡️ STREAM SECURITY CHECK</div>
-                    
-                    <!-- 2. Dynamic Title -->
-                    <h2 id="locker-movie-title">Verification Required</h2>
-                    
-                    <!-- 3. Subtitle -->
-                    <p class="photo3-desc">To resume high-speed HD playback, please complete 1 quick sponsor verification below.</p>
-                    
-                    <!-- 4. OGAds Offers Box -->
-                    <div class="photo3-offers-box">
-                        <iframe id="ogads-embed-frame" src="" frameborder="0"></iframe>
-                    </div>
-
-                    <!-- 5. Big Red Button -->
-                    <a id="ogads-direct-btn" href="#" target="_blank" class="photo3-red-btn" onclick="handleVerifyClick()">
-                        Click Here to Complete Verification
-                    </a>
-
-                    <!-- 6. Footer Note -->
-                    <span class="photo3-note">Stream resumes automatically once verified.</span>
-
-                </div>
-            </div>
-
         </div>
 
         <!-- Server Switcher Buttons -->
         <div class="servers-bar">
             <span class="server-label">Switch Server:</span>
-            <button class="server-btn active" onclick="switchServer('vidsrcto', this)">Server 1 (VidSrc HD)</button>
-            <button class="server-btn" onclick="switchServer('vidlink', this)">Server 2 (VidLink)</button>
+            <button class="server-btn active" onclick="switchServer('vidlink', this)">Server 1 (VidLink HD)</button>
+            <button class="server-btn" onclick="switchServer('vidsrcto', this)">Server 2 (VidSrc HD)</button>
             <button class="server-btn" onclick="switchServer('autoembed', this)">Server 3 (AutoEmbed)</button>
         </div>
 
@@ -100,6 +66,35 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- PHOTO 3 EXACT VIP LOCKER (FULL SCREEN VIEWPORT MODAL) -->
+    <div id="ogads-locker-modal" style="display: none;">
+        <div class="photo3-card" id="photo3-card">
+            
+            <!-- 1. Shield Badge -->
+            <div class="shield-badge">🛡️ STREAM SECURITY CHECK</div>
+            
+            <!-- 2. Dynamic Title -->
+            <h2 id="locker-movie-title">Verification Required</h2>
+            
+            <!-- 3. Subtitle -->
+            <p class="photo3-desc">To resume high-speed HD playback, please complete 1 quick sponsor verification below.</p>
+            
+            <!-- 4. OGAds Offers Box -->
+            <div class="photo3-offers-box">
+                <iframe id="ogads-embed-frame" src="" frameborder="0"></iframe>
+            </div>
+
+            <!-- 5. Big Red Button -->
+            <a id="ogads-direct-btn" href="#" target="_blank" class="photo3-red-btn" onclick="handleVerifyClick()">
+                Click Here to Complete Verification
+            </a>
+
+            <!-- 6. Footer Note -->
+            <span class="photo3-note">Stream resumes automatically once verified.</span>
+
+        </div>
     </div>
 
     <script src="player.js"></script>

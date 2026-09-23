@@ -25,12 +25,11 @@ let isUnlocked = localStorage.getItem(`unlocked_${movieId}`) === "true";
 let activeStreamUrl = "";
 
 // ==========================================
-// 2. STREAM SERVERS (VidSrc.to howa Server 1 Default)
+// 2. STREAM SERVERS (VidLink howa Server 1 Default - Clean & No Spam)
 // ==========================================
 const servers = {
-    vidsrcto: `https://vidsrc.to/embed/movie/${movieId}`,
-    vidsrc: `https://vidsrc.cc/v2/embed/movie/${movieId}`,
     vidlink: `https://vidlink.pro/movie/${movieId}`,
+    vidsrcto: `https://vidsrc.to/embed/movie/${movieId}`,
     autoembed: `https://player.autoembed.cc/embed/movie/${movieId}`
 };
 
@@ -79,13 +78,13 @@ async function loadMovieDetails() {
         // 2. Set Photo 3 Dynamic Title
         document.getElementById("locker-movie-title").innerText = `Verification: ${movie.title}`;
 
-        // 3. Set Dynamic Locker URL m3a SubID Tracking
+        // 3. Set Dynamic Locker URL m3a Tracking SubIDs
         const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(movieSlug)}&aff_sub2=${encodeURIComponent(movieId)}`;
         document.getElementById("ogads-embed-frame").src = dynamicUrl;
         document.getElementById("ogads-direct-btn").href = dynamicUrl;
 
-        // 4. Auto-load Server 1 (VidSrc.to)
-        loadStreamServer("vidsrcto");
+        // 4. Auto-load Server 1 (VidLink HD Clean)
+        loadStreamServer("vidlink");
 
         // Ila kan deja unlocked, 7eyed l-overlay o tl9 l-film direct
         if (isUnlocked) {
@@ -98,7 +97,7 @@ async function loadMovieDetails() {
 }
 
 // ==========================================
-// 4. THE 15-SECOND HOOK & LOCK (M3A PAUSE DYAL SA7)
+// 4. THE 15-SECOND HOOK & LOCK (PAUSE + UNLOCK RESUME)
 // ==========================================
 function startMovieStreaming() {
     // 1. 7eyed l-overlay dyal l-bdya
@@ -107,7 +106,7 @@ function startMovieStreaming() {
     // Ila kan deja unlocked ma t-tl3ch l-locker
     if (isUnlocked) return;
 
-    // 2. Demari Timer dyal 15 Tanya
+    // 2. Demari Timer dyal 15 Tanya b d-debt
     if (!timerStarted) {
         timerStarted = true;
         setTimeout(() => {

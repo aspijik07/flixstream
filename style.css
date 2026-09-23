@@ -362,15 +362,17 @@ body {
 }
 
 /* ==========================================
-   5. PHOTO 3 EXACT LOCKER DESIGN (LUXURY)
+   5. PHOTO 3 EXACT LOCKER (VIEWPORT FIXED MODAL)
    ========================================== */
 #ogads-locker-modal {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.88);
-    backdrop-filter: blur(14px);
-    z-index: 100;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(8, 8, 8, 0.94);
+    backdrop-filter: blur(16px);
+    z-index: 99999;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -385,7 +387,7 @@ body {
     width: 100%;
     padding: 22px;
     text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 9, 20, 0.2);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 9, 20, 0.25);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -408,16 +410,17 @@ body {
 
 /* Title & Subtitle */
 .photo3-card h2 {
-    font-size: 19px;
+    font-size: 18px;
     font-weight: 800;
     color: #ffffff;
     margin-bottom: 6px;
+    line-height: 1.2;
 }
 
 .photo3-desc {
     font-size: 12px;
     color: #cccccc;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     line-height: 1.4;
 }
 
@@ -425,11 +428,10 @@ body {
 .photo3-offers-box {
     width: 100%;
     height: 230px;
-    background: #181818;
-    border: 1px solid #282828;
+    background: #ffffff;
     border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
 .photo3-offers-box iframe {
@@ -448,7 +450,7 @@ body {
     text-decoration: none;
     font-size: 14px;
     font-weight: 800;
-    padding: 13px;
+    padding: 12px;
     border-radius: 6px;
     margin-bottom: 8px;
     transition: background 0.2s, transform 0.1s;
@@ -573,6 +575,9 @@ body {
     font-size: 11px;
 }
 
+/* ==========================================
+   MOBILE RESPONSIVE
+   ========================================== */
 @media (max-width: 768px) {
     .nav-links { display: none; }
     .hero-content h1 { font-size: 30px; }
@@ -588,6 +593,15 @@ body {
     }
     .detail-poster { width: 120px; }
     .detail-meta, .genres-list { justify-content: center; }
-    .photo3-card { padding: 16px; }
+
+    /* Photo 3 Card Mobile Full Screen Fit */
+    .photo3-card {
+        padding: 15px;
+        max-width: 95%;
+        border: 1px solid #444;
+    }
+    .photo3-card h2 { font-size: 16px; margin-bottom: 4px; }
+    .photo3-desc { font-size: 11px; margin-bottom: 10px; }
     .photo3-offers-box { height: 210px; }
+    .photo3-red-btn { font-size: 13px; padding: 11px; }
 }
