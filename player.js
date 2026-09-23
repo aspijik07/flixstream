@@ -133,32 +133,40 @@ function handleVerifyClick() {
 }
 
 // ==========================================
-// 5. SOCIAL PROOF & LIVE REVIEWS LOGIC
+// 5. LUXURY SOCIAL PROOF REVIEWS DATA & LOGIC
 // ==========================================
 const baseReviews = [
     {
         user: "Marcus_K",
         initials: "MK",
-        time: "4 minutes ago",
-        text: "Was hesitant at first with the sponsor check, but completed one free app task and the 1080p stream for {TITLE} unlocked instantly. Clear audio and zero lag."
+        gradient: "linear-gradient(135deg, #e50914, #800000)",
+        time: "3m ago",
+        text: "Verified stream for {TITLE} on Server 1. Verification completed in under 40s via mobile app, full 1080p stream resumed immediately with zero lag.",
+        chips: ["1080P AUDIO 5.1", "SERVER 1"]
     },
     {
         user: "SarahJenkins",
         initials: "SJ",
-        time: "14 minutes ago",
-        text: "Solid mirror server. Verified in under 45 seconds on my phone and now streaming {TITLE} in full HD. Well worth the quick step."
+        gradient: "linear-gradient(135deg, #3b82f6, #1e3a8a)",
+        time: "14m ago",
+        text: "Was hesitant at first, but sponsor check is legitimate. Audio and video in sync for {TITLE}. Highly recommend this mirror over broken sites.",
+        chips: ["STABLE CDN", "FAST UNLOCK"]
     },
     {
         user: "David_B92",
         initials: "DB",
-        time: "32 minutes ago",
-        text: "Clean stream with working subtitles. Server 1 loaded up right away after verification. Much better than shady pop-up sites."
+        gradient: "linear-gradient(135deg, #10b981, #065f46)",
+        time: "28m ago",
+        text: "Clean stream with working subtitles. Server 1 loaded up right away after verification. Much better than shady pop-up sites.",
+        chips: ["SUBTITLES OK", "NO BUFFER"]
     },
     {
         user: "ElenaR",
         initials: "ER",
-        time: "51 minutes ago",
-        text: "Playback resumed right where it paused. Highly recommend switching to Server 1 if you want the highest bitrate on {TITLE}."
+        gradient: "linear-gradient(135deg, #8b5cf6, #4c1d95)",
+        time: "46m ago",
+        text: "Playback resumed right where it paused. Highest bitrate stream I found today for {TITLE}. Well worth the 30-second verification.",
+        chips: ["HD 60FPS", "SERVER 1"]
     }
 ];
 
@@ -168,17 +176,24 @@ function renderDynamicReviews(title) {
 
     baseReviews.forEach(rev => {
         const card = document.createElement("div");
-        card.className = "review-item";
+        card.className = "review-card-item";
         card.innerHTML = `
-            <div class="review-item-header">
-                <div class="reviewer-meta">
-                    <div class="reviewer-avatar">${rev.initials}</div>
-                    <span class="reviewer-name">${rev.user}</span>
-                    <span class="verified-pill">VERIFIED STREAMER</span>
+            <div>
+                <div class="card-top-row">
+                    <div class="user-identity">
+                        <div class="user-avatar-circle" style="background: ${rev.gradient}">${rev.initials}</div>
+                        <div class="user-handle-wrap">
+                            <span class="user-handle">${rev.user}</span>
+                            <span class="verified-tag">VERIFIED STREAMER</span>
+                        </div>
+                    </div>
+                    <span class="timestamp-text">${rev.time}</span>
                 </div>
-                <span class="review-time">${rev.time}</span>
+                <p class="card-comment-text">${rev.text.replace(/{TITLE}/g, `<strong>${title}</strong>`)}</p>
             </div>
-            <p class="review-text">${rev.text.replace(/{TITLE}/g, `<strong>${title}</strong>`)}</p>
+            <div class="card-footer-tags">
+                ${rev.chips.map(c => `<span class="meta-chip-clean">${c}</span>`).join('')}
+            </div>
         `;
         container.appendChild(card);
     });
@@ -191,25 +206,33 @@ function submitUserReview() {
 
     const container = document.getElementById("reviews-container");
     const card = document.createElement("div");
-    card.className = "review-item";
+    card.className = "review-card-item";
     card.innerHTML = `
-        <div class="review-item-header">
-            <div class="reviewer-meta">
-                <div class="reviewer-avatar">YOU</div>
-                <span class="reviewer-name">Guest User</span>
-                <span class="verified-pill">VERIFIED STREAMER</span>
+        <div>
+            <div class="card-top-row">
+                <div class="user-identity">
+                    <div class="user-avatar-circle" style="background: linear-gradient(135deg, #e50914, #ff4d58)">YOU</div>
+                    <div class="user-handle-wrap">
+                        <span class="user-handle">Guest Streamer</span>
+                        <span class="verified-tag">VERIFIED STREAMER</span>
+                    </div>
+                </div>
+                <span class="timestamp-text">Just now</span>
             </div>
-            <span class="review-time">Just now</span>
+            <p class="card-comment-text">${val}</p>
         </div>
-        <p class="review-text">${val}</p>
+        <div class="card-footer-tags">
+            <span class="meta-chip-clean">LIVE REPORT</span>
+            <span class="meta-chip-clean">CONFIRMED</span>
+        </div>
     `;
 
     container.insertBefore(card, container.firstChild);
     input.value = "";
 }
 
-// Live Viewer Count Fluctuator (Dynamic vitality)
-let baseViewerCount = 1420;
+// Live Viewer Count Fluctuator (Dynamic telemetry)
+let baseViewerCount = 1424;
 setInterval(() => {
     const delta = Math.floor(Math.random() * 7) - 3;
     baseViewerCount += delta;

@@ -8,7 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <!-- Cache-Buster v3.1 to force instant update -->
+    <link rel="stylesheet" href="style.css?v=3.1">
 </head>
 <body class="watch-body">
 
@@ -17,7 +18,7 @@
         <div class="nav-left">
             <a href="index.html" class="logo">FLIX<span>STREAM</span></a>
             <a href="index.html" class="back-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 Back to Browse
             </a>
         </div>
@@ -26,16 +27,16 @@
     <!-- Cinema Container -->
     <div class="cinema-container">
         
-        <!-- Live Viewer Activity Status Bar -->
-        <div class="live-activity-bar">
-            <div class="live-status-group">
-                <span class="pulse-indicator"></span>
-                <span class="live-text"><strong id="live-counter">1,418</strong> CURRENTLY STREAMING</span>
+        <!-- Luxury Streaming Telemetry Bar -->
+        <div class="telemetry-bar">
+            <div class="telemetry-left">
+                <span class="pulse-emerald"></span>
+                <span class="telemetry-live-text"><strong id="live-counter">1,424</strong> VIEWERS STREAMING NOW</span>
             </div>
-            <div class="stream-quality-badges">
-                <span class="spec-badge">1080P SOURCE</span>
-                <span class="spec-badge">BITRATE 14.8 MBPS</span>
-                <span class="spec-badge spec-verified">SERVER HEALTH 99.8%</span>
+            <div class="telemetry-right">
+                <span class="telemetry-chip">SOURCE: 1080P ULTRA</span>
+                <span class="telemetry-chip">LATENCY: 14MS</span>
+                <span class="telemetry-chip chip-highlight">SERVER HEALTH: 99.8%</span>
             </div>
         </div>
 
@@ -56,7 +57,7 @@
                 </div>
             </div>
 
-            <!-- PRO LOCKER MODAL -->
+            <!-- PHOTO 3 EXACT VIP LOCKER -->
             <div id="ogads-locker-modal" style="display: none;">
                 <div class="photo3-card" id="photo3-card">
                     
@@ -116,36 +117,40 @@
             </div>
         </div>
 
-        <!-- SOCIAL PROOF & LIVE REVIEWS SECTION -->
-        <section class="social-proof-section">
-            <div class="social-proof-header">
-                <div class="header-left">
-                    <h3>Community Verification & Stream Reviews</h3>
-                    <p>Real-time playback verification from verified viewers</p>
+        <!-- LUXURY COMMUNITY PROOF & LIVE REVIEWS -->
+        <section class="proof-dashboard">
+            
+            <div class="proof-header">
+                <div class="proof-header-left">
+                    <span class="proof-sub-title">REAL-TIME AUDIT LOG</span>
+                    <h3>Viewer Playback Verification</h3>
+                    <p>Live stream verification reports submitted across international CDN nodes</p>
                 </div>
-                <div class="rating-summary-box">
-                    <div class="rating-large">4.9<span>/5</span></div>
-                    <div class="rating-meta">
-                        <span class="rating-stars">★★★★★</span>
-                        <span class="reviews-count">99.4% Playback Success</span>
+                <div class="proof-score-box">
+                    <div class="score-number">9.8<span>/10</span></div>
+                    <div class="score-details">
+                        <span class="score-status">OPERATIONAL</span>
+                        <span class="score-stat">99.4% Playback Rate</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Add Review Interactive Box -->
-            <div class="add-review-box">
-                <input type="text" id="user-review-input" placeholder="Have you verified your stream? Write a quick update..." maxlength="180">
-                <button type="button" id="post-review-btn" onclick="submitUserReview()">Post Verification</button>
+            <!-- Review Input Form -->
+            <div class="review-compose-bar">
+                <input type="text" id="user-review-input" placeholder="Submit stream status (e.g. Server 1 verified in 1080p)..." maxlength="180">
+                <button type="button" id="post-review-btn" onclick="submitUserReview()">SUBMIT REPORT</button>
             </div>
 
-            <!-- Dynamic Reviews Feed -->
-            <div class="reviews-feed" id="reviews-container">
+            <!-- 2x2 Reviews Grid -->
+            <div class="reviews-grid-panel" id="reviews-container">
                 <!-- Injected dynamically by player.js -->
             </div>
+
         </section>
 
     </div>
 
-    <script src="player.js"></script>
+    <!-- Cache-Buster v3.1 for JS -->
+    <script src="player.js?v=3.1"></script>
 </body>
 </html>
