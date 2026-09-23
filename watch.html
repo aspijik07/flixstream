@@ -4,11 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream HD - FlixStream</title>
+    
+    <!-- Dynamic Meta Tags with IDs for JS injection -->
+    <meta name="description" id="meta-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
+    <meta name="theme-color" content="#0b0b0b">
+
+    <!-- OpenGraph Tags -->
+    <meta property="og:type" content="video.movie">
+    <meta property="og:site_name" content="FlixStream HD">
+    <meta property="og:title" id="og-title" content="Watch Full Stream HD - FlixStream">
+    <meta property="og:description" id="og-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
+    <meta property="og:image" id="og-image" content="https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="tw-title" content="Watch Full Stream HD - FlixStream">
+    <meta name="twitter:description" id="tw-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
+    <meta name="twitter:image" id="tw-image" content="https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg">
+
+    <!-- Inline SVG Favicon (No 404 Console Error) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0b'/%3E%3Cpath d='M20 14h24v8H29v10h13v8H29v14H20z' fill='%23e50914'/%3E%3C/svg%3E">
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=4.0">
+    
+    <!-- Cache-Buster v4.1 -->
+    <link rel="stylesheet" href="style.css?v=4.1">
 </head>
 <body class="watch-body">
 
@@ -91,7 +114,7 @@
             <button class="server-btn" onclick="switchServer('autoembed', this)">Server 3 (AutoEmbed)</button>
         </div>
 
-        <!-- TV SERIES EPISODES BROWSER (VISIBLE ONLY FOR TV SHOWS) -->
+        <!-- TV SERIES EPISODES BROWSER -->
         <div class="tv-series-panel" id="tv-panel" style="display: none;">
             <div class="tv-panel-header">
                 <div class="panel-header-left">
@@ -106,10 +129,7 @@
                 </div>
             </div>
             
-            <!-- Episodes Grid -->
-            <div class="episodes-grid" id="episodes-container">
-                <!-- Populated dynamically by player.js -->
-            </div>
+            <div class="episodes-grid" id="episodes-container"></div>
         </div>
 
         <!-- Media Details Card -->
@@ -157,6 +177,7 @@
 
     </div>
 
-    <script src="player.js?v=4.0"></script>
+    <!-- Cache-Buster v4.1 -->
+    <script src="player.js?v=4.1"></script>
 </body>
 </html>

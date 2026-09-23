@@ -7,7 +7,7 @@ const OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
 
 // Parse URL Parameters (type, id, slug, season, episode, unlocked)
 const urlParams = new URLSearchParams(window.location.search);
-const mediaType = urlParams.get("type") || "movie"; // 'movie' wla 'tv'
+const mediaType = urlParams.get("type") || "movie";
 const mediaId = urlParams.get("id");
 const mediaSlug = urlParams.get("slug") || "media";
 let currentSeason = parseInt(urlParams.get("season")) || 1;
@@ -31,7 +31,7 @@ let currentMediaTitle = "Media";
 let activeServer = "vidlink";
 
 // ==========================================
-// 2. STREAM SERVERS BUILDER (MOVIE & TV SUPPORT)
+// 2. STREAM SERVERS BUILDER
 // ==========================================
 function getStreamServers(season = 1, episode = 1) {
     if (mediaType === "tv") {
@@ -64,7 +64,7 @@ function switchServer(serverName, btn) {
 }
 
 // ==========================================
-// 3. FETCH MEDIA DATA (TMDB MOVIE WLA TV)
+// 3. FETCH MEDIA DATA & UPDATE OPENGRAPH
 // ==========================================
 async function loadMediaDetails() {
     try {
@@ -73,9 +73,11 @@ async function loadMediaDetails() {
         const data = await res.json();
 
         currentMediaTitle = data.title || data.name || "Media";
+        const mediaEpTag = mediaType === 'tv' ? `(S${currentSeason} E${currentEpisode})` : '';
+        const pageTitle = `Watch ${currentMediaTitle} ${mediaEpTag} (1080p Full HD) - FlixStream`;
 
         // 1. Details Cards
-        document.title = `Watch ${currentMediaTitle} ${mediaType === 'tv' ? `(S${currentSeason} E${currentEpisode})` : ''} - FlixStream`;
+        document.title = pageTitle;
         document.getElementById("movie-detail-title").innerText = currentMediaTitle;
         document.getElementById("movie-detail-overview").innerText = data.overview || "Stream in full high definition with zero latency.";
         
@@ -87,9 +89,20 @@ async function loadMediaDetails() {
         document.getElementById("movie-detail-runtime").innerText = `${runtime} min`;
         document.getElementById("media-type-badge").innerText = mediaType === 'tv' ? 'TV SERIES' : '1080P FULL HD';
 
-        if (data.poster_path) {
-            document.getElementById("movie-detail-poster").src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+        const posterUrl = data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '';
+        const backdropUrl = data.backdrop_path ? `https://image.tmdb.org/t/p/original${data.backdrop_path}` : posterUrl;
+
+        if (posterUrl) {
+            document.getElementById("movie-detail-poster").src = posterUrl;
         }
+
+        // 2. Dynamic OpenGraph Meta Updates
+        if (backdropUrl) {
+            document.getElementById("og-image")?.setAttribute("content", backdropUrl);
+            document.getElementById("tw-image")?.setAttribute("content", backdropUrl);
+        }
+        document.getElementById("og-title")?.setAttribute("content", pageTitle);
+        document.getElementById("tw-title")?.setAttribute("content", pageTitle);
 
         // Genres
         const genresContainer = document.getElementById("movie-detail-genres");
@@ -101,13 +114,13 @@ async function loadMediaDetails() {
             genresContainer.appendChild(span);
         });
 
-        // 2. Set Locker Title & Dynamic SubID
+        // 3. Set Locker Title & Dynamic SubID
         updateLockerTracking();
 
-        // 3. Auto-load Server 1 Default
+        // 4. Auto-load Server 1 Default
         loadStreamServer("vidlink");
 
-        // 4. Ila kan TV Show, chargi les Saisons o les Episodes
+        // 5. TV Show Panel Check
         if (mediaType === "tv") {
             document.getElementById("tv-panel").style.display = "block";
             document.getElementById("tv-show-name").innerText = `${currentMediaTitle} Episodes`;
@@ -115,7 +128,7 @@ async function loadMediaDetails() {
             loadSeasonEpisodes(currentSeason);
         }
 
-        // 5. Reviews Proof
+        // 6. Reviews Proof
         renderDynamicReviews(currentMediaTitle);
 
         if (isUnlocked) {
@@ -141,14 +154,14 @@ function updateLockerTracking() {
 }
 
 // ==========================================
-// 4. TV SEASONS & EPISODES SYSTEM (OPTION C)
+// 4. TV SEASONS & EPISODES SYSTEM
 // ==========================================
 function renderSeasonDropdown(seasons) {
     const select = document.getElementById("season-select");
     select.innerHTML = "";
 
     seasons.forEach(s => {
-        if (s.season_number <= 0) return; // ignore specials
+        if (s.season_number <= 0) return;
         const opt = document.createElement("option");
         opt.value = s.season_number;
         opt.innerText = `Season ${s.season_number} (${s.episode_count} Episodes)`;
@@ -202,27 +215,20 @@ async function loadSeasonEpisodes(seasonNum) {
 function selectEpisode(epNumber) {
     currentEpisode = parseInt(epNumber);
 
-    // Update active UI
     document.querySelectorAll(".episode-card").forEach((c, idx) => {
         c.classList.toggle("active", (idx + 1) === currentEpisode);
     });
 
-    // Update stream
     loadStreamServer(activeServer);
 
-    // Update URL history without reload
     const newUrl = `watch.html?type=tv&id=${mediaId}&slug=${mediaSlug}&season=${currentSeason}&episode=${currentEpisode}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
 
-    // Reset Lock timer for new episode
     timerStarted = false;
     document.getElementById("play-trigger-overlay").style.display = "none";
     updateLockerTracking();
 
-    // Scroll smoothly to player
     window.scrollTo({ top: 120, behavior: 'smooth' });
-
-    // Start 15s timer for this episode
     startMovieStreaming();
 }
 
@@ -238,7 +244,6 @@ function startMovieStreaming() {
         timerStarted = true;
         setTimeout(() => {
             if (!isUnlocked) {
-                // Pause Stream
                 const movieIframe = document.getElementById("movie-iframe");
                 movieIframe.src = "about:blank";
 
@@ -247,7 +252,7 @@ function startMovieStreaming() {
 
                 document.getElementById("ogads-locker-modal").style.display = "flex";
             }
-        }, 15000); // 15 Seconds
+        }, 15000);
     }
 }
 
