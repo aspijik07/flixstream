@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Unlocked! - FlixStream</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body {
+            background:#0b0b0b;
+            color:#fff;
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            text-align:center;
+            padding:20px;
+        }
+        .success-card {
+            background:rgba(20,20,20,0.85);
+            border:1px solid #27ae60;
+            padding:40px 30px;
+            border-radius:16px;
+            max-width:440px;
+            box-shadow:0 0 40px rgba(39,174,96,0.3);
+            backdrop-filter:blur(15px);
+        }
+        .icon {
+            font-size:60px;
+            margin-bottom:15px;
+            display:inline-block;
+            animation:pop 0.5s ease;
+        }
+        h1 { font-size:24px; font-weight:900; margin-bottom:10px; color:#2ecc71; }
+        p { font-size:14px; color:#aaa; margin-bottom:20px; }
+        .spinner {
+            width:30px; height:30px;
+            border:3px solid rgba(255,255,255,0.1);
+            border-top:3px solid #2ecc71;
+            border-radius:50%;
+            margin:0 auto;
+            animation:spin 1s linear infinite;
+        }
+        @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+        @keyframes pop { 0%{transform:scale(0.5);} 100%{transform:scale(1);} }
+    </style>
+</head>
+<body>
+    <div class="success-card">
+        <div class="icon">✅</div>
+        <h1>Access Granted!</h1>
+        <p>Your sponsor verification was successful. Resuming HD playback now...</p>
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Khod l-film li kan kay-tferrej fih l-user o rddo lih m-unlocké
+        const lastMovieUrl = localStorage.getItem("last_movie_url") || "index.html";
+        const movieId = localStorage.getItem("last_movie_id");
+        
+        if (movieId) {
+            localStorage.setItem(`unlocked_${movieId}`, "true");
+        }
+
+        setTimeout(() => {
+            const separator = lastMovieUrl.includes("?") ? "&" : "?";
+            window.location.href = `${lastMovieUrl}${separator}unlocked=true`;
+        }, 1500);
+    </script>
+</body>
+</html>

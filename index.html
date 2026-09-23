@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlixStream - Watch Trending Movies HD</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. Netflix Navbar -->
+    <header class="navbar" id="navbar">
+        <div class="nav-left">
+            <a href="index.html" class="logo">FLIX<span>STREAM</span></a>
+            <ul class="nav-links">
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#trending-section">Trending</a></li>
+                <li><a href="#top-rated-section">Top Rated</a></li>
+            </ul>
+        </div>
+        <div class="nav-right">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search movies...">
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. Hero Banner (Kay-t-charga dynamically) -->
+    <section class="hero" id="hero-banner">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <span class="badge-featured">#1 TRENDING TODAY</span>
+            <h1 id="hero-title">Loading Movie...</h1>
+            <p id="hero-overview">Fetching highest-rated trending movie from TMDB database...</p>
+            <div class="hero-buttons">
+                <a id="hero-watch-btn" href="#" class="btn btn-play">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    Watch Now
+                </a>
+                <a id="hero-info-btn" href="#" class="btn btn-more">
+                    More Details
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Rows dyal les Aflam -->
+    <main class="main-content">
+        <!-- Search Results (Kat-ban ghir ila l-user 9elleb) -->
+        <section class="movie-row-section" id="search-results-section" style="display: none;">
+            <h2 class="row-title">Search Results</h2>
+            <div class="movies-grid" id="search-grid"></div>
+        </section>
+
+        <!-- Trending Now -->
+        <section class="movie-row-section" id="trending-section">
+            <h2 class="row-title">Trending This Week <span class="fire-icon">🔥</span></h2>
+            <div class="movies-grid" id="trending-grid">
+                <!-- Les cards ghay-tl3o hna b JS -->
+            </div>
+        </section>
+
+        <!-- Top Rated -->
+        <section class="movie-row-section" id="top-rated-section">
+            <h2 class="row-title">Top Rated & Recommended ⭐</h2>
+            <div class="movies-grid" id="top-rated-grid">
+                <!-- Les cards ghay-tl3o hna b JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 4. Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 FlixStream HD. High Performance Cinema Catalog.</p>
+        <p class="disclaimer">This website uses TMDB API for movie catalog display.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

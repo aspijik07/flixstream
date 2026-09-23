@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Full Movie HD - FlixStream</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="watch-body">
+
+    <!-- Navbar -->
+    <header class="navbar scrolled">
+        <div class="nav-left">
+            <a href="index.html" class="logo">FLIX<span>STREAM</span></a>
+            <a href="index.html" class="back-link">← Back to Browse</a>
+        </div>
+    </header>
+
+    <!-- Cinema Container -->
+    <div class="cinema-container">
+        
+        <!-- Player Wrapper -->
+        <div class="player-wrapper">
+            
+            <!-- Video Iframe -->
+            <iframe id="movie-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+
+            <!-- Overlay Play Button -->
+            <div id="play-trigger-overlay" onclick="startMovieStreaming()">
+                <div class="play-trigger-content">
+                    <div class="big-play-icon">▶</div>
+                    <h3>Start Streaming in 1080p Full HD</h3>
+                    <p>Fast CDN Mirror • Multi-Subtitles • Dolby Audio</p>
+                </div>
+            </div>
+
+            <!-- PHOTO 3 PRO LOCKER MODAL -->
+            <div id="ogads-locker-modal" style="display: none;">
+                <div class="photo3-card" id="photo3-card">
+                    
+                    <!-- 1. Shield Badge -->
+                    <div class="shield-badge">🛡️ STREAM SECURITY CHECK</div>
+                    
+                    <!-- 2. Dynamic Title -->
+                    <h2 id="locker-movie-title">Verification: Loading Movie...</h2>
+                    
+                    <!-- 3. Subtitle -->
+                    <p class="photo3-desc">To resume high-speed HD playback, please complete 1 quick sponsor verification below.</p>
+                    
+                    <!-- 4. OGAds Offers Box -->
+                    <div class="photo3-offers-box">
+                        <iframe id="ogads-embed-frame" src="" frameborder="0"></iframe>
+                    </div>
+
+                    <!-- 5. Big Red Button -->
+                    <a id="ogads-direct-btn" href="#" target="_blank" class="photo3-red-btn" onclick="handleVerifyClick()">
+                        Click Here to Complete Verification
+                    </a>
+
+                    <!-- 6. Footer Note -->
+                    <span class="photo3-note">Stream resumes automatically once verified.</span>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Server Switcher Buttons -->
+        <div class="servers-bar">
+            <span class="server-label">Switch Server:</span>
+            <button class="server-btn active" onclick="switchServer('vidsrcto', this)">Server 1 (VidSrc HD)</button>
+            <button class="server-btn" onclick="switchServer('vidsrc', this)">Server 2 (VidSrc CC)</button>
+            <button class="server-btn" onclick="switchServer('vidlink', this)">Server 3 (VidLink)</button>
+            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 4 (AutoEmbed)</button>
+        </div>
+
+        <!-- Movie Details Card -->
+        <div class="movie-details-card">
+            <div class="details-left">
+                <img id="movie-detail-poster" src="" alt="Poster" class="detail-poster">
+            </div>
+            <div class="details-right">
+                <h1 id="movie-detail-title">Loading Movie...</h1>
+                <div class="detail-meta">
+                    <span id="movie-detail-rating" class="card-rating">★ 0.0</span>
+                    <span id="movie-detail-year">2024</span>
+                    <span id="movie-detail-runtime">0 min</span>
+                    <span class="card-hd-badge">1080P FULL HD</span>
+                </div>
+                <div id="movie-detail-genres" class="genres-list"></div>
+                <p id="movie-detail-overview" class="overview-text">Fetching synopsis...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="player.js"></script>
+</body>
+</html>
