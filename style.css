@@ -362,30 +362,30 @@ body {
 }
 
 /* ==========================================
-   5. PHOTO 3 EXACT LOCKER DESIGN
+   5. PHOTO 3 EXACT LOCKER DESIGN (LUXURY)
    ========================================== */
 #ogads-locker-modal {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(12px);
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(14px);
     z-index: 100;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 15px;
 }
 
 .photo3-card {
     background: #141414;
     border: 1px solid #333;
     border-radius: 12px;
-    max-width: 500px;
+    max-width: 480px;
     width: 100%;
-    padding: 24px;
+    padding: 22px;
     text-align: center;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.95);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 9, 20, 0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -403,38 +403,40 @@ body {
     padding: 4px 12px;
     border-radius: 20px;
     letter-spacing: 0.5px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 /* Title & Subtitle */
 .photo3-card h2 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 800;
     color: #ffffff;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .photo3-desc {
-    font-size: 13px;
+    font-size: 12px;
     color: #cccccc;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     line-height: 1.4;
 }
 
 /* Offers Iframe Box */
 .photo3-offers-box {
     width: 100%;
-    height: 250px;
-    background: #ffffff;
+    height: 230px;
+    background: #181818;
+    border: 1px solid #282828;
     border-radius: 8px;
     overflow: hidden;
-    margin-bottom: 15px;
+    margin-bottom: 14px;
 }
 
 .photo3-offers-box iframe {
     width: 100%;
     height: 100%;
     border: none;
+    display: block;
 }
 
 /* Big Red Button */
@@ -448,7 +450,7 @@ body {
     font-weight: 800;
     padding: 13px;
     border-radius: 6px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     transition: background 0.2s, transform 0.1s;
     box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
 }
@@ -586,4 +588,6 @@ body {
     }
     .detail-poster { width: 120px; }
     .detail-meta, .genres-list { justify-content: center; }
+    .photo3-card { padding: 16px; }
+    .photo3-offers-box { height: 210px; }
 }

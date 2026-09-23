@@ -26,8 +26,13 @@
         <!-- Player Wrapper -->
         <div class="player-wrapper">
             
-            <!-- Video Iframe -->
-            <iframe id="movie-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            <!-- Video Iframe m3a Sandbox Anti-Popups -->
+            <iframe id="movie-iframe" 
+                    src="" 
+                    allowfullscreen 
+                    allow="autoplay; encrypted-media"
+                    sandbox="allow-forms allow-scripts allow-same-origin allow-presentation">
+            </iframe>
 
             <!-- Overlay Play Button -->
             <div id="play-trigger-overlay" onclick="startMovieStreaming()">
@@ -38,7 +43,7 @@
                 </div>
             </div>
 
-            <!-- PHOTO 3 PRO LOCKER MODAL -->
+            <!-- PHOTO 3 EXACT VIP LOCKER MODAL -->
             <div id="ogads-locker-modal" style="display: none;">
                 <div class="photo3-card" id="photo3-card">
                     
@@ -46,7 +51,7 @@
                     <div class="shield-badge">🛡️ STREAM SECURITY CHECK</div>
                     
                     <!-- 2. Dynamic Title -->
-                    <h2 id="locker-movie-title">Verification: Loading Movie...</h2>
+                    <h2 id="locker-movie-title">Verification Required</h2>
                     
                     <!-- 3. Subtitle -->
                     <p class="photo3-desc">To resume high-speed HD playback, please complete 1 quick sponsor verification below.</p>
@@ -73,9 +78,8 @@
         <div class="servers-bar">
             <span class="server-label">Switch Server:</span>
             <button class="server-btn active" onclick="switchServer('vidsrcto', this)">Server 1 (VidSrc HD)</button>
-            <button class="server-btn" onclick="switchServer('vidsrc', this)">Server 2 (VidSrc CC)</button>
-            <button class="server-btn" onclick="switchServer('vidlink', this)">Server 3 (VidLink)</button>
-            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 4 (AutoEmbed)</button>
+            <button class="server-btn" onclick="switchServer('vidlink', this)">Server 2 (VidLink)</button>
+            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 3 (AutoEmbed)</button>
         </div>
 
         <!-- Movie Details Card -->
