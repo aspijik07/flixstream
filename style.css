@@ -11,7 +11,9 @@ body {
     overflow-x: hidden;
 }
 
-/* 1. NAVBAR */
+/* ==========================================
+   1. NAVBAR
+   ========================================== */
 .navbar {
     position: fixed;
     top: 0;
@@ -86,7 +88,9 @@ body {
     background: rgba(0, 0, 0, 0.9);
 }
 
-/* 2. HERO BANNER */
+/* ==========================================
+   2. HERO BANNER (INDEX.HTML)
+   ========================================== */
 .hero {
     position: relative;
     width: 100%;
@@ -183,7 +187,9 @@ body {
     transform: scale(1.04);
 }
 
-/* 3. MOVIES GRID */
+/* ==========================================
+   3. MOVIES GRID (INDEX.HTML)
+   ========================================== */
 .main-content {
     padding: 20px 4% 60px 4%;
     margin-top: -50px;
@@ -267,7 +273,9 @@ body {
     font-weight: 700;
 }
 
-/* 4. WATCH PAGE & CINEMA STYLES */
+/* ==========================================
+   4. WATCH PAGE & CINEMA STYLES
+   ========================================== */
 .watch-body {
     background-color: #0b0b0b;
 }
@@ -277,6 +285,9 @@ body {
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     transition: color 0.2s;
 }
 
@@ -286,8 +297,74 @@ body {
 
 .cinema-container {
     max-width: 1100px;
-    margin: 90px auto 40px auto;
+    margin: 85px auto 40px auto;
     padding: 0 20px;
+}
+
+/* Live Activity Bar */
+.live-activity-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #121212;
+    border: 1px solid #222;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.live-status-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pulse-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #46d369;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #46d369;
+    animation: livePulseGreen 1.4s infinite;
+}
+
+@keyframes livePulseGreen {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.live-text {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #ddd;
+}
+
+.live-text strong {
+    color: #46d369;
+}
+
+.stream-quality-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.spec-badge {
+    background: #1c1c1c;
+    border: 1px solid #2d2d2d;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #aaa;
+    letter-spacing: 0.5px;
+}
+
+.spec-verified {
+    color: #46d369;
+    border-color: rgba(70, 211, 105, 0.3);
+    background: rgba(70, 211, 105, 0.05);
 }
 
 .player-wrapper {
@@ -340,7 +417,6 @@ body {
     justify-content: center;
     align-items: center;
     margin: 0 auto 15px auto;
-    font-size: 34px;
     color: white;
     box-shadow: 0 0 35px rgba(229, 9, 20, 0.85);
     transition: transform 0.2s;
@@ -362,7 +438,7 @@ body {
 }
 
 /* ==========================================
-   5. PHOTO 3 EXACT LOCKER (VIEWPORT FIXED MODAL)
+   5. PHOTO 3 EXACT LOCKER (CLEAN NO EMOJIS)
    ========================================== */
 #ogads-locker-modal {
     position: fixed;
@@ -393,10 +469,10 @@ body {
     align-items: center;
 }
 
-/* Shield Badge */
 .shield-badge {
     display: inline-flex;
     align-items: center;
+    gap: 6px;
     background: rgba(229, 9, 20, 0.15);
     border: 1px solid #e50914;
     color: #e50914;
@@ -408,7 +484,6 @@ body {
     margin-bottom: 10px;
 }
 
-/* Title & Subtitle */
 .photo3-card h2 {
     font-size: 18px;
     font-weight: 800;
@@ -424,7 +499,6 @@ body {
     line-height: 1.4;
 }
 
-/* Offers Iframe Box */
 .photo3-offers-box {
     width: 100%;
     height: 230px;
@@ -441,7 +515,6 @@ body {
     display: block;
 }
 
-/* Big Red Button */
 .photo3-red-btn {
     display: block;
     width: 100%;
@@ -561,7 +634,200 @@ body {
     color: #bbb;
 }
 
-/* 8. FOOTER */
+/* ==========================================
+   8. SOCIAL PROOF & LIVE REVIEWS SECTION
+   ========================================== */
+.social-proof-section {
+    margin-top: 35px;
+    background: #121212;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.social-proof-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #202020;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-left h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.header-left p {
+    font-size: 12px;
+    color: #888;
+}
+
+.rating-summary-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #181818;
+    border: 1px solid #282828;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+.rating-large {
+    font-size: 26px;
+    font-weight: 900;
+    color: #46d369;
+    line-height: 1;
+}
+
+.rating-large span {
+    font-size: 14px;
+    color: #888;
+}
+
+.rating-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.rating-stars {
+    color: #e50914;
+    font-size: 13px;
+    letter-spacing: 2px;
+}
+
+.reviews-count {
+    font-size: 11px;
+    color: #aaa;
+    font-weight: 600;
+}
+
+/* Add Review Form */
+.add-review-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.add-review-box input {
+    flex: 1;
+    background: #181818;
+    border: 1px solid #2d2d2d;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    outline: none;
+    font-size: 13px;
+    transition: border-color 0.2s;
+}
+
+.add-review-box input:focus {
+    border-color: #e50914;
+}
+
+.add-review-box button {
+    background: #e50914;
+    color: #fff;
+    border: none;
+    padding: 0 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.add-review-box button:hover {
+    background: #b80710;
+}
+
+/* Review Cards Feed */
+.reviews-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.review-item {
+    background: #161616;
+    border: 1px solid #242424;
+    padding: 16px;
+    border-radius: 8px;
+    transition: border-color 0.2s;
+}
+
+.review-item:hover {
+    border-color: #333;
+}
+
+.review-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.reviewer-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.reviewer-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #ddd;
+    border: 1px solid #3a3a3a;
+}
+
+.reviewer-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #eee;
+}
+
+.verified-pill {
+    background: rgba(70, 211, 105, 0.12);
+    border: 1px solid rgba(70, 211, 105, 0.3);
+    color: #46d369;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+}
+
+.review-time {
+    font-size: 11px;
+    color: #777;
+}
+
+.review-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #bbb;
+}
+
+.review-text strong {
+    color: #fff;
+}
+
+/* ==========================================
+   9. FOOTER
+   ========================================== */
 .footer {
     text-align: center;
     padding: 30px 4%;
@@ -594,7 +860,25 @@ body {
     .detail-poster { width: 120px; }
     .detail-meta, .genres-list { justify-content: center; }
 
-    /* Photo 3 Card Mobile Full Screen Fit */
+    .live-activity-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .social-proof-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .rating-summary-box {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .add-review-box {
+        flex-direction: column;
+    }
+    .add-review-box button {
+        padding: 12px;
+    }
     .photo3-card {
         padding: 15px;
         max-width: 95%;

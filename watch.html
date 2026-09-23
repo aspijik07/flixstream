@@ -16,25 +16,75 @@
     <header class="navbar scrolled">
         <div class="nav-left">
             <a href="index.html" class="logo">FLIX<span>STREAM</span></a>
-            <a href="index.html" class="back-link">← Back to Browse</a>
+            <a href="index.html" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back to Browse
+            </a>
         </div>
     </header>
 
     <!-- Cinema Container -->
     <div class="cinema-container">
         
+        <!-- Live Viewer Activity Status Bar -->
+        <div class="live-activity-bar">
+            <div class="live-status-group">
+                <span class="pulse-indicator"></span>
+                <span class="live-text"><strong id="live-counter">1,418</strong> CURRENTLY STREAMING</span>
+            </div>
+            <div class="stream-quality-badges">
+                <span class="spec-badge">1080P SOURCE</span>
+                <span class="spec-badge">BITRATE 14.8 MBPS</span>
+                <span class="spec-badge spec-verified">SERVER HEALTH 99.8%</span>
+            </div>
+        </div>
+
         <!-- Player Wrapper -->
         <div class="player-wrapper">
             
-            <!-- Video Iframe (Clean - No Sandbox Restrictions) -->
+            <!-- Video Iframe -->
             <iframe id="movie-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
 
             <!-- Overlay Play Button -->
             <div id="play-trigger-overlay" onclick="startMovieStreaming()">
                 <div class="play-trigger-content">
-                    <div class="big-play-icon">▶</div>
+                    <div class="big-play-icon">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
                     <h3>Start Streaming in 1080p Full HD</h3>
-                    <p>Fast CDN Mirror • Multi-Subtitles • Dolby Audio</p>
+                    <p>Fast CDN Mirror &bull; Multi-Subtitles &bull; Dolby Audio</p>
+                </div>
+            </div>
+
+            <!-- PRO LOCKER MODAL -->
+            <div id="ogads-locker-modal" style="display: none;">
+                <div class="photo3-card" id="photo3-card">
+                    
+                    <!-- 1. Shield Badge -->
+                    <div class="shield-badge">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        STREAM SECURITY CHECK
+                    </div>
+                    
+                    <!-- 2. Dynamic Title -->
+                    <h2 id="locker-movie-title">Verification Required</h2>
+                    
+                    <!-- 3. Subtitle -->
+                    <p class="photo3-desc">To resume high-speed HD playback, please complete 1 quick sponsor verification below.</p>
+                    
+                    <!-- 4. OGAds Offers Box -->
+                    <div class="photo3-offers-box">
+                        <iframe id="ogads-embed-frame" src="" frameborder="0"></iframe>
+                    </div>
+
+                    <!-- 5. Big Red Button -->
+                    <a id="ogads-direct-btn" href="#" target="_blank" class="photo3-red-btn" onclick="handleVerifyClick()">
+                        Click Here to Complete Verification
+                    </a>
+
+                    <!-- 6. Footer Note -->
+                    <span class="photo3-note">Stream resumes automatically once verified.</span>
+
                 </div>
             </div>
 
@@ -56,8 +106,8 @@
             <div class="details-right">
                 <h1 id="movie-detail-title">Loading Movie...</h1>
                 <div class="detail-meta">
-                    <span id="movie-detail-rating" class="card-rating">★ 0.0</span>
-                    <span id="movie-detail-year">2024</span>
+                    <span id="movie-detail-rating" class="card-rating">SCORE 0.0</span>
+                    <span id="movie-detail-year">2026</span>
                     <span id="movie-detail-runtime">0 min</span>
                     <span class="card-hd-badge">1080P FULL HD</span>
                 </div>
@@ -66,35 +116,34 @@
             </div>
         </div>
 
-    </div>
-
-    <!-- PHOTO 3 EXACT VIP LOCKER (FULL SCREEN VIEWPORT MODAL) -->
-    <div id="ogads-locker-modal" style="display: none;">
-        <div class="photo3-card" id="photo3-card">
-            
-            <!-- 1. Shield Badge -->
-            <div class="shield-badge">🛡️ STREAM SECURITY CHECK</div>
-            
-            <!-- 2. Dynamic Title -->
-            <h2 id="locker-movie-title">Verification Required</h2>
-            
-            <!-- 3. Subtitle -->
-            <p class="photo3-desc">To resume high-speed HD playback, please complete 1 quick sponsor verification below.</p>
-            
-            <!-- 4. OGAds Offers Box -->
-            <div class="photo3-offers-box">
-                <iframe id="ogads-embed-frame" src="" frameborder="0"></iframe>
+        <!-- SOCIAL PROOF & LIVE REVIEWS SECTION -->
+        <section class="social-proof-section">
+            <div class="social-proof-header">
+                <div class="header-left">
+                    <h3>Community Verification & Stream Reviews</h3>
+                    <p>Real-time playback verification from verified viewers</p>
+                </div>
+                <div class="rating-summary-box">
+                    <div class="rating-large">4.9<span>/5</span></div>
+                    <div class="rating-meta">
+                        <span class="rating-stars">★★★★★</span>
+                        <span class="reviews-count">99.4% Playback Success</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- 5. Big Red Button -->
-            <a id="ogads-direct-btn" href="#" target="_blank" class="photo3-red-btn" onclick="handleVerifyClick()">
-                Click Here to Complete Verification
-            </a>
+            <!-- Add Review Interactive Box -->
+            <div class="add-review-box">
+                <input type="text" id="user-review-input" placeholder="Have you verified your stream? Write a quick update..." maxlength="180">
+                <button type="button" id="post-review-btn" onclick="submitUserReview()">Post Verification</button>
+            </div>
 
-            <!-- 6. Footer Note -->
-            <span class="photo3-note">Stream resumes automatically once verified.</span>
+            <!-- Dynamic Reviews Feed -->
+            <div class="reviews-feed" id="reviews-container">
+                <!-- Injected dynamically by player.js -->
+            </div>
+        </section>
 
-        </div>
     </div>
 
     <script src="player.js"></script>

@@ -23,9 +23,10 @@ if (isUnlockedParam) {
 let timerStarted = false;
 let isUnlocked = localStorage.getItem(`unlocked_${movieId}`) === "true";
 let activeStreamUrl = "";
+let currentMovieTitle = "Movie";
 
 // ==========================================
-// 2. STREAM SERVERS (VidLink howa Server 1 Default - Clean & No Spam)
+// 2. STREAM SERVERS (VidLink howa Server 1 Default)
 // ==========================================
 const servers = {
     vidlink: `https://vidlink.pro/movie/${movieId}`,
@@ -53,12 +54,14 @@ async function loadMovieDetails() {
         const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`);
         const movie = await res.json();
 
+        currentMovieTitle = movie.title || "Movie";
+
         // 1. Details
         document.title = `Watch ${movie.title} (1080p HD) - FlixStream`;
         document.getElementById("movie-detail-title").innerText = movie.title;
         document.getElementById("movie-detail-overview").innerText = movie.overview || "No synopsis available.";
         document.getElementById("movie-detail-year").innerText = (movie.release_date || "").split("-")[0] || "2024";
-        document.getElementById("movie-detail-rating").innerText = `★ ${movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}`;
+        document.getElementById("movie-detail-rating").innerText = `SCORE ${movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}`;
         document.getElementById("movie-detail-runtime").innerText = `${movie.runtime || 110} min`;
         
         if (movie.poster_path) {
@@ -75,16 +78,19 @@ async function loadMovieDetails() {
             genresContainer.appendChild(span);
         });
 
-        // 2. Set Photo 3 Dynamic Title
+        // 2. Set Photo 3 Dynamic Title (Clean - No Emoji)
         document.getElementById("locker-movie-title").innerText = `Verification: ${movie.title}`;
 
-        // 3. Set Dynamic Locker URL m3a Tracking SubIDs
+        // 3. Set Dynamic Locker URL m3a Tracking
         const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(movieSlug)}&aff_sub2=${encodeURIComponent(movieId)}`;
         document.getElementById("ogads-embed-frame").src = dynamicUrl;
         document.getElementById("ogads-direct-btn").href = dynamicUrl;
 
         // 4. Auto-load Server 1 (VidLink HD Clean)
         loadStreamServer("vidlink");
+
+        // 5. Initialize Social Proof Reviews m3a smyt had l-film
+        renderDynamicReviews(currentMovieTitle);
 
         // Ila kan deja unlocked, 7eyed l-overlay o tl9 l-film direct
         if (isUnlocked) {
@@ -97,29 +103,24 @@ async function loadMovieDetails() {
 }
 
 // ==========================================
-// 4. THE 15-SECOND HOOK & LOCK (PAUSE + UNLOCK RESUME)
+// 4. THE 15-SECOND HOOK & LOCK
 // ==========================================
 function startMovieStreaming() {
-    // 1. 7eyed l-overlay dyal l-bdya
     document.getElementById("play-trigger-overlay").style.display = "none";
 
-    // Ila kan deja unlocked ma t-tl3ch l-locker
     if (isUnlocked) return;
 
-    // 2. Demari Timer dyal 15 Tanya b d-debt
     if (!timerStarted) {
         timerStarted = true;
         setTimeout(() => {
             if (!isUnlocked) {
-                // A) PAUSE L-FILM: Khwi l-iframe bach y-skot s-sot o l-video f l-blast!
+                // Pause Stream
                 const movieIframe = document.getElementById("movie-iframe");
                 movieIframe.src = "about:blank";
 
-                // B) Sauvgardi l-film f LocalStorage bach y-rje3 lih
                 localStorage.setItem("last_movie_url", window.location.href);
                 localStorage.setItem("last_movie_id", movieId);
 
-                // C) Tl3 l-locker modal dyal Photo 3
                 document.getElementById("ogads-locker-modal").style.display = "flex";
             }
         }, 15000); // 15 Seconds
@@ -130,6 +131,91 @@ function handleVerifyClick() {
     localStorage.setItem("last_movie_url", window.location.href);
     localStorage.setItem("last_movie_id", movieId);
 }
+
+// ==========================================
+// 5. SOCIAL PROOF & LIVE REVIEWS LOGIC
+// ==========================================
+const baseReviews = [
+    {
+        user: "Marcus_K",
+        initials: "MK",
+        time: "4 minutes ago",
+        text: "Was hesitant at first with the sponsor check, but completed one free app task and the 1080p stream for {TITLE} unlocked instantly. Clear audio and zero lag."
+    },
+    {
+        user: "SarahJenkins",
+        initials: "SJ",
+        time: "14 minutes ago",
+        text: "Solid mirror server. Verified in under 45 seconds on my phone and now streaming {TITLE} in full HD. Well worth the quick step."
+    },
+    {
+        user: "David_B92",
+        initials: "DB",
+        time: "32 minutes ago",
+        text: "Clean stream with working subtitles. Server 1 loaded up right away after verification. Much better than shady pop-up sites."
+    },
+    {
+        user: "ElenaR",
+        initials: "ER",
+        time: "51 minutes ago",
+        text: "Playback resumed right where it paused. Highly recommend switching to Server 1 if you want the highest bitrate on {TITLE}."
+    }
+];
+
+function renderDynamicReviews(title) {
+    const container = document.getElementById("reviews-container");
+    container.innerHTML = "";
+
+    baseReviews.forEach(rev => {
+        const card = document.createElement("div");
+        card.className = "review-item";
+        card.innerHTML = `
+            <div class="review-item-header">
+                <div class="reviewer-meta">
+                    <div class="reviewer-avatar">${rev.initials}</div>
+                    <span class="reviewer-name">${rev.user}</span>
+                    <span class="verified-pill">VERIFIED STREAMER</span>
+                </div>
+                <span class="review-time">${rev.time}</span>
+            </div>
+            <p class="review-text">${rev.text.replace(/{TITLE}/g, `<strong>${title}</strong>`)}</p>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function submitUserReview() {
+    const input = document.getElementById("user-review-input");
+    const val = input.value.trim();
+    if (val.length < 5) return;
+
+    const container = document.getElementById("reviews-container");
+    const card = document.createElement("div");
+    card.className = "review-item";
+    card.innerHTML = `
+        <div class="review-item-header">
+            <div class="reviewer-meta">
+                <div class="reviewer-avatar">YOU</div>
+                <span class="reviewer-name">Guest User</span>
+                <span class="verified-pill">VERIFIED STREAMER</span>
+            </div>
+            <span class="review-time">Just now</span>
+        </div>
+        <p class="review-text">${val}</p>
+    `;
+
+    container.insertBefore(card, container.firstChild);
+    input.value = "";
+}
+
+// Live Viewer Count Fluctuator (Dynamic vitality)
+let baseViewerCount = 1420;
+setInterval(() => {
+    const delta = Math.floor(Math.random() * 7) - 3;
+    baseViewerCount += delta;
+    const el = document.getElementById("live-counter");
+    if (el) el.innerText = baseViewerCount.toLocaleString();
+}, 4000);
 
 // Initialiser l-page
 loadMovieDetails();
