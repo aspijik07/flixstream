@@ -5,38 +5,55 @@ const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836"; // <-- 7ETT TMDB API KE
 const OGADS_LOCKER_ID = "4o7vvr"; 
 const OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
 
-// Parse URL Parameters (id & slug & unlocked)
+// Parse URL Parameters (type, id, slug, season, episode, unlocked)
 const urlParams = new URLSearchParams(window.location.search);
-const movieId = urlParams.get("id");
-const movieSlug = urlParams.get("slug") || "movie";
+const mediaType = urlParams.get("type") || "movie"; // 'movie' wla 'tv'
+const mediaId = urlParams.get("id");
+const mediaSlug = urlParams.get("slug") || "media";
+let currentSeason = parseInt(urlParams.get("season")) || 1;
+let currentEpisode = parseInt(urlParams.get("episode")) || 1;
 const isUnlockedParam = urlParams.get("unlocked") === "true";
 
-if (!movieId) {
+if (!mediaId) {
     window.location.href = "index.html";
 }
 
-// Ila ja mn Redirect (unlocked=true)
+// Storage Key
+const unlockStorageKey = `unlocked_${mediaType}_${mediaId}`;
 if (isUnlockedParam) {
-    localStorage.setItem(`unlocked_${movieId}`, "true");
+    localStorage.setItem(unlockStorageKey, "true");
 }
 
 let timerStarted = false;
-let isUnlocked = localStorage.getItem(`unlocked_${movieId}`) === "true";
+let isUnlocked = localStorage.getItem(unlockStorageKey) === "true";
 let activeStreamUrl = "";
-let currentMovieTitle = "Movie";
+let currentMediaTitle = "Media";
+let activeServer = "vidlink";
 
 // ==========================================
-// 2. STREAM SERVERS (VidLink howa Server 1 Default)
+// 2. STREAM SERVERS BUILDER (MOVIE & TV SUPPORT)
 // ==========================================
-const servers = {
-    vidlink: `https://vidlink.pro/movie/${movieId}`,
-    vidsrcto: `https://vidsrc.to/embed/movie/${movieId}`,
-    autoembed: `https://player.autoembed.cc/embed/movie/${movieId}`
-};
+function getStreamServers(season = 1, episode = 1) {
+    if (mediaType === "tv") {
+        return {
+            vidlink: `https://vidlink.pro/tv/${mediaId}/${season}/${episode}`,
+            vidsrcto: `https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}`,
+            autoembed: `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}`
+        };
+    } else {
+        return {
+            vidlink: `https://vidlink.pro/movie/${mediaId}`,
+            vidsrcto: `https://vidsrc.to/embed/movie/${mediaId}`,
+            autoembed: `https://player.autoembed.cc/embed/movie/${mediaId}`
+        };
+    }
+}
 
 function loadStreamServer(serverName) {
+    activeServer = serverName;
+    const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
-    activeStreamUrl = servers[serverName];
+    activeStreamUrl = servers[serverName] || servers.vidlink;
     iframe.src = activeStreamUrl;
 }
 
@@ -47,63 +64,170 @@ function switchServer(serverName, btn) {
 }
 
 // ==========================================
-// 3. FETCH MOVIE DETAILS MN TMDB
+// 3. FETCH MEDIA DATA (TMDB MOVIE WLA TV)
 // ==========================================
-async function loadMovieDetails() {
+async function loadMediaDetails() {
     try {
-        const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${TMDB_API_KEY}&language=en-US`);
-        const movie = await res.json();
+        const endpoint = mediaType === "tv" ? `/tv/${mediaId}` : `/movie/${mediaId}`;
+        const res = await fetch(`https://api.themoviedb.org/3${endpoint}?api_key=${TMDB_API_KEY}&language=en-US`);
+        const data = await res.json();
 
-        currentMovieTitle = movie.title || "Movie";
+        currentMediaTitle = data.title || data.name || "Media";
 
-        // 1. Details
-        document.title = `Watch ${movie.title} (1080p HD) - FlixStream`;
-        document.getElementById("movie-detail-title").innerText = movie.title;
-        document.getElementById("movie-detail-overview").innerText = movie.overview || "No synopsis available.";
-        document.getElementById("movie-detail-year").innerText = (movie.release_date || "").split("-")[0] || "2024";
-        document.getElementById("movie-detail-rating").innerText = `SCORE ${movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}`;
-        document.getElementById("movie-detail-runtime").innerText = `${movie.runtime || 110} min`;
+        // 1. Details Cards
+        document.title = `Watch ${currentMediaTitle} ${mediaType === 'tv' ? `(S${currentSeason} E${currentEpisode})` : ''} - FlixStream`;
+        document.getElementById("movie-detail-title").innerText = currentMediaTitle;
+        document.getElementById("movie-detail-overview").innerText = data.overview || "Stream in full high definition with zero latency.";
         
-        if (movie.poster_path) {
-            document.getElementById("movie-detail-poster").src = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+        const dateStr = data.release_date || data.first_air_date || "";
+        document.getElementById("movie-detail-year").innerText = dateStr.split("-")[0] || "2026";
+        document.getElementById("movie-detail-rating").innerText = `SCORE ${data.vote_average ? data.vote_average.toFixed(1) : "N/A"}`;
+        
+        const runtime = data.runtime || (data.episode_run_time && data.episode_run_time[0]) || 50;
+        document.getElementById("movie-detail-runtime").innerText = `${runtime} min`;
+        document.getElementById("media-type-badge").innerText = mediaType === 'tv' ? 'TV SERIES' : '1080P FULL HD';
+
+        if (data.poster_path) {
+            document.getElementById("movie-detail-poster").src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
         }
 
         // Genres
         const genresContainer = document.getElementById("movie-detail-genres");
         genresContainer.innerHTML = "";
-        (movie.genres || []).forEach(g => {
+        (data.genres || []).forEach(g => {
             const span = document.createElement("span");
             span.className = "genre-badge";
             span.innerText = g.name;
             genresContainer.appendChild(span);
         });
 
-        // 2. Set Photo 3 Dynamic Title (Clean - No Emoji)
-        document.getElementById("locker-movie-title").innerText = `Verification: ${movie.title}`;
+        // 2. Set Locker Title & Dynamic SubID
+        updateLockerTracking();
 
-        // 3. Set Dynamic Locker URL m3a Tracking
-        const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(movieSlug)}&aff_sub2=${encodeURIComponent(movieId)}`;
-        document.getElementById("ogads-embed-frame").src = dynamicUrl;
-        document.getElementById("ogads-direct-btn").href = dynamicUrl;
-
-        // 4. Auto-load Server 1 (VidLink HD Clean)
+        // 3. Auto-load Server 1 Default
         loadStreamServer("vidlink");
 
-        // 5. Initialize Social Proof Reviews m3a smyt had l-film
-        renderDynamicReviews(currentMovieTitle);
+        // 4. Ila kan TV Show, chargi les Saisons o les Episodes
+        if (mediaType === "tv") {
+            document.getElementById("tv-panel").style.display = "block";
+            document.getElementById("tv-show-name").innerText = `${currentMediaTitle} Episodes`;
+            renderSeasonDropdown(data.seasons || []);
+            loadSeasonEpisodes(currentSeason);
+        }
 
-        // Ila kan deja unlocked, 7eyed l-overlay o tl9 l-film direct
+        // 5. Reviews Proof
+        renderDynamicReviews(currentMediaTitle);
+
         if (isUnlocked) {
             document.getElementById("play-trigger-overlay").style.display = "none";
         }
 
     } catch (err) {
-        console.error("Error loading movie:", err);
+        console.error("Error loading media:", err);
     }
 }
 
+// Update Locker Tracking SubID
+function updateLockerTracking() {
+    const subTracking = mediaType === 'tv' 
+        ? `${mediaSlug}-s${currentSeason}e${currentEpisode}` 
+        : `${mediaSlug}`;
+    
+    document.getElementById("locker-movie-title").innerText = `Verification: ${currentMediaTitle} ${mediaType === 'tv' ? `(S${currentSeason} E${currentEpisode})` : ''}`;
+    
+    const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(subTracking)}&aff_sub2=${encodeURIComponent(mediaId)}`;
+    document.getElementById("ogads-embed-frame").src = dynamicUrl;
+    document.getElementById("ogads-direct-btn").href = dynamicUrl;
+}
+
 // ==========================================
-// 4. THE 15-SECOND HOOK & LOCK
+// 4. TV SEASONS & EPISODES SYSTEM (OPTION C)
+// ==========================================
+function renderSeasonDropdown(seasons) {
+    const select = document.getElementById("season-select");
+    select.innerHTML = "";
+
+    seasons.forEach(s => {
+        if (s.season_number <= 0) return; // ignore specials
+        const opt = document.createElement("option");
+        opt.value = s.season_number;
+        opt.innerText = `Season ${s.season_number} (${s.episode_count} Episodes)`;
+        if (s.season_number === currentSeason) opt.selected = true;
+        select.appendChild(opt);
+    });
+}
+
+async function changeSeason(newSeason) {
+    currentSeason = parseInt(newSeason);
+    await loadSeasonEpisodes(currentSeason);
+}
+
+async function loadSeasonEpisodes(seasonNum) {
+    const container = document.getElementById("episodes-container");
+    container.innerHTML = "<p class='episodes-loading'>Loading season episodes...</p>";
+
+    try {
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${mediaId}/season/${seasonNum}?api_key=${TMDB_API_KEY}&language=en-US`);
+        const seasonData = await res.json();
+        const episodes = seasonData.episodes || [];
+
+        container.innerHTML = "";
+        episodes.forEach(ep => {
+            const card = document.createElement("div");
+            card.className = `episode-card ${ep.episode_number === currentEpisode ? 'active' : ''}`;
+            const stillImg = ep.still_path 
+                ? `https://image.tmdb.org/t/p/w300${ep.still_path}` 
+                : 'https://via.placeholder.com/300x170/1a1a1a/444444?text=Episode';
+
+            card.innerHTML = `
+                <div class="ep-thumb-wrap">
+                    <img src="${stillImg}" alt="EP ${ep.episode_number}" loading="lazy">
+                    <span class="ep-number-tag">EP ${ep.episode_number < 10 ? '0' + ep.episode_number : ep.episode_number}</span>
+                </div>
+                <div class="ep-meta">
+                    <h4 class="ep-title">${ep.name || `Episode ${ep.episode_number}`}</h4>
+                    <p class="ep-overview">${ep.overview || "Click to stream this episode in 1080p Full HD."}</p>
+                </div>
+            `;
+
+            card.onclick = () => selectEpisode(ep.episode_number);
+            container.appendChild(card);
+        });
+
+    } catch (err) {
+        container.innerHTML = "<p class='episodes-loading'>Error loading episodes. Please retry.</p>";
+    }
+}
+
+function selectEpisode(epNumber) {
+    currentEpisode = parseInt(epNumber);
+
+    // Update active UI
+    document.querySelectorAll(".episode-card").forEach((c, idx) => {
+        c.classList.toggle("active", (idx + 1) === currentEpisode);
+    });
+
+    // Update stream
+    loadStreamServer(activeServer);
+
+    // Update URL history without reload
+    const newUrl = `watch.html?type=tv&id=${mediaId}&slug=${mediaSlug}&season=${currentSeason}&episode=${currentEpisode}`;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+
+    // Reset Lock timer for new episode
+    timerStarted = false;
+    document.getElementById("play-trigger-overlay").style.display = "none";
+    updateLockerTracking();
+
+    // Scroll smoothly to player
+    window.scrollTo({ top: 120, behavior: 'smooth' });
+
+    // Start 15s timer for this episode
+    startMovieStreaming();
+}
+
+// ==========================================
+// 5. THE 15-SECOND HOOK & LOCK
 // ==========================================
 function startMovieStreaming() {
     document.getElementById("play-trigger-overlay").style.display = "none";
@@ -119,7 +243,7 @@ function startMovieStreaming() {
                 movieIframe.src = "about:blank";
 
                 localStorage.setItem("last_movie_url", window.location.href);
-                localStorage.setItem("last_movie_id", movieId);
+                localStorage.setItem("last_movie_id", mediaId);
 
                 document.getElementById("ogads-locker-modal").style.display = "flex";
             }
@@ -129,11 +253,11 @@ function startMovieStreaming() {
 
 function handleVerifyClick() {
     localStorage.setItem("last_movie_url", window.location.href);
-    localStorage.setItem("last_movie_id", movieId);
+    localStorage.setItem("last_movie_id", mediaId);
 }
 
 // ==========================================
-// 5. LUXURY SOCIAL PROOF REVIEWS DATA & LOGIC
+// 6. SOCIAL PROOF DASHBOARD
 // ==========================================
 const baseReviews = [
     {
@@ -172,6 +296,7 @@ const baseReviews = [
 
 function renderDynamicReviews(title) {
     const container = document.getElementById("reviews-container");
+    if (!container) return;
     container.innerHTML = "";
 
     baseReviews.forEach(rev => {
@@ -231,7 +356,7 @@ function submitUserReview() {
     input.value = "";
 }
 
-// Live Viewer Count Fluctuator (Dynamic telemetry)
+// Live Viewer Count Fluctuator
 let baseViewerCount = 1424;
 setInterval(() => {
     const delta = Math.floor(Math.random() * 7) - 3;
@@ -241,4 +366,4 @@ setInterval(() => {
 }, 4000);
 
 // Initialiser l-page
-loadMovieDetails();
+loadMediaDetails();
