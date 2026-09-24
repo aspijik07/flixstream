@@ -444,7 +444,7 @@ body {
 }
 
 /* ===================================================
-   5. PERKVEX HUMAN VERIFICATION (SPACIOUS 1:1 DESIGN)
+   5. PERKVEX HUMAN VERIFICATION (SPACIOUS & SCROLLABLE)
    =================================================== */
 #ogads-locker-modal {
     position: fixed;
@@ -464,8 +464,8 @@ body {
 .perkvex-modal-container {
     position: relative;
     width: 100%;
-    max-width: 450px; /* Spacious luxury card */
-    margin-top: 55px;
+    max-width: 480px; /* Large spacious luxury card */
+    margin-top: 60px;
     animation: bounceInDown 0.75s cubic-bezier(0.215, 0.61, 0.355, 1) both;
 }
 
@@ -513,18 +513,18 @@ body {
     color: #00d2ff;
 }
 
-/* White Card Shell - Spacious Padding */
+/* White Card Shell - 85px top padding prevents any overlap */
 .perkvex-card-body {
     background: #ffffff;
-    border-radius: 14px;
+    border-radius: 16px;
     box-shadow: 0 0 0 10px rgba(0, 180, 255, 0.22), 0 25px 60px rgba(0, 0, 0, 0.95);
-    padding: 75px 24px 22px 24px; /* Proper top padding prevents circle overlap */
+    padding: 85px 24px 22px 24px;
     text-align: center;
     border: 2px solid #202048;
 }
 
 .perkvex-header-wrap {
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .perkvex-title {
@@ -550,19 +550,40 @@ body {
     line-height: 1.4;
 }
 
-/* Embedded Offers Frame Wrap (Option B: Clean 2-Offers View) */
+/* Spacious & Scrollable Offers Container */
 .perkvex-embed-frame-wrap {
     width: 100%;
-    height: 160px; /* Clean breathing height for 2 offers */
+    height: 310px; /* Big spacious height so all offers show comfortably */
     background: #ffffff;
     border-radius: 8px;
-    overflow: hidden;
+    overflow-y: auto; /* SCROLL ENABLED! */
+    overflow-x: hidden;
     margin-bottom: 14px;
+    border: 1px solid #eeeeee;
+    -webkit-overflow-scrolling: touch;
+}
+
+.perkvex-embed-frame-wrap::-webkit-scrollbar {
+    width: 6px;
+}
+
+.perkvex-embed-frame-wrap::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.perkvex-embed-frame-wrap::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.perkvex-embed-frame-wrap::-webkit-scrollbar-thumb:hover {
+    background: #999999;
 }
 
 .perkvex-embed-frame-wrap iframe {
     width: 100%;
-    height: 100%;
+    height: 420px; /* Ample internal room for all OGAds buttons to render */
     border: none;
     display: block;
     background: transparent;
@@ -1249,10 +1270,10 @@ body {
         grid-template-columns: 1fr;
     }
 
-    /* Perkvex Mobile Uncompressed Spacing */
+    /* Perkvex Mobile Spacious & Scrollable Fit */
     .perkvex-modal-container {
-        max-width: 94%;
-        margin-top: 45px;
+        max-width: 95%;
+        margin-top: 50px;
     }
     .perkvex-circle-logo {
         width: 95px;
@@ -1262,10 +1283,13 @@ body {
     .reel-icon { width: 28px; height: 28px; }
     .circle-brand { font-size: 10px; }
     .perkvex-card-body { 
-        padding: 65px 18px 18px 18px; /* Safe mobile padding prevents logo overlap */
+        padding: 75px 16px 18px 16px;
     }
-    .perkvex-title { font-size: 18px; }
+    .perkvex-title { font-size: 19px; }
     .perkvex-subtitle { font-size: 12px; margin-bottom: 12px; }
-    .perkvex-embed-frame-wrap { height: 160px; }
+    .perkvex-embed-frame-wrap { 
+        height: 280px; 
+        overflow-y: auto;
+    }
     .offer-name-text { font-size: 12px; }
 }
