@@ -114,7 +114,7 @@ async function loadMediaDetails() {
             genresContainer.appendChild(span);
         });
 
-        // Set Dynamic SubID Tracking for Perkvex Offer Button
+        // Set Dynamic SubID Tracking for Option B (1-Step Inside Embed)
         updateLockerTracking();
 
         // Auto-load Server 1 Default
@@ -140,19 +140,17 @@ async function loadMediaDetails() {
     }
 }
 
-// Update Locker Tracking SubID
+// Update Locker Tracking SubID (Option B Embed)
 function updateLockerTracking() {
     const subTracking = mediaType === 'tv' 
         ? `${mediaSlug}-s${currentSeason}e${currentEpisode}` 
         : `${mediaSlug}`;
     
+    // Inject dynamic tracking SubID direct l l-iframe wst l-card
     const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(subTracking)}&aff_sub2=${encodeURIComponent(mediaId)}`;
-    document.getElementById("ogads-direct-btn").href = dynamicUrl;
-    
-    // Set Dynamic text on button
-    const offerLabel = document.getElementById("offer-title-text");
-    if (offerLabel) {
-        offerLabel.innerText = `Unlock ${currentMediaTitle} in 1080p`;
+    const embedFrame = document.getElementById("ogads-embed-frame");
+    if (embedFrame) {
+        embedFrame.src = dynamicUrl;
     }
 }
 
@@ -256,13 +254,8 @@ function startMovieStreaming() {
 
                 document.getElementById("ogads-locker-modal").style.display = "flex";
             }
-        }, 15000);
+        }, 15000); // 15 Seconds
     }
-}
-
-function handleVerifyClick() {
-    localStorage.setItem("last_movie_url", window.location.href);
-    localStorage.setItem("last_movie_id", mediaId);
 }
 
 // ==========================================
@@ -309,70 +302,4 @@ function renderDynamicReviews(title) {
     container.innerHTML = "";
 
     baseReviews.forEach(rev => {
-        const card = document.createElement("div");
-        card.className = "review-card-item";
-        card.innerHTML = `
-            <div>
-                <div class="card-top-row">
-                    <div class="user-identity">
-                        <div class="user-avatar-circle" style="background: ${rev.gradient}">${rev.initials}</div>
-                        <div class="user-handle-wrap">
-                            <span class="user-handle">${rev.user}</span>
-                            <span class="verified-tag">VERIFIED STREAMER</span>
-                        </div>
-                    </div>
-                    <span class="timestamp-text">${rev.time}</span>
-                </div>
-                <p class="card-comment-text">${rev.text.replace(/{TITLE}/g, `<strong>${title}</strong>`)}</p>
-            </div>
-            <div class="card-footer-tags">
-                ${rev.chips.map(c => `<span class="meta-chip-clean">${c}</span>`).join('')}
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-function submitUserReview() {
-    const input = document.getElementById("user-review-input");
-    const val = input.value.trim();
-    if (val.length < 5) return;
-
-    const container = document.getElementById("reviews-container");
-    const card = document.createElement("div");
-    card.className = "review-card-item";
-    card.innerHTML = `
-        <div>
-            <div class="card-top-row">
-                <div class="user-identity">
-                    <div class="user-avatar-circle" style="background: linear-gradient(135deg, #e50914, #ff4d58)">YOU</div>
-                    <div class="user-handle-wrap">
-                        <span class="user-handle">Guest Streamer</span>
-                        <span class="verified-tag">VERIFIED STREAMER</span>
-                    </div>
-                </div>
-                <span class="timestamp-text">Just now</span>
-            </div>
-            <p class="card-comment-text">${val}</p>
-        </div>
-        <div class="card-footer-tags">
-            <span class="meta-chip-clean">LIVE REPORT</span>
-            <span class="meta-chip-clean">CONFIRMED</span>
-        </div>
-    `;
-
-    container.insertBefore(card, container.firstChild);
-    input.value = "";
-}
-
-// Live Viewer Count Fluctuator
-let baseViewerCount = 1424;
-setInterval(() => {
-    const delta = Math.floor(Math.random() * 7) - 3;
-    baseViewerCount += delta;
-    const el = document.getElementById("live-counter");
-    if (el) el.innerText = baseViewerCount.toLocaleString();
-}, 4000);
-
-// Initialiser l-page
-loadMediaDetails();
+        const card = document.createElement(
