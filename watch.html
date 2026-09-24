@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream HD - FlixStream</title>
     
-    <!-- Meta Description & SEO -->
+    <!-- Dynamic Meta Tags with IDs for JS injection -->
     <meta name="description" id="meta-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
     <meta name="theme-color" content="#0b0b0b">
 
@@ -45,13 +45,13 @@
             ) {
                 return nativeWindowOpen.apply(window, arguments);
             }
-            console.warn('[Security Guard] Neutralized ad popup redirect:', url);
+            console.warn('[Security Guard] Blocked ad popup redirect:', url);
             return null;
         };
     </script>
 
-    <!-- Stylesheet with Cache-Buster v18.0 -->
-    <link rel="stylesheet" href="style.css?v=18.0">
+    <!-- Stylesheet with Cache-Buster v20.0 -->
+    <link rel="stylesheet" href="style.css?v=20.0">
 </head>
 <body class="watch-body">
 
@@ -86,7 +86,12 @@
         <div class="player-wrapper">
             
             <!-- Video Iframe -->
-            <iframe id="movie-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            <iframe id="movie-iframe" 
+                    src="" 
+                    allowfullscreen 
+                    allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
+                    referrerpolicy="origin">
+            </iframe>
 
             <!-- Overlay Play Button -->
             <div id="play-trigger-overlay" onclick="startMovieStreaming()">
@@ -143,23 +148,24 @@
 
         </div>
 
-        <!-- STREAM MIRROR NOTICE BANNER (100% ENGLISH) -->
+        <!-- STREAM MIRROR NOTICE BANNER -->
         <div class="server-notice-banner">
             <svg class="notice-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <circle cx="12" cy="12" r="10"></circle>
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <span>STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between <strong>Server 1 (VidLink)</strong>, <strong>Server 2 (AutoEmbed)</strong>, or <strong>Server 3 (VidSrc CC)</strong> below.</span>
+            <span>STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between <strong>Server 1 (VidSrc HD)</strong>, <strong>Server 2 (VidSrc ME)</strong>, or <strong>Server 3 (VidLink)</strong> below.</span>
         </div>
 
-        <!-- Server Switcher Buttons (CLEAN SERVERS - ZERO CASINO POPUPS) -->
+        <!-- Server Switcher Buttons (THE 5 WORKING ACTIVE SERVERS) -->
         <div class="servers-bar">
             <span class="server-label">Switch Mirror:</span>
-            <button class="server-btn active" onclick="switchServer('vidlink', this)">Server 1 (VidLink HD)</button>
-            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 2 (AutoEmbed)</button>
-            <button class="server-btn" onclick="switchServer('vidsrccc', this)">Server 3 (VidSrc CC)</button>
-            <button class="server-btn" onclick="switchServer('smashy', this)">Server 4 (SmashyStream)</button>
+            <button class="server-btn active" onclick="switchServer('vidsrcto', this)">Server 1 (VidSrc HD)</button>
+            <button class="server-btn" onclick="switchServer('vidsrcme', this)">Server 2 (VidSrc ME)</button>
+            <button class="server-btn" onclick="switchServer('vidlink', this)">Server 3 (VidLink HD)</button>
+            <button class="server-btn" onclick="switchServer('multiembed', this)">Server 4 (MultiEmbed)</button>
+            <button class="server-btn" onclick="switchServer('twoembed', this)">Server 5 (2Embed)</button>
         </div>
 
         <!-- TV SERIES EPISODES BROWSER -->
@@ -225,7 +231,7 @@
 
     </div>
 
-    <!-- Script with Cache-Buster v18.0 -->
-    <script src="player.js?v=18.0"></script>
+    <!-- Script with Cache-Buster v20.0 -->
+    <script src="player.js?v=20.0"></script>
 </body>
 </html>

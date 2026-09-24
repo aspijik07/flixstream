@@ -28,29 +28,32 @@ let timerStarted = false;
 let isUnlocked = localStorage.getItem(unlockStorageKey) === "true";
 let activeStreamUrl = "";
 let currentMediaTitle = "Media";
-let activeServer = "vidlink";
+let activeServer = "vidsrcto";
 
 let playbackSeconds = 0;
 let historyTrackerInterval = null;
 
 // ==========================================
-// 2. STREAM SERVERS (CLEAN SERVERS - ZERO CASINO POPUPS)
+// 2. STREAM SERVERS (THE 5 REAL WORKING SERVERS)
 // ==========================================
 function getStreamServers(season = 1, episode = 1) {
     const isTv = mediaType === "tv";
     return {
+        vidsrcto: isTv 
+            ? `https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://vidsrc.to/embed/movie/${mediaId}`,
+        vidsrcme: isTv 
+            ? `https://vidsrc.me/embed/tv?tmdb=${mediaId}&season=${season}&episode=${episode}` 
+            : `https://vidsrc.me/embed/movie?tmdb=${mediaId}`,
         vidlink: isTv 
             ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}` 
             : `https://vidlink.pro/movie/${mediaId}`,
-        autoembed: isTv 
-            ? `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}` 
-            : `https://player.autoembed.cc/embed/movie/${mediaId}`,
-        vidsrccc: isTv 
-            ? `https://vidsrc.cc/v2/embed/tv/${mediaId}/${season}/${episode}` 
-            : `https://vidsrc.cc/v2/embed/movie/${mediaId}`,
-        smashy: isTv 
-            ? `https://embed.smashystream.com/playere.php?tmdb=${mediaId}&season=${season}&episode=${episode}` 
-            : `https://embed.smashystream.com/playere.php?tmdb=${mediaId}`
+        multiembed: isTv 
+            ? `https://multiembed.mov/?video_id=${mediaId}&tmdb=1&s=${season}&e=${episode}` 
+            : `https://multiembed.mov/?video_id=${mediaId}&tmdb=1`,
+        twoembed: isTv 
+            ? `https://www.2embed.cc/embedtv/${mediaId}&s=${season}&episode=${episode}` 
+            : `https://www.2embed.cc/embed/${mediaId}`
     };
 }
 
@@ -58,7 +61,7 @@ function loadStreamServer(serverName) {
     activeServer = serverName;
     const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
-    activeStreamUrl = servers[serverName] || servers.vidlink;
+    activeStreamUrl = servers[serverName] || servers.vidsrcto;
     iframe.src = activeStreamUrl;
 }
 
@@ -122,8 +125,8 @@ async function loadMediaDetails() {
         // Set Dynamic SubID Tracking
         updateLockerTracking();
 
-        // Auto-load Server 1 Default (VidLink)
-        loadStreamServer("vidlink");
+        // Auto-load Server 1 Default (VidSrc TO)
+        loadStreamServer("vidsrcto");
 
         // Save session entry to History
         saveToWatchHistory(data);
