@@ -1,7 +1,7 @@
 // ==========================================
 // 1. CONFIGURATION
 // ==========================================
-const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836"; // <-- 7ETT TMDB API KEY DYALEK HNA!
+const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836"; // API Key dyalek m-7afda 100%
 const OGADS_LOCKER_ID = "4o7vvr"; 
 const OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
 
@@ -29,6 +29,10 @@ let isUnlocked = localStorage.getItem(unlockStorageKey) === "true";
 let activeStreamUrl = "";
 let currentMediaTitle = "Media";
 let activeServer = "vidlink";
+
+// Playback session duration tracker for History
+let playbackSeconds = 0;
+let historyTrackerInterval = null;
 
 // ==========================================
 // 2. STREAM SERVERS BUILDER
@@ -64,7 +68,7 @@ function switchServer(serverName, btn) {
 }
 
 // ==========================================
-// 3. FETCH MEDIA DATA
+// 3. FETCH MEDIA DATA & RECORD HISTORY
 // ==========================================
 async function loadMediaDetails() {
     try {
@@ -114,11 +118,14 @@ async function loadMediaDetails() {
             genresContainer.appendChild(span);
         });
 
-        // Set Dynamic SubID Tracking for Option B 1-Step Embed
+        // Set Dynamic SubID Tracking for Option B Embed Frame
         updateLockerTracking();
 
         // Auto-load Server 1 Default
         loadStreamServer("vidlink");
+
+        // Save session entry to History
+        saveToWatchHistory(data);
 
         // TV Show Panel Check
         if (mediaType === "tv") {
@@ -140,29 +147,16 @@ async function loadMediaDetails() {
     }
 }
 
-// Update Locker Tracking SubID (Option B 1-Step Direct Embed)
+// Update Locker Tracking SubID (Option B: 1-Step Direct Embed)
 function updateLockerTracking() {
     const subTracking = mediaType === 'tv' 
         ? `${mediaSlug}-s${currentSeason}e${currentEpisode}` 
         : `${mediaSlug}`;
     
     const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(subTracking)}&aff_sub2=${encodeURIComponent(mediaId)}`;
-    
-    // 1. Direct Embed Iframe f l-Card dyal Perkvex (Option B)
     const embedFrame = document.getElementById("ogads-embed-frame");
     if (embedFrame) {
         embedFrame.src = dynamicUrl;
-    }
-
-    // 2. Direct button fallback ila kan ba9i m-sta3mel
-    const directBtn = document.getElementById("ogads-direct-btn");
-    if (directBtn) {
-        directBtn.href = dynamicUrl;
-    }
-    
-    const offerLabel = document.getElementById("offer-title-text");
-    if (offerLabel) {
-        offerLabel.innerText = `Unlock ${currentMediaTitle} in 1080p`;
     }
 }
 
@@ -246,15 +240,19 @@ function selectEpisode(epNumber) {
 }
 
 // ==========================================
-// 5. THE 15-SECOND HOOK & LOCK
+// 5. THE 35-SECOND HOOK & LOCK (UPDATED TO 35S)
 // ==========================================
 function startMovieStreaming() {
     document.getElementById("play-trigger-overlay").style.display = "none";
+
+    // Start tracking viewing seconds in history
+    startHistoryTracker();
 
     if (isUnlocked) return;
 
     if (!timerStarted) {
         timerStarted = true;
+        // 35 SECONDS DELAY AS REQUESTED (35000 ms)
         setTimeout(() => {
             if (!isUnlocked) {
                 // Pause Stream
@@ -266,7 +264,7 @@ function startMovieStreaming() {
 
                 document.getElementById("ogads-locker-modal").style.display = "flex";
             }
-        }, 15000); // 15 Seconds
+        }, 35000); // 35 SECONDS
     }
 }
 
@@ -276,7 +274,59 @@ function handleVerifyClick() {
 }
 
 // ==========================================
-// 6. SOCIAL PROOF DASHBOARD
+// 6. WATCH HISTORY SESSION TRACKER ENGINE
+// ==========================================
+function saveToWatchHistory(data) {
+    try {
+        let history = JSON.parse(localStorage.getItem('flix_history') || '[]');
+        const currentId = String(mediaId);
+
+        // Remove duplicate entry so it jumps to top
+        history = history.filter(item => !(String(item.id) === currentId && item.type === mediaType));
+
+        const entry = {
+            id: mediaId,
+            title: currentMediaTitle,
+            poster_path: data.poster_path || '',
+            backdrop_path: data.backdrop_path || '',
+            vote_average: data.vote_average || 0,
+            release_date: data.release_date || data.first_air_date || '2026',
+            type: mediaType,
+            season: currentSeason,
+            episode: currentEpisode,
+            timestamp: Date.now(),
+            watched_duration: "00:00"
+        };
+
+        history.unshift(entry);
+        if (history.length > 25) history = history.slice(0, 25);
+        localStorage.setItem('flix_history', JSON.stringify(history));
+    } catch (e) {
+        console.error("History save error:", e);
+    }
+}
+
+function startHistoryTracker() {
+    if (historyTrackerInterval) clearInterval(historyTrackerInterval);
+    historyTrackerInterval = setInterval(() => {
+        playbackSeconds++;
+        const mins = Math.floor(playbackSeconds / 60);
+        const secs = playbackSeconds % 60;
+        const formatted = `${mins < 10 ? '0' + mins : mins}:${secs < 10 ? '0' + secs : secs}`;
+
+        try {
+            let history = JSON.parse(localStorage.getItem('flix_history') || '[]');
+            if (history.length > 0 && String(history[0].id) === String(mediaId)) {
+                history[0].watched_duration = formatted;
+                history[0].timestamp = Date.now();
+                localStorage.setItem('flix_history', JSON.stringify(history));
+            }
+        } catch (e) {}
+    }, 1000);
+}
+
+// ==========================================
+// 7. SOCIAL PROOF DASHBOARD
 // ==========================================
 const baseReviews = [
     {

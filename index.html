@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FlixStream - Watch Trending Movies & TV Series HD</title>
+    <title>FlixStream - Watch Trending Movies, TV Series & Anime HD</title>
     
     <!-- Meta Description & SEO -->
-    <meta name="description" content="Stream trending movies and TV series in 1080p Full HD with multi-subtitles and fast CDN mirrors.">
+    <meta name="description" content="Stream trending movies, TV series, and anime in 1080p Full HD with multi-subtitles and fast CDN mirrors.">
     <meta name="theme-color" content="#0b0b0b">
 
-    <!-- OpenGraph Social Preview Tags (Facebook, WhatsApp, Discord, Telegram) -->
+    <!-- OpenGraph Social Preview Tags -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="FlixStream HD">
-    <meta property="og:title" content="FlixStream - Watch Trending Movies & TV Series HD">
-    <meta property="og:description" content="Stream trending movies and TV series in 1080p Full HD with zero latency.">
+    <meta property="og:title" content="FlixStream - Watch Trending Movies, TV Series & Anime HD">
+    <meta property="og:description" content="Stream trending movies, TV series, and anime in 1080p Full HD with zero latency.">
     <meta property="og:image" content="https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg">
 
     <!-- Twitter Card Meta -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="FlixStream - Watch Trending Movies & TV Series HD">
-    <meta name="twitter:description" content="Stream trending movies and TV series in 1080p Full HD with zero latency.">
+    <meta name="twitter:title" content="FlixStream - Watch Trending Movies, TV Series & Anime HD">
+    <meta name="twitter:description" content="Stream trending movies, TV series, and anime in 1080p Full HD with zero latency.">
     <meta name="twitter:image" content="https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg">
 
-    <!-- Inline SVG Favicon (No Extra File Required - Zero 404 Console Error) -->
+    <!-- Inline SVG Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0b'/%3E%3Cpath d='M20 14h24v8H29v10h13v8H29v14H20z' fill='%23e50914'/%3E%3C/svg%3E">
 
     <!-- Google Fonts -->
@@ -30,8 +30,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Stylesheet with Cache-Buster v4.1 -->
-    <link rel="stylesheet" href="style.css?v=4.1">
+    <!-- Stylesheet with Cache-Buster v11.0 -->
+    <link rel="stylesheet" href="style.css?v=11.0">
 </head>
 <body>
 
@@ -43,12 +43,15 @@
                 <li><a href="index.html" class="active">Home</a></li>
                 <li><a href="#trending-section">Movies</a></li>
                 <li><a href="#tv-section">TV Series</a></li>
+                <li><a href="#anime-section">Anime</a></li>
+                <li><a href="javascript:void(0)" onclick="filterCategory('mylist')">My List</a></li>
+                <li><a href="javascript:void(0)" onclick="filterCategory('history')">History</a></li>
                 <li><a href="#top-rated-section">Top Rated</a></li>
             </ul>
         </div>
         <div class="nav-right">
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Search movies & series...">
+                <input type="text" id="search-input" placeholder="Search movies, series & anime...">
             </div>
         </div>
     </header>
@@ -65,19 +68,48 @@
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                     Watch Now
                 </a>
-                <a id="hero-info-btn" href="#" class="btn btn-more">
-                    More Details
-                </a>
+                <button type="button" id="hero-info-btn" class="btn btn-more" onclick="openHeroTrailerModal()">
+                    Trailer Preview
+                </button>
             </div>
         </div>
     </section>
 
-    <!-- 3. Rows Content -->
+    <!-- 3. Main Content & Catalog Rows -->
     <main class="main-content">
-        <!-- Search Results -->
+        
+        <!-- Category Filter Pills Bar -->
+        <div class="category-filter-bar">
+            <button class="filter-pill active" onclick="filterCategory('all', this)">All Titles</button>
+            <button class="filter-pill" onclick="filterCategory('movies', this)">Movies</button>
+            <button class="filter-pill" onclick="filterCategory('tv', this)">TV Series</button>
+            <button class="filter-pill" onclick="filterCategory('anime', this)">Anime</button>
+            <button class="filter-pill" onclick="filterCategory('history', this)">Continue Watching</button>
+            <button class="filter-pill" onclick="filterCategory('mylist', this)">My Saved List</button>
+        </div>
+
+        <!-- Search Results Row -->
         <section class="movie-row-section" id="search-results-section" style="display: none;">
             <h2 class="row-title">Search Results</h2>
             <div class="movies-grid" id="search-grid"></div>
+        </section>
+
+        <!-- Continue Watching / Watch History Row (Feature 4) -->
+        <section class="movie-row-section" id="history-section" style="display: none;">
+            <div class="row-header-wrap">
+                <h2 class="row-title">Continue Watching (Playback History)</h2>
+                <button type="button" class="clear-history-btn" onclick="clearWatchHistory()">Clear History</button>
+            </div>
+            <div class="movies-grid" id="history-grid"></div>
+        </section>
+
+        <!-- My List (Saved Watchlist) Row (Feature 3) -->
+        <section class="movie-row-section" id="my-list-section" style="display: none;">
+            <div class="row-header-wrap">
+                <h2 class="row-title">My Saved Watchlist</h2>
+                <button type="button" class="clear-history-btn" onclick="clearWatchlist()">Clear List</button>
+            </div>
+            <div class="movies-grid" id="my-list-grid"></div>
         </section>
 
         <!-- Trending Movies Row -->
@@ -92,19 +124,71 @@
             <div class="movies-grid" id="tv-grid"></div>
         </section>
 
+        <!-- Trending Anime Row (Feature 2) -->
+        <section class="movie-row-section" id="anime-section">
+            <h2 class="row-title">Trending Anime & Japanese Animation</h2>
+            <div class="movies-grid" id="anime-grid"></div>
+        </section>
+
         <!-- Top Rated Movies Row -->
         <section class="movie-row-section" id="top-rated-section">
             <h2 class="row-title">Top Rated & Critically Acclaimed</h2>
             <div class="movies-grid" id="top-rated-grid"></div>
         </section>
+
     </main>
 
-    <!-- 4. Footer -->
+    <!-- 4. NETFLIX QUICK-LOOK TRAILER MODAL (FEATURE 1) -->
+    <div id="trailer-modal" class="trailer-modal-backdrop" style="display: none;">
+        <div class="trailer-modal-box">
+            
+            <!-- Close Button -->
+            <button class="modal-close-btn" onclick="closeTrailerModal()" aria-label="Close Preview">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+
+            <!-- Trailer Video Container -->
+            <div class="modal-trailer-wrapper">
+                <iframe id="modal-trailer-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+                <div id="trailer-fallback-backdrop" class="modal-trailer-fallback" style="display: none;"></div>
+            </div>
+
+            <!-- Modal Media Details -->
+            <div class="modal-content-details">
+                <div class="modal-meta-row">
+                    <span id="modal-score" class="card-rating">SCORE 0.0</span>
+                    <span id="modal-year">2026</span>
+                    <span id="modal-runtime">0 min</span>
+                    <span id="modal-type-badge" class="card-hd-badge">1080P FULL HD</span>
+                </div>
+
+                <h2 id="modal-title">Loading Title...</h2>
+                <div id="modal-genres" class="genres-list"></div>
+                <p id="modal-overview" class="overview-text">Loading synopsis...</p>
+
+                <!-- Action Buttons Row -->
+                <div class="modal-actions-row">
+                    <a id="modal-play-btn" href="#" class="btn btn-play">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        Watch Full Stream (1080p HD)
+                    </a>
+                    <button id="modal-watchlist-btn" type="button" class="btn btn-more" onclick="toggleWatchlistFromModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                        <span id="watchlist-btn-text">Add to My List</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 5. Footer -->
     <footer class="footer">
-        <p>&copy; 2026 FlixStream HD. High Performance Cinema & Series Platform.</p>
+        <p>&copy; 2026 FlixStream HD. High Performance Cinema, Series & Anime Platform.</p>
         <p class="disclaimer">Powered by TMDB API. No video media stored on host servers.</p>
     </footer>
 
-    <script src="app.js?v=4.1"></script>
+    <!-- Script with Cache-Buster v11.0 -->
+    <script src="app.js?v=11.0"></script>
 </body>
 </html>

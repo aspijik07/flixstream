@@ -1,210 +1,1495 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream HD - FlixStream</title>
-    
-    <!-- Dynamic Meta Tags with IDs for JS injection -->
-    <meta name="description" id="meta-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
-    <meta name="theme-color" content="#0b0b0b">
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
 
-    <!-- OpenGraph Tags -->
-    <meta property="og:type" content="video.movie">
-    <meta property="og:site_name" content="FlixStream HD">
-    <meta property="og:title" id="og-title" content="Watch Full Stream HD - FlixStream">
-    <meta property="og:description" id="og-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
-    <meta property="og:image" id="og-image" content="https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg">
+body {
+    background-color: #0b0b0b;
+    color: #ffffff;
+    overflow-x: hidden;
+}
 
-    <!-- Twitter Cards -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" id="tw-title" content="Watch Full Stream HD - FlixStream">
-    <meta name="twitter:description" id="tw-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
-    <meta name="twitter:image" id="tw-image" content="https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg">
+/* ==========================================
+   1. NAVBAR
+   ========================================== */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    padding: 0 4%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1000;
+    background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+    transition: background 0.4s ease;
+}
 
-    <!-- Inline SVG Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0b'/%3E%3Cpath d='M20 14h24v8H29v10h13v8H29v14H20z' fill='%23e50914'/%3E%3C/svg%3E">
+.navbar.scrolled {
+    background-color: #111111;
+    border-bottom: 1px solid #1f1f1f;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+}
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Cache-Buster v10.0 -->
-    <link rel="stylesheet" href="style.css?v=10.0">
-</head>
-<body class="watch-body">
+.logo {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: #e50914;
+    text-decoration: none;
+}
 
-    <!-- Navbar -->
-    <header class="navbar scrolled">
-        <div class="nav-left">
-            <a href="index.html" class="logo">FLIX<span>STREAM</span></a>
-            <a href="index.html" class="back-link">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Back to Browse
-            </a>
-        </div>
-    </header>
+.logo span {
+    color: #ffffff;
+}
 
-    <!-- Cinema Container -->
-    <div class="cinema-container">
-        
-        <!-- Luxury Streaming Telemetry Bar -->
-        <div class="telemetry-bar">
-            <div class="telemetry-left">
-                <span class="pulse-emerald"></span>
-                <span class="telemetry-live-text"><strong id="live-counter">1,424</strong> VIEWERS STREAMING NOW</span>
-            </div>
-            <div class="telemetry-right">
-                <span class="telemetry-chip" id="source-badge">SOURCE: 1080P ULTRA</span>
-                <span class="telemetry-chip">LATENCY: 14MS</span>
-                <span class="telemetry-chip chip-highlight">SERVER HEALTH: 99.8%</span>
-            </div>
-        </div>
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
 
-        <!-- Player Wrapper -->
-        <div class="player-wrapper">
-            
-            <!-- Video Iframe -->
-            <iframe id="movie-iframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
 
-            <!-- Overlay Play Button -->
-            <div id="play-trigger-overlay" onclick="startMovieStreaming()">
-                <div class="play-trigger-content">
-                    <div class="big-play-icon">
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                    </div>
-                    <h3 id="overlay-title">Start Streaming in 1080p Full HD</h3>
-                    <p>Fast CDN Mirror &bull; Multi-Subtitles &bull; Dolby Audio</p>
-                </div>
-            </div>
+.nav-links a {
+    color: #b5b5b5;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
 
-            <!-- PERKVEX HUMAN VERIFICATION LOCKER (SPACIOUS SCROLLABLE EMBED) -->
-            <div id="ogads-locker-modal" style="display: none;">
-                <div class="perkvex-modal-container">
-                    
-                    <!-- Top Overlapping Circle Logo -->
-                    <div class="perkvex-circle-logo">
-                        <div class="circle-inner-content">
-                            <svg class="reel-icon" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
-                            </svg>
-                            <span class="circle-brand">FLIX<span>STREAM</span></span>
-                        </div>
-                    </div>
+.nav-links a:hover, .nav-links a.active {
+    color: #ffffff;
+    font-weight: 700;
+}
 
-                    <!-- White Locker Card Body -->
-                    <div class="perkvex-card-body">
-                        
-                        <div class="perkvex-header-wrap">
-                            <h2 class="perkvex-title">HUMAN VERIFICATION</h2>
-                            <div class="perkvex-divider"></div>
-                            <p class="perkvex-subtitle">Complete one of the quick steps below to continue streaming</p>
-                        </div>
+.search-box input {
+    background: rgba(18, 18, 18, 0.8);
+    border: 1px solid #333;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 20px;
+    outline: none;
+    font-size: 13px;
+    transition: all 0.3s;
+}
 
-                        <!-- Scrollable Offers Container -->
-                        <div class="perkvex-embed-frame-wrap">
-                            <iframe id="ogads-embed-frame" src="" frameborder="0" allowtransparency="true"></iframe>
-                        </div>
+.search-box input:focus {
+    border-color: #e50914;
+    width: 220px;
+    background: #181818;
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
+}
 
-                        <!-- Backwards compatibility fallback anchor -->
-                        <a id="ogads-direct-btn" style="display: none;" href="#" target="_blank"></a>
+/* ==========================================
+   2. HERO BANNER (INDEX.HTML)
+   ========================================== */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    background-size: cover;
+    background-position: center top;
+    display: flex;
+    align-items: center;
+    padding: 0 4%;
+}
 
-                        <!-- Waiting To Complete Bottom Bar -->
-                        <div class="perkvex-waiting-bar">
-                            <span class="waiting-spinner"></span>
-                            <span class="waiting-text">Waiting to complete</span>
-                        </div>
+.hero-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(77deg, rgba(11,11,11,0.95) 0%, rgba(11,11,11,0.5) 60%, rgba(11,11,11,0) 100%),
+                linear-gradient(180deg, transparent 60%, #0b0b0b 100%);
+}
 
-                    </div>
+.hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 650px;
+}
 
-                </div>
-            </div>
+.badge-featured {
+    background: #e50914;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
 
-        </div>
+.hero-content h1 {
+    font-size: 48px;
+    font-weight: 900;
+    margin: 15px 0;
+    line-height: 1.1;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.7);
+}
 
-        <!-- STREAM MIRROR NOTICE BANNER -->
-        <div class="server-notice-banner">
-            <svg class="notice-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            <span>STREAM MIRROR NOTICE: If Server 1 displays "Content Not Found" or experiences buffering, please switch to <strong>Server 2 (VidSrc HD)</strong> or <strong>Server 3</strong> below for alternative high-speed mirrors.</span>
-        </div>
+.hero-content p {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #d2d2d2;
+    margin-bottom: 25px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
-        <!-- Server Switcher Buttons -->
-        <div class="servers-bar">
-            <span class="server-label">Switch Server:</span>
-            <button class="server-btn active" onclick="switchServer('vidlink', this)">Server 1 (VidLink HD)</button>
-            <button class="server-btn" onclick="switchServer('vidsrcto', this)">Server 2 (VidSrc HD)</button>
-            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 3 (AutoEmbed)</button>
-        </div>
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+}
 
-        <!-- TV SERIES EPISODES BROWSER -->
-        <div class="tv-series-panel" id="tv-panel" style="display: none;">
-            <div class="tv-panel-header">
-                <div class="panel-header-left">
-                    <span class="ep-section-tag">SERIES EPISODES</span>
-                    <h3 id="tv-show-name">Episodes Catalog</h3>
-                </div>
-                <div class="season-select-wrap">
-                    <label for="season-select">Select Season:</label>
-                    <select id="season-select" onchange="changeSeason(this.value)">
-                        <!-- Populated by JS -->
-                    </select>
-                </div>
-            </div>
-            
-            <div class="episodes-grid" id="episodes-container"></div>
-        </div>
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 26px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 700;
+    transition: transform 0.2s, background 0.2s;
+}
 
-        <!-- Media Details Card -->
-        <div class="movie-details-card">
-            <div class="details-left">
-                <img id="movie-detail-poster" src="" alt="Poster" class="detail-poster">
-            </div>
-            <div class="details-right">
-                <h1 id="movie-detail-title">Loading Media...</h1>
-                <div class="detail-meta">
-                    <span id="movie-detail-rating" class="card-rating">SCORE 0.0</span>
-                    <span id="movie-detail-year">2026</span>
-                    <span id="movie-detail-runtime">0 min</span>
-                    <span class="card-hd-badge" id="media-type-badge">1080P FULL HD</span>
-                </div>
-                <div id="movie-detail-genres" class="genres-list"></div>
-                <p id="movie-detail-overview" class="overview-text">Fetching synopsis...</p>
-            </div>
-        </div>
+.btn svg {
+    width: 20px;
+    height: 20px;
+}
 
-        <!-- LUXURY SOCIAL PROOF DASHBOARD -->
-        <section class="proof-dashboard">
-            <div class="proof-header">
-                <div class="proof-header-left">
-                    <span class="proof-sub-title">REAL-TIME AUDIT LOG</span>
-                    <h3>Viewer Playback Verification</h3>
-                    <p>Live stream verification reports submitted across international CDN nodes</p>
-                </div>
-                <div class="proof-score-box">
-                    <div class="score-number">9.8<span>/10</span></div>
-                    <div class="score-details">
-                        <span class="score-status">OPERATIONAL</span>
-                        <span class="score-stat">99.4% Playback Rate</span>
-                    </div>
-                </div>
-            </div>
+.btn-play {
+    background-color: #e50914;
+    color: #ffffff;
+}
 
-            <div class="review-compose-bar">
-                <input type="text" id="user-review-input" placeholder="Submit stream status (e.g. Server 1 verified in 1080p)..." maxlength="180">
-                <button type="button" id="post-review-btn" onclick="submitUserReview()">SUBMIT REPORT</button>
-            </div>
+.btn-play:hover {
+    background-color: #b80710;
+    transform: scale(1.04);
+}
 
-            <div class="reviews-grid-panel" id="reviews-container"></div>
-        </section>
+.btn-more {
+    background-color: rgba(109, 109, 110, 0.7);
+    color: #ffffff;
+}
 
-    </div>
+.btn-more:hover {
+    background-color: rgba(109, 109, 110, 0.4);
+    transform: scale(1.04);
+}
 
-    <!-- Cache-Buster v10.0 -->
-    <script src="player.js?v=10.0"></script>
-</body>
-</html>
+/* ==========================================
+   3. MOVIES & TV GRID
+   ========================================== */
+.main-content {
+    padding: 20px 4% 60px 4%;
+    margin-top: -50px;
+    position: relative;
+    z-index: 20;
+}
+
+/* Category Filter Pills (Index.html) */
+.category-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.category-filter-bar::-webkit-scrollbar {
+    height: 4px;
+}
+
+.category-filter-bar::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 4px;
+}
+
+.filter-pill {
+    background: #181818;
+    border: 1px solid #2d2d2d;
+    color: #b5b5b5;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-pill:hover {
+    color: #ffffff;
+    border-color: #444;
+}
+
+.filter-pill.active {
+    background: #e50914;
+    border-color: #e50914;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(229, 9, 20, 0.4);
+}
+
+.row-header-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.row-header-wrap .row-title {
+    margin-bottom: 0;
+}
+
+.clear-history-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #888;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clear-history-btn:hover {
+    border-color: #e50914;
+    color: #e50914;
+}
+
+.movie-row-section {
+    margin-bottom: 40px;
+}
+
+.row-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+
+.movie-card {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #181818;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #222;
+}
+
+.movie-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+    border-color: #333;
+    z-index: 30;
+}
+
+.movie-card img {
+    width: 100%;
+    height: 270px;
+    object-fit: cover;
+    display: block;
+}
+
+.card-info {
+    padding: 10px;
+}
+
+.card-title {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+
+.card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #a3a3a3;
+}
+
+.card-rating {
+    color: #46d369;
+    font-weight: 700;
+}
+
+.card-hd-badge {
+    background: #252525;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #ddd;
+    border: 1px solid #333;
+}
+
+/* ==========================================
+   4. WATCH PAGE & CINEMA STYLES
+   ========================================== */
+.watch-body {
+    background-color: #0b0b0b;
+}
+
+.back-link {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #e50914;
+}
+
+.cinema-container {
+    max-width: 1100px;
+    margin: 85px auto 50px auto;
+    padding: 0 20px;
+}
+
+.telemetry-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #121212;
+    border: 1px solid #222;
+    padding: 12px 18px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.telemetry-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pulse-emerald {
+    width: 8px;
+    height: 8px;
+    background-color: #46d369;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #46d369;
+    animation: livePulseEmerald 1.4s infinite;
+}
+
+@keyframes livePulseEmerald {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.telemetry-live-text {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: #e5e5e5;
+}
+
+.telemetry-live-text strong {
+    color: #46d369;
+}
+
+.telemetry-right {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.telemetry-chip {
+    background: #181818;
+    border: 1px solid #282828;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #888;
+    letter-spacing: 0.5px;
+}
+
+.chip-highlight {
+    color: #46d369;
+    border-color: rgba(70, 211, 105, 0.35);
+    background: rgba(70, 211, 105, 0.05);
+}
+
+.player-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Ratio */
+    height: 0;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.95);
+    border: 1px solid #222;
+}
+
+.player-wrapper iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+}
+
+#play-trigger-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 50;
+    transition: background 0.3s;
+}
+
+#play-trigger-overlay:hover {
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.play-trigger-content {
+    text-align: center;
+}
+
+.big-play-icon {
+    width: 80px;
+    height: 80px;
+    background: #e50914;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 15px auto;
+    color: white;
+    box-shadow: 0 0 35px rgba(229, 9, 20, 0.85);
+    transition: transform 0.2s;
+}
+
+#play-trigger-overlay:hover .big-play-icon {
+    transform: scale(1.1);
+}
+
+.play-trigger-content h3 {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.play-trigger-content p {
+    font-size: 13px;
+    color: #bbb;
+    margin-top: 5px;
+}
+
+/* ===================================================
+   5. PERKVEX HUMAN VERIFICATION (SPACIOUS & SCROLLABLE)
+   =================================================== */
+#ogads-locker-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 10, 15, 0.88);
+    backdrop-filter: blur(14px);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.perkvex-modal-container {
+    position: relative;
+    width: 100%;
+    max-width: 480px; /* Spacious width */
+    margin-top: 60px;
+    animation: bounceInDown 0.75s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+/* Top Overlapping Logo Circle */
+.perkvex-circle-logo {
+    position: absolute;
+    top: -55px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 110px;
+    background: #000000;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.circle-inner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.reel-icon {
+    width: 32px;
+    height: 32px;
+    color: #00d2ff;
+    filter: drop-shadow(0 0 6px rgba(0, 210, 255, 0.8));
+    margin-bottom: 2px;
+}
+
+.circle-brand {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.circle-brand span {
+    color: #00d2ff;
+}
+
+/* White Card Shell - 85px top padding prevents any overlap */
+.perkvex-card-body {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 0 0 10px rgba(0, 180, 255, 0.22), 0 25px 60px rgba(0, 0, 0, 0.95);
+    padding: 85px 24px 22px 24px;
+    text-align: center;
+    border: 2px solid #202048;
+}
+
+.perkvex-header-wrap {
+    margin-bottom: 14px;
+}
+
+.perkvex-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: #000000;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.perkvex-divider {
+    width: 100%;
+    height: 1px;
+    background: #e4e4e4;
+    margin-bottom: 10px;
+}
+
+.perkvex-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444444;
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+/* Spacious & Scrollable Offers Container */
+.perkvex-embed-frame-wrap {
+    width: 100%;
+    height: 310px; /* Big spacious height so all offers show comfortably */
+    background: #ffffff;
+    border-radius: 8px;
+    overflow-y: auto; /* SCROLL ENABLED! */
+    overflow-x: hidden;
+    margin-bottom: 14px;
+    border: 1px solid #eeeeee;
+    -webkit-overflow-scrolling: touch;
+}
+
+.perkvex-embed-frame-wrap::-webkit-scrollbar {
+    width: 6px;
+}
+
+.perkvex-embed-frame-wrap::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.perkvex-embed-frame-wrap::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.perkvex-embed-frame-wrap::-webkit-scrollbar-thumb:hover {
+    background: #999999;
+}
+
+.perkvex-embed-frame-wrap iframe {
+    width: 100%;
+    height: 420px; /* Ample internal room for all OGAds buttons to render */
+    border: none;
+    display: block;
+    background: transparent;
+}
+
+/* Backwards-compatible styling for buttons if used */
+.perkvex-links-wrap {
+    margin-bottom: 14px;
+}
+
+.perkvex-offer-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #00d2ff 0%, #0072ff 100%);
+    border-radius: 8px;
+    padding: 13px 16px;
+    text-decoration: none;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 114, 255, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+}
+
+.perkvex-offer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 114, 255, 0.55);
+}
+
+.offer-name-text {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+}
+
+.offer-easy-badge {
+    background: #27ae60;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+/* Waiting To Complete Bottom Bar */
+.perkvex-waiting-bar {
+    background: #110066;
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.waiting-spinner {
+    width: 17px;
+    height: 17px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #00d2ff;
+    border-radius: 50%;
+    animation: perkvexSpin 0.75s linear infinite;
+}
+
+@keyframes perkvexSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.waiting-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+}
+
+/* Bounce In Down Animation */
+@keyframes bounceInDown {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -2000px, 0) scaleY(3);
+    }
+    60% {
+        opacity: 1;
+        transform: translate3d(0, 25px, 0) scaleY(0.9);
+    }
+    75% {
+        transform: translate3d(0, -10px, 0) scaleY(1.02);
+    }
+    90% {
+        transform: translate3d(0, 5px, 0) scaleY(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+/* ==========================================
+   6. SERVER NOTICE & SERVERS BAR
+   ========================================== */
+.server-notice-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #161616;
+    border: 1px solid #262626;
+    border-left: 3px solid #e50914;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: #b5b5b5;
+}
+
+.notice-icon {
+    color: #e50914;
+    flex-shrink: 0;
+}
+
+.server-notice-banner strong {
+    color: #ffffff;
+}
+
+.servers-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.server-label {
+    font-size: 13px;
+    color: #888;
+    font-weight: 600;
+}
+
+.server-btn {
+    background: #181818;
+    border: 1px solid #333;
+    color: #ddd;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.server-btn:hover, .server-btn.active {
+    background: #e50914;
+    border-color: #e50914;
+    color: white;
+}
+
+/* ==========================================
+   7. TV SERIES EPISODES BROWSER (OPTION C)
+   ========================================== */
+.tv-series-panel {
+    margin-top: 25px;
+    background: #121212;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+}
+
+.tv-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #202020;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.ep-section-tag {
+    font-size: 11px;
+    font-weight: 800;
+    color: #e50914;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.panel-header-left h3 {
+    font-size: 19px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.season-select-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.season-select-wrap label {
+    font-size: 12px;
+    color: #aaa;
+    font-weight: 600;
+}
+
+.season-select-wrap select {
+    background: #181818;
+    border: 1px solid #333;
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.season-select-wrap select:focus {
+    border-color: #e50914;
+}
+
+/* Episodes Grid */
+.episodes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.episodes-loading {
+    color: #888;
+    font-size: 13px;
+    padding: 20px 0;
+    text-align: center;
+    grid-column: 1 / -1;
+}
+
+.episode-card {
+    background: #161616;
+    border: 1px solid #222;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.episode-card:hover {
+    border-color: #e50914;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+}
+
+.episode-card.active {
+    border-color: #e50914;
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+    background: #1b1314;
+}
+
+.ep-thumb-wrap {
+    position: relative;
+    width: 100%;
+    height: 130px;
+    background: #0f0f0f;
+}
+
+.ep-thumb-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.ep-number-tag {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.episode-card.active .ep-number-tag {
+    background: #e50914;
+    border-color: #e50914;
+}
+
+.ep-meta {
+    padding: 12px;
+    flex: 1;
+}
+
+.ep-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #eee;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ep-overview {
+    font-size: 11px;
+    line-height: 1.4;
+    color: #888;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ==========================================
+   8. MEDIA DETAILS
+   ========================================== */
+.movie-details-card {
+    display: flex;
+    gap: 25px;
+    margin-top: 30px;
+    background: #121212;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #222;
+}
+
+.detail-poster {
+    width: 140px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.details-right {
+    flex: 1;
+}
+
+.details-right h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.detail-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 12px;
+}
+
+.genres-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.genre-badge {
+    background: #262626;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #ddd;
+}
+
+.overview-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #bbb;
+}
+
+/* ==========================================
+   9. LUXURY SOCIAL PROOF DASHBOARD
+   ========================================== */
+.proof-dashboard {
+    margin-top: 35px;
+    background: #121212;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.proof-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #202020;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.proof-sub-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #e50914;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.proof-header-left h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.proof-header-left p {
+    font-size: 12px;
+    color: #888888;
+}
+
+.proof-score-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #171717;
+    border: 1px solid #282828;
+    padding: 10px 18px;
+    border-radius: 8px;
+}
+
+.score-number {
+    font-size: 28px;
+    font-weight: 900;
+    color: #46d369;
+    line-height: 1;
+}
+
+.score-number span {
+    font-size: 14px;
+    color: #777;
+    font-weight: 600;
+}
+
+.score-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.score-status {
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.score-stat {
+    font-size: 11px;
+    color: #888;
+    font-weight: 600;
+}
+
+.review-compose-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.review-compose-bar input {
+    flex: 1;
+    background: #171717;
+    border: 1px solid #2a2a2a;
+    color: #ffffff;
+    padding: 13px 18px;
+    border-radius: 8px;
+    outline: none;
+    font-size: 13px;
+    transition: all 0.25s;
+}
+
+.review-compose-bar input:focus {
+    border-color: #e50914;
+    background: #1b1b1b;
+    box-shadow: 0 0 12px rgba(229, 9, 20, 0.25);
+}
+
+.review-compose-bar button {
+    background: #e50914;
+    color: #ffffff;
+    border: none;
+    padding: 0 24px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.review-compose-bar button:hover {
+    background: #b80710;
+    transform: translateY(-1px);
+}
+
+.reviews-grid-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 14px;
+}
+
+.review-card-item {
+    background: #161616;
+    border: 1px solid #242424;
+    padding: 18px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s;
+}
+
+.review-card-item:hover {
+    border-color: #383838;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+.card-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.user-identity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar-circle {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.user-handle-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-handle {
+    font-size: 13px;
+    font-weight: 700;
+    color: #eeeeee;
+}
+
+.verified-tag {
+    color: #46d369;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.timestamp-text {
+    font-size: 11px;
+    color: #666666;
+}
+
+.card-comment-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #cccccc;
+    margin-bottom: 12px;
+}
+
+.card-comment-text strong {
+    color: #ffffff;
+}
+
+.card-footer-tags {
+    display: flex;
+    gap: 6px;
+}
+
+.meta-chip-clean {
+    background: #1f1f1f;
+    border: 1px solid #2d2d2d;
+    font-size: 9px;
+    font-weight: 700;
+    color: #888888;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================
+   10. FOOTER
+   ========================================== */
+.footer {
+    text-align: center;
+    padding: 30px 4%;
+    color: #757575;
+    font-size: 13px;
+    border-top: 1px solid #1c1c1c;
+}
+
+.disclaimer {
+    margin-top: 5px;
+    font-size: 11px;
+}
+
+/* ==========================================
+   11. NETFLIX QUICK-LOOK TRAILER MODAL
+   ========================================== */
+.trailer-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(8, 8, 8, 0.92);
+    backdrop-filter: blur(14px);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.trailer-modal-box {
+    position: relative;
+    background: #141414;
+    border: 1px solid #282828;
+    border-radius: 14px;
+    max-width: 750px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
+    animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    cursor: pointer;
+    z-index: 20;
+    transition: all 0.2s;
+}
+
+.modal-close-btn:hover {
+    background: #e50914;
+    border-color: #e50914;
+    transform: rotate(90deg);
+}
+
+.modal-trailer-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    background: #000000;
+    border-top-left-radius: 13px;
+    border-top-right-radius: 13px;
+    overflow: hidden;
+}
+
+.modal-trailer-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.modal-trailer-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+}
+
+.modal-content-details {
+    padding: 24px;
+}
+
+.modal-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.modal-content-details h2 {
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 10px;
+    line-height: 1.2;
+}
+
+.modal-actions-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE
+   ========================================== */
+@media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hero-content h1 { font-size: 30px; }
+    .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+    .movie-card img { height: 190px; }
+    .movie-details-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .detail-poster { width: 120px; }
+    .detail-meta, .genres-list { justify-content: center; }
+
+    .telemetry-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .telemetry-right { width: 100%; }
+
+    .tv-panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .season-select-wrap {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .episodes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .proof-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .proof-score-box {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .review-compose-bar {
+        flex-direction: column;
+    }
+    .review-compose-bar button {
+        padding: 13px;
+    }
+    .reviews-grid-panel {
+        grid-template-columns: 1fr;
+    }
+
+    /* Category Filter Bar Mobile */
+    .category-filter-bar { gap: 6px; }
+    .filter-pill { font-size: 11px; padding: 6px 14px; }
+
+    /* Trailer Modal Mobile */
+    .trailer-modal-box { max-height: 95vh; }
+    .modal-content-details { padding: 16px; }
+    .modal-content-details h2 { font-size: 18px; }
+    .modal-actions-row .btn { width: 100%; justify-content: center; }
+
+    /* Perkvex Mobile Spacious & Scrollable Fit */
+    .perkvex-modal-container {
+        max-width: 95%;
+        margin-top: 50px;
+    }
+    .perkvex-circle-logo {
+        width: 95px;
+        height: 95px;
+        top: -48px;
+    }
+    .reel-icon { width: 28px; height: 28px; }
+    .circle-brand { font-size: 10px; }
+    .perkvex-card-body { 
+        padding: 75px 16px 18px 16px;
+    }
+    .perkvex-title { font-size: 19px; }
+    .perkvex-subtitle { font-size: 12px; margin-bottom: 12px; }
+    .perkvex-embed-frame-wrap { 
+        height: 280px; 
+        overflow-y: auto;
+    }
+    .offer-name-text { font-size: 12px; }
+}

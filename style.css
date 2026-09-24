@@ -199,6 +199,79 @@ body {
     z-index: 20;
 }
 
+/* Category Filter Pills (Index.html) */
+.category-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.category-filter-bar::-webkit-scrollbar {
+    height: 4px;
+}
+
+.category-filter-bar::-webkit-scrollbar-thumb {
+    background: #222;
+    border-radius: 4px;
+}
+
+.filter-pill {
+    background: #181818;
+    border: 1px solid #2d2d2d;
+    color: #b5b5b5;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-pill:hover {
+    color: #ffffff;
+    border-color: #444;
+}
+
+.filter-pill.active {
+    background: #e50914;
+    border-color: #e50914;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(229, 9, 20, 0.4);
+}
+
+.row-header-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.row-header-wrap .row-title {
+    margin-bottom: 0;
+}
+
+.clear-history-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #888;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.clear-history-btn:hover {
+    border-color: #e50914;
+    color: #e50914;
+}
+
 .movie-row-section {
     margin-bottom: 40px;
 }
@@ -464,7 +537,7 @@ body {
 .perkvex-modal-container {
     position: relative;
     width: 100%;
-    max-width: 480px; /* Large spacious luxury card */
+    max-width: 480px;
     margin-top: 60px;
     animation: bounceInDown 0.75s cubic-bezier(0.215, 0.61, 0.355, 1) both;
 }
@@ -553,10 +626,10 @@ body {
 /* Spacious & Scrollable Offers Container */
 .perkvex-embed-frame-wrap {
     width: 100%;
-    height: 310px; /* Big spacious height so all offers show comfortably */
+    height: 310px;
     background: #ffffff;
     border-radius: 8px;
-    overflow-y: auto; /* SCROLL ENABLED! */
+    overflow-y: auto;
     overflow-x: hidden;
     margin-bottom: 14px;
     border: 1px solid #eeeeee;
@@ -583,7 +656,7 @@ body {
 
 .perkvex-embed-frame-wrap iframe {
     width: 100%;
-    height: 420px; /* Ample internal room for all OGAds buttons to render */
+    height: 420px;
     border: none;
     display: block;
     background: transparent;
