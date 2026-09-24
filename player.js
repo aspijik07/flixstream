@@ -34,30 +34,27 @@ let playbackSeconds = 0;
 let historyTrackerInterval = null;
 
 // ==========================================
-// 2. STREAM SERVERS (Original Exact Order)
+// 2. STREAM SERVERS (CLEAN ENDPOINTS - ZERO INVALID PARAMS)
 // ==========================================
-function getStreamServers(season = 1, episode = 1, autoplay = false) {
-    const ap = autoplay ? 'autoplay=1&autoPlay=true' : '';
-    const sep = (url) => url.includes('?') ? '&' : '?';
-
+function getStreamServers(season = 1, episode = 1) {
     if (mediaType === "tv") {
         return {
-            vidlink: `https://vidlink.pro/tv/${mediaId}/${season}/${episode}${autoplay ? sep(`https://vidlink.pro/tv/${mediaId}/${season}/${episode}`) + ap : ''}`,
-            vidsrcto: `https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}${autoplay ? sep(`https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}`) + ap : ''}`,
-            autoembed: `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}${autoplay ? sep(`https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}`) + ap : ''}`
+            vidlink: `https://vidlink.pro/tv/${mediaId}/${season}/${episode}`,
+            vidsrcto: `https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}`,
+            autoembed: `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}`
         };
     } else {
         return {
-            vidlink: `https://vidlink.pro/movie/${mediaId}${autoplay ? sep(`https://vidlink.pro/movie/${mediaId}`) + ap : ''}`,
-            vidsrcto: `https://vidsrc.to/embed/movie/${mediaId}${autoplay ? sep(`https://vidsrc.to/embed/movie/${mediaId}`) + ap : ''}`,
-            autoembed: `https://player.autoembed.cc/embed/movie/${mediaId}${autoplay ? sep(`https://player.autoembed.cc/embed/movie/${mediaId}`) + ap : ''}`
+            vidlink: `https://vidlink.pro/movie/${mediaId}`,
+            vidsrcto: `https://vidsrc.to/embed/movie/${mediaId}`,
+            autoembed: `https://player.autoembed.cc/embed/movie/${mediaId}`
         };
     }
 }
 
-function loadStreamServer(serverName, autoplay = false) {
+function loadStreamServer(serverName) {
     activeServer = serverName;
-    const servers = getStreamServers(currentSeason, currentEpisode, autoplay);
+    const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
     activeStreamUrl = servers[serverName] || servers.vidlink;
     iframe.src = activeStreamUrl;
@@ -66,7 +63,7 @@ function loadStreamServer(serverName, autoplay = false) {
 function switchServer(serverName, btn) {
     document.querySelectorAll(".server-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    loadStreamServer(serverName, true);
+    loadStreamServer(serverName);
 }
 
 // ==========================================
@@ -124,7 +121,7 @@ async function loadMediaDetails() {
         updateLockerTracking();
 
         // Auto-load Server 1 Default
-        loadStreamServer("vidlink", false);
+        loadStreamServer("vidlink");
 
         // Save session entry to History
         saveToWatchHistory(data);
@@ -227,7 +224,7 @@ function selectEpisode(epNumber) {
         c.classList.toggle("active", (idx + 1) === currentEpisode);
     });
 
-    loadStreamServer(activeServer, true);
+    loadStreamServer(activeServer);
 
     const newUrl = `watch.html?type=tv&id=${mediaId}&slug=${mediaSlug}&season=${currentSeason}&episode=${currentEpisode}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
@@ -245,9 +242,6 @@ function selectEpisode(epNumber) {
 // ==========================================
 function startMovieStreaming() {
     document.getElementById("play-trigger-overlay").style.display = "none";
-
-    // Auto-play stream
-    loadStreamServer(activeServer, true);
 
     startHistoryTracker();
 
