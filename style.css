@@ -443,107 +443,208 @@ body {
     margin-top: 5px;
 }
 
-/* ==========================================
-   5. PHOTO 3 EXACT LOCKER (VIEWPORT FIXED)
-   ========================================== */
+/* ===================================================
+   5. PERKVEX HUMAN VERIFICATION LOCKER (1:1 REPLICA)
+   =================================================== */
 #ogads-locker-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(8, 8, 8, 0.94);
-    backdrop-filter: blur(16px);
+    background: rgba(10, 10, 15, 0.88);
+    backdrop-filter: blur(14px);
     z-index: 99999;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 15px;
+    padding: 20px;
 }
 
-.photo3-card {
-    background: #141414;
-    border: 1px solid #333;
-    border-radius: 12px;
-    max-width: 480px;
+.perkvex-modal-container {
+    position: relative;
     width: 100%;
-    padding: 22px;
-    text-align: center;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.95), 0 0 30px rgba(229, 9, 20, 0.25);
+    max-width: 410px;
+    margin-top: 40px;
+    animation: bounceInDown 0.75s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+/* Top Overlapping Logo Circle */
+.perkvex-circle-logo {
+    position: absolute;
+    top: -55px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 110px;
+    background: #000000;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.circle-inner-content {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
-.shield-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(229, 9, 20, 0.15);
-    border: 1px solid #e50914;
-    color: #e50914;
+.reel-icon {
+    width: 32px;
+    height: 32px;
+    color: #00d2ff;
+    filter: drop-shadow(0 0 6px rgba(0, 210, 255, 0.8));
+    margin-bottom: 2px;
+}
+
+.circle-brand {
     font-size: 11px;
-    font-weight: 800;
-    padding: 4px 12px;
-    border-radius: 20px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: #ffffff;
+}
+
+.circle-brand span {
+    color: #00d2ff;
+}
+
+/* White Card Shell */
+.perkvex-card-body {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 0 0 10px rgba(0, 180, 255, 0.22), 0 25px 60px rgba(0, 0, 0, 0.95);
+    padding: 65px 22px 22px 22px;
+    text-align: center;
+    border: 2px solid #202048;
+}
+
+.perkvex-title {
+    font-size: 21px;
+    font-weight: 900;
+    color: #000000;
     letter-spacing: 0.5px;
     margin-bottom: 10px;
 }
 
-.photo3-card h2 {
-    font-size: 18px;
-    font-weight: 800;
-    color: #ffffff;
-    margin-bottom: 6px;
-    line-height: 1.2;
+.perkvex-divider {
+    width: 100%;
+    height: 1px;
+    background: #e4e4e4;
+    margin-bottom: 12px;
 }
 
-.photo3-desc {
-    font-size: 12px;
-    color: #cccccc;
-    margin-bottom: 12px;
+.perkvex-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 18px;
     line-height: 1.4;
 }
 
-.photo3-offers-box {
-    width: 100%;
-    height: 230px;
-    background: #ffffff;
+/* Cyan Gradient Offer Button */
+.perkvex-links-wrap {
+    margin-bottom: 14px;
+}
+
+.perkvex-offer-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #00d2ff 0%, #0072ff 100%);
     border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 12px;
-}
-
-.photo3-offers-box iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
-}
-
-.photo3-red-btn {
-    display: block;
-    width: 100%;
-    background: #e50914;
-    color: #ffffff;
+    padding: 13px 16px;
     text-decoration: none;
-    font-size: 14px;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 114, 255, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+}
+
+.perkvex-offer-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 114, 255, 0.55);
+}
+
+.offer-name-text {
+    font-size: 13px;
     font-weight: 800;
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    transition: background 0.2s, transform 0.1s;
-    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4);
+    color: #ffffff;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
 }
 
-.photo3-red-btn:hover {
-    background: #b80710;
-    transform: scale(1.01);
-}
-
-.photo3-note {
+.offer-easy-badge {
+    background: #27ae60;
+    color: #ffffff;
     font-size: 11px;
-    color: #888888;
+    font-weight: 900;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+/* Waiting To Complete Bottom Bar */
+.perkvex-waiting-bar {
+    background: #110066;
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.waiting-spinner {
+    width: 17px;
+    height: 17px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #00d2ff;
+    border-radius: 50%;
+    animation: perkvexSpin 0.75s linear infinite;
+}
+
+@keyframes perkvexSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.waiting-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+}
+
+/* Bounce In Down Animation */
+@keyframes bounceInDown {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -2000px, 0) scaleY(3);
+    }
+    60% {
+        opacity: 1;
+        transform: translate3d(0, 25px, 0) scaleY(0.9);
+    }
+    75% {
+        transform: translate3d(0, -10px, 0) scaleY(1.02);
+    }
+    90% {
+        transform: translate3d(0, 5px, 0) scaleY(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
 }
 
 /* ==========================================
@@ -648,7 +749,6 @@ body {
     border-color: #e50914;
 }
 
-/* Episodes Grid */
 .episodes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -842,7 +942,6 @@ body {
     font-size: 20px;
     font-weight: 800;
     color: #ffffff;
-    margin-bottom: 4px;
 }
 
 .proof-header-left p {
@@ -1104,13 +1203,19 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .photo3-card {
-        padding: 15px;
-        max-width: 95%;
-        border: 1px solid #444;
+    /* Perkvex Mobile Fit */
+    .perkvex-modal-container {
+        max-width: 92%;
+        margin-top: 30px;
     }
-    .photo3-card h2 { font-size: 16px; margin-bottom: 4px; }
-    .photo3-desc { font-size: 11px; margin-bottom: 10px; }
-    .photo3-offers-box { height: 210px; }
-    .photo3-red-btn { font-size: 13px; padding: 11px; }
+    .perkvex-circle-logo {
+        width: 90px;
+        height: 90px;
+        top: -45px;
+    }
+    .reel-icon { width: 26px; height: 26px; }
+    .circle-brand { font-size: 10px; }
+    .perkvex-card-body { padding: 55px 16px 16px 16px; }
+    .perkvex-title { font-size: 18px; }
+    .offer-name-text { font-size: 12px; }
 }

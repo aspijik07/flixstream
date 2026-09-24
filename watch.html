@@ -22,7 +22,7 @@
     <meta name="twitter:description" id="tw-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
     <meta name="twitter:image" id="tw-image" content="https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg">
 
-    <!-- Inline SVG Favicon (No 404 Console Error) -->
+    <!-- Inline SVG Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0b'/%3E%3Cpath d='M20 14h24v8H29v10h13v8H29v14H20z' fill='%23e50914'/%3E%3C/svg%3E">
 
     <!-- Google Fonts -->
@@ -30,8 +30,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Cache-Buster v4.1 -->
-    <link rel="stylesheet" href="style.css?v=4.1">
+    <!-- Cache-Buster v5.0 -->
+    <link rel="stylesheet" href="style.css?v=5.0">
 </head>
 <body class="watch-body">
 
@@ -79,27 +79,43 @@
                 </div>
             </div>
 
-            <!-- PHOTO 3 EXACT VIP LOCKER -->
+            <!-- PERKVEX HUMAN VERIFICATION LOCKER (1:1 REPLICA) -->
             <div id="ogads-locker-modal" style="display: none;">
-                <div class="photo3-card" id="photo3-card">
+                <div class="perkvex-modal-container">
                     
-                    <div class="shield-badge">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                        STREAM SECURITY CHECK
-                    </div>
-                    
-                    <h2 id="locker-movie-title">Verification Required</h2>
-                    <p class="photo3-desc">To resume high-speed HD playback, please complete 1 quick sponsor verification below.</p>
-                    
-                    <div class="photo3-offers-box">
-                        <iframe id="ogads-embed-frame" src="" frameborder="0"></iframe>
+                    <!-- Top Overlapping Circle Logo -->
+                    <div class="perkvex-circle-logo">
+                        <div class="circle-inner-content">
+                            <svg class="reel-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/>
+                            </svg>
+                            <span class="circle-brand">FLIX<span>STREAM</span></span>
+                        </div>
                     </div>
 
-                    <a id="ogads-direct-btn" href="#" target="_blank" class="photo3-red-btn" onclick="handleVerifyClick()">
-                        Click Here to Complete Verification
-                    </a>
+                    <!-- White Locker Card -->
+                    <div class="perkvex-card-body">
+                        
+                        <h2 class="perkvex-title">HUMAN VERIFICATION</h2>
+                        <div class="perkvex-divider"></div>
+                        <p class="perkvex-subtitle">Complete a quick verification to continue streaming</p>
 
-                    <span class="photo3-note">Stream resumes automatically once verified.</span>
+                        <!-- Offers Links List -->
+                        <div class="perkvex-links-wrap">
+                            <!-- Primary High-CTR Cyan Button with EASY Badge -->
+                            <a id="ogads-direct-btn" href="#" target="_blank" class="perkvex-offer-btn" onclick="handleVerifyClick()">
+                                <span class="offer-name-text" id="offer-title-text">Complete Quick Step to Unlock</span>
+                                <span class="offer-easy-badge">EASY</span>
+                            </a>
+                        </div>
+
+                        <!-- Waiting To Complete Bottom Bar -->
+                        <div class="perkvex-waiting-bar">
+                            <span class="waiting-spinner"></span>
+                            <span class="waiting-text">Waiting to complete</span>
+                        </div>
+
+                    </div>
 
                 </div>
             </div>
@@ -177,7 +193,7 @@
 
     </div>
 
-    <!-- Cache-Buster v4.1 -->
-    <script src="player.js?v=4.1"></script>
+    <!-- Cache-Buster v5.0 -->
+    <script src="player.js?v=5.0"></script>
 </body>
 </html>

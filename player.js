@@ -64,7 +64,7 @@ function switchServer(serverName, btn) {
 }
 
 // ==========================================
-// 3. FETCH MEDIA DATA & UPDATE OPENGRAPH
+// 3. FETCH MEDIA DATA
 // ==========================================
 async function loadMediaDetails() {
     try {
@@ -76,7 +76,7 @@ async function loadMediaDetails() {
         const mediaEpTag = mediaType === 'tv' ? `(S${currentSeason} E${currentEpisode})` : '';
         const pageTitle = `Watch ${currentMediaTitle} ${mediaEpTag} (1080p Full HD) - FlixStream`;
 
-        // 1. Details Cards
+        // Details Cards
         document.title = pageTitle;
         document.getElementById("movie-detail-title").innerText = currentMediaTitle;
         document.getElementById("movie-detail-overview").innerText = data.overview || "Stream in full high definition with zero latency.";
@@ -96,7 +96,7 @@ async function loadMediaDetails() {
             document.getElementById("movie-detail-poster").src = posterUrl;
         }
 
-        // 2. Dynamic OpenGraph Meta Updates
+        // OpenGraph Updates
         if (backdropUrl) {
             document.getElementById("og-image")?.setAttribute("content", backdropUrl);
             document.getElementById("tw-image")?.setAttribute("content", backdropUrl);
@@ -114,13 +114,13 @@ async function loadMediaDetails() {
             genresContainer.appendChild(span);
         });
 
-        // 3. Set Locker Title & Dynamic SubID
+        // Set Dynamic SubID Tracking for Perkvex Offer Button
         updateLockerTracking();
 
-        // 4. Auto-load Server 1 Default
+        // Auto-load Server 1 Default
         loadStreamServer("vidlink");
 
-        // 5. TV Show Panel Check
+        // TV Show Panel Check
         if (mediaType === "tv") {
             document.getElementById("tv-panel").style.display = "block";
             document.getElementById("tv-show-name").innerText = `${currentMediaTitle} Episodes`;
@@ -128,7 +128,7 @@ async function loadMediaDetails() {
             loadSeasonEpisodes(currentSeason);
         }
 
-        // 6. Reviews Proof
+        // Reviews Proof
         renderDynamicReviews(currentMediaTitle);
 
         if (isUnlocked) {
@@ -146,11 +146,14 @@ function updateLockerTracking() {
         ? `${mediaSlug}-s${currentSeason}e${currentEpisode}` 
         : `${mediaSlug}`;
     
-    document.getElementById("locker-movie-title").innerText = `Verification: ${currentMediaTitle} ${mediaType === 'tv' ? `(S${currentSeason} E${currentEpisode})` : ''}`;
-    
     const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(subTracking)}&aff_sub2=${encodeURIComponent(mediaId)}`;
-    document.getElementById("ogads-embed-frame").src = dynamicUrl;
     document.getElementById("ogads-direct-btn").href = dynamicUrl;
+    
+    // Set Dynamic text on button
+    const offerLabel = document.getElementById("offer-title-text");
+    if (offerLabel) {
+        offerLabel.innerText = `Unlock ${currentMediaTitle} in 1080p`;
+    }
 }
 
 // ==========================================
@@ -244,6 +247,7 @@ function startMovieStreaming() {
         timerStarted = true;
         setTimeout(() => {
             if (!isUnlocked) {
+                // Pause Stream
                 const movieIframe = document.getElementById("movie-iframe");
                 movieIframe.src = "about:blank";
 
