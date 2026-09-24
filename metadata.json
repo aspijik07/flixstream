@@ -1,0 +1,8 @@
+{
+  "name": "FlixStream - Watch Trending Movies, TV Series & Anime HD",
+  "description": "Stream trending movies, TV series, and anime in 1080p Full HD with multi-subtitles and fast CDN mirrors.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
