@@ -72,7 +72,7 @@ function openHeroTrailerModal() {
 }
 
 // ==========================================
-// 4. RENDER GRIDS & MODAL CLICK HOOK
+// 4. RENDER GRIDS & CLICK HANDLER
 // ==========================================
 function renderGrid(items, containerId, mediaType = 'movie') {
     renderGridItems(items, containerId, mediaType);
@@ -86,12 +86,21 @@ function renderGridItems(items, containerId, defaultType = 'movie') {
     items.forEach(item => {
         if (!item.poster_path) return;
 
-        const mType = item.type || defaultType || (item.title ? 'movie' : 'tv');
+        // Smart Media Type Detection (Fix for Anime & TV Series)
+        let mType = defaultType;
+        if (item.media_type) {
+            mType = item.media_type;
+        } else if (item.first_air_date || item.name || containerId === 'anime-grid' || containerId === 'tv-grid') {
+            mType = 'tv';
+        } else if (item.release_date || item.title) {
+            mType = 'movie';
+        }
+
         const name = item.title || item.name;
         const rating = item.vote_average ? Number(item.vote_average).toFixed(1) : "N/A";
         const dateStr = item.release_date || item.first_air_date || "";
         const year = dateStr.split("-")[0] || "2026";
-        const badgeLabel = mType === 'tv' ? 'TV SERIES' : (containerId === 'anime-grid' ? 'ANIME' : '1080P HD');
+        const badgeLabel = mType === 'tv' ? (containerId === 'anime-grid' ? 'ANIME' : 'TV SERIES') : '1080P HD';
 
         const card = document.createElement("div");
         card.className = "movie-card";
@@ -113,24 +122,31 @@ function renderGridItems(items, containerId, defaultType = 'movie') {
 }
 
 // ==========================================
-// 5. TRAILER QUICK-PREVIEW MODAL ENGINE
+// 5. TRAILER QUICK-PREVIEW MODAL (FIXED TMDB /TV/ & /MOVIE/)
 // ==========================================
 async function openPreviewModal(item, type = 'movie') {
     if (!item) return;
 
+    // Detect exact type for TMDB API
+    let resolvedType = type;
+    if (item.name || item.first_air_date) {
+        resolvedType = 'tv';
+    } else if (item.title || item.release_date) {
+        resolvedType = 'movie';
+    }
+
     currentModalItem = item;
-    currentModalType = type;
+    currentModalType = resolvedType;
 
     const modal = document.getElementById("trailer-modal");
     const iframe = document.getElementById("modal-trailer-iframe");
     const fallback = document.getElementById("trailer-fallback-backdrop");
 
-    // Modal kay-t7ell direct b display flex
     modal.style.display = "flex";
 
-    const name = item.title || item.name;
+    const name = item.title || item.name || "Media";
     const mediaSlug = createSlug(name);
-    const watchUrl = `watch.html?type=${type}&id=${item.id}&slug=${mediaSlug}${type === 'tv' ? '&season=1&episode=1' : ''}`;
+    const watchUrl = `watch.html?type=${resolvedType}&id=${item.id}&slug=${mediaSlug}${resolvedType === 'tv' ? '&season=1&episode=1' : ''}`;
 
     document.getElementById("modal-title").innerText = name;
     document.getElementById("modal-overview").innerText = item.overview || "Stream in full 1080p high definition with zero latency.";
@@ -138,53 +154,74 @@ async function openPreviewModal(item, type = 'movie') {
     const dateStr = item.release_date || item.first_air_date || "";
     document.getElementById("modal-year").innerText = dateStr.split("-")[0] || "2026";
     document.getElementById("modal-score").innerText = `SCORE ${item.vote_average ? Number(item.vote_average).toFixed(1) : "N/A"}`;
-    document.getElementById("modal-type-badge").innerText = type === 'tv' ? 'TV SERIES' : '1080P FULL HD';
+    document.getElementById("modal-type-badge").innerText = resolvedType === 'tv' ? 'TV SERIES' : '1080P FULL HD';
     document.getElementById("modal-play-btn").href = watchUrl;
 
     updateWatchlistBtnState(item.id);
 
-    // Fetch details
+    // 1. Fetch Exact Details (Runtime & Genres)
     try {
-        const detailRes = await fetch(`${BASE_URL}/${type}/${item.id}?api_key=${TMDB_API_KEY}&language=en-US`);
-        const detailData = await detailRes.json();
-        
-        const runtime = detailData.runtime || (detailData.episode_run_time && detailData.episode_run_time[0]) || 45;
-        document.getElementById("modal-runtime").innerText = `${runtime} min`;
-        
-        const genresWrap = document.getElementById("modal-genres");
-        genresWrap.innerHTML = "";
-        (detailData.genres || []).forEach(g => {
-            const span = document.createElement("span");
-            span.className = "genre-badge";
-            span.innerText = g.name;
-            genresWrap.appendChild(span);
-        });
-    } catch (e) {}
-
-    // Fetch YouTube Trailer
-    try {
-        const vidRes = await fetch(`${BASE_URL}/${type}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=en-US`);
-        const vidData = await vidRes.json();
-        const videos = vidData.results || [];
-        
-        let trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Trailer');
-        if (!trailer) trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Teaser');
-        if (!trailer) trailer = videos.find(v => v.site === 'YouTube');
-
-        if (trailer && trailer.key) {
-            fallback.style.display = "none";
-            iframe.style.display = "block";
-            iframe.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&controls=1&rel=0`;
-        } else {
-            iframe.src = "";
-            iframe.style.display = "none";
-            fallback.style.display = "block";
-            if (item.backdrop_path) {
-                fallback.style.backgroundImage = `url(${IMG_BACKDROP_BASE}${item.backdrop_path})`;
+        const detailRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}?api_key=${TMDB_API_KEY}&language=en-US`);
+        if (detailRes.ok) {
+            const detailData = await detailRes.json();
+            
+            if (detailData.overview) {
+                document.getElementById("modal-overview").innerText = detailData.overview;
             }
+            if (detailData.title || detailData.name) {
+                document.getElementById("modal-title").innerText = detailData.title || detailData.name;
+            }
+
+            const runtime = detailData.runtime || (detailData.episode_run_time && detailData.episode_run_time[0]) || 45;
+            document.getElementById("modal-runtime").innerText = `${runtime} min`;
+            
+            const genresWrap = document.getElementById("modal-genres");
+            genresWrap.innerHTML = "";
+            (detailData.genres || []).forEach(g => {
+                const span = document.createElement("span");
+                span.className = "genre-badge";
+                span.innerText = g.name;
+                genresWrap.appendChild(span);
+            });
+        }
+    } catch (e) {
+        console.error("Error loading modal details:", e);
+    }
+
+    // 2. Fetch Exact YouTube Trailer
+    try {
+        const vidRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=en-US`);
+        if (vidRes.ok) {
+            const vidData = await vidRes.json();
+            const videos = vidData.results || [];
+            
+            let trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+            if (!trailer) trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Teaser');
+            if (!trailer) trailer = videos.find(v => v.site === 'YouTube');
+
+            if (trailer && trailer.key) {
+                fallback.style.display = "none";
+                iframe.style.display = "block";
+                iframe.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&controls=1&rel=0`;
+            } else {
+                showFallbackBackdrop();
+            }
+        } else {
+            showFallbackBackdrop();
         }
     } catch (err) {
+        showFallbackBackdrop();
+    }
+
+    function showFallbackBackdrop() {
         iframe.src = "";
+        iframe.style.display = "none";
+        fallback.style.display = "block";
+        if (item.backdrop_path) {
+            fallback.style.backgroundImage = `url(${IMG_BACKDROP_BASE}${item.backdrop_path})`;
+        } else if (item.poster_path) {
+            fallback.style.backgroundImage = `url(${IMG_POSTER_BASE}${item.poster_path})`;
+        }
     }
 }
 
@@ -366,7 +403,7 @@ function filterCategory(category, buttonEl) {
 }
 
 // ==========================================
-// 9. SEARCH FUNCTIONALITY
+// 9. SEARCH FUNCTIONALITY (MULTI-MEDIA)
 // ==========================================
 const searchInput = document.getElementById("search-input");
 const searchSection = document.getElementById("search-results-section");
@@ -402,22 +439,26 @@ if (searchInput) {
 // 10. INITIALIZE HOME PAGE
 // ==========================================
 async function initApp() {
+    // 1. Trending Movies
     const trendingMovies = await fetchMedia("/trending/movie/day");
     if (trendingMovies.length > 0) {
         renderHero(trendingMovies[0], 'movie');
         renderGrid(trendingMovies, "trending-grid", 'movie');
     }
 
+    // 2. Trending TV Series
     const trendingTV = await fetchMedia("/trending/tv/day");
     if (trendingTV.length > 0) {
         renderGrid(trendingTV, "tv-grid", 'tv');
     }
 
+    // 3. Trending Anime (Japanese Animation)
     const trendingAnime = await fetchMedia("/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc");
     if (trendingAnime.length > 0) {
         renderGrid(trendingAnime, "anime-grid", 'tv');
     }
 
+    // 4. Top Rated Movies
     const topRatedMovies = await fetchMedia("/movie/top_rated");
     if (topRatedMovies.length > 0) {
         renderGrid(topRatedMovies, "top-rated-grid", 'movie');

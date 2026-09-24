@@ -5,7 +5,7 @@ const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836";
 const OGADS_LOCKER_ID = "4o7vvr"; 
 const OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
 
-// Parse URL Parameters (type, id, slug, season, episode, unlocked)
+// Parse URL Parameters
 const urlParams = new URLSearchParams(window.location.search);
 const mediaType = urlParams.get("type") || "movie";
 const mediaId = urlParams.get("id");
@@ -34,22 +34,24 @@ let playbackSeconds = 0;
 let historyTrackerInterval = null;
 
 // ==========================================
-// 2. STREAM SERVERS (CLEAN ENDPOINTS - ZERO INVALID PARAMS)
+// 2. STREAM SERVERS (CLEAN SERVERS - ZERO CASINO POPUPS)
 // ==========================================
 function getStreamServers(season = 1, episode = 1) {
-    if (mediaType === "tv") {
-        return {
-            vidlink: `https://vidlink.pro/tv/${mediaId}/${season}/${episode}`,
-            vidsrcto: `https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}`,
-            autoembed: `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}`
-        };
-    } else {
-        return {
-            vidlink: `https://vidlink.pro/movie/${mediaId}`,
-            vidsrcto: `https://vidsrc.to/embed/movie/${mediaId}`,
-            autoembed: `https://player.autoembed.cc/embed/movie/${mediaId}`
-        };
-    }
+    const isTv = mediaType === "tv";
+    return {
+        vidlink: isTv 
+            ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}` 
+            : `https://vidlink.pro/movie/${mediaId}`,
+        autoembed: isTv 
+            ? `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://player.autoembed.cc/embed/movie/${mediaId}`,
+        vidsrccc: isTv 
+            ? `https://vidsrc.cc/v2/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://vidsrc.cc/v2/embed/movie/${mediaId}`,
+        smashy: isTv 
+            ? `https://embed.smashystream.com/playere.php?tmdb=${mediaId}&season=${season}&episode=${episode}` 
+            : `https://embed.smashystream.com/playere.php?tmdb=${mediaId}`
+    };
 }
 
 function loadStreamServer(serverName) {
@@ -86,9 +88,9 @@ async function loadMediaDetails() {
         
         const dateStr = data.release_date || data.first_air_date || "";
         document.getElementById("movie-detail-year").innerText = dateStr.split("-")[0] || "2026";
-        document.getElementById("movie-detail-rating").innerText = `SCORE ${data.vote_average ? data.vote_average.toFixed(1) : "N/A"}`;
+        document.getElementById("movie-detail-rating").innerText = `SCORE ${data.vote_average ? Number(data.vote_average).toFixed(1) : "N/A"}`;
         
-        const runtime = data.runtime || (data.episode_run_time && data.episode_run_time[0]) || 50;
+        const runtime = data.runtime || (data.episode_run_time && data.episode_run_time[0]) || 45;
         document.getElementById("movie-detail-runtime").innerText = `${runtime} min`;
         document.getElementById("media-type-badge").innerText = mediaType === 'tv' ? 'TV SERIES' : '1080P FULL HD';
 
@@ -120,7 +122,7 @@ async function loadMediaDetails() {
         // Set Dynamic SubID Tracking
         updateLockerTracking();
 
-        // Auto-load Server 1 Default
+        // Auto-load Server 1 Default (VidLink)
         loadStreamServer("vidlink");
 
         // Save session entry to History

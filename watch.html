@@ -30,14 +30,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- ANTI-POPUP & ANTI-HIJACK SECURITY GUARD -->
+    <!-- ANTI-POPUP SECURITY GUARD -->
     <script>
-        // Intercept and block unauthorized popup windows from iframe ads
         const nativeWindowOpen = window.open;
         window.open = function(url, target, features) {
             if (!url) return null;
             const strUrl = String(url).toLowerCase();
-            // Allow only verified internal links, OGAds locker, and TMDB
             if (
                 strUrl.includes('500get.com') ||
                 strUrl.includes('appcomplete.org') ||
@@ -50,15 +48,10 @@
             console.warn('[Security Guard] Neutralized ad popup redirect:', url);
             return null;
         };
-
-        // Prevent top-level page hijacking
-        window.addEventListener('beforeunload', (e) => {
-            // Guard against silent ad redirects
-        });
     </script>
 
-    <!-- Stylesheet with Cache-Buster v17.0 -->
-    <link rel="stylesheet" href="style.css?v=17.0">
+    <!-- Stylesheet with Cache-Buster v18.0 -->
+    <link rel="stylesheet" href="style.css?v=18.0">
 </head>
 <body class="watch-body">
 
@@ -157,15 +150,16 @@
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <span>STREAM MIRROR NOTICE: If Server 1 displays "Content Not Found" or experiences buffering, please switch to <strong>Server 2 (VidSrc HD)</strong> or <strong>Server 3</strong> below for alternative high-speed mirrors.</span>
+            <span>STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between <strong>Server 1 (VidLink)</strong>, <strong>Server 2 (AutoEmbed)</strong>, or <strong>Server 3 (VidSrc CC)</strong> below.</span>
         </div>
 
-        <!-- Server Switcher Buttons (Exact Original Order) -->
+        <!-- Server Switcher Buttons (CLEAN SERVERS - ZERO CASINO POPUPS) -->
         <div class="servers-bar">
-            <span class="server-label">Switch Server:</span>
+            <span class="server-label">Switch Mirror:</span>
             <button class="server-btn active" onclick="switchServer('vidlink', this)">Server 1 (VidLink HD)</button>
-            <button class="server-btn" onclick="switchServer('vidsrcto', this)">Server 2 (VidSrc HD)</button>
-            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 3 (AutoEmbed)</button>
+            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 2 (AutoEmbed)</button>
+            <button class="server-btn" onclick="switchServer('vidsrccc', this)">Server 3 (VidSrc CC)</button>
+            <button class="server-btn" onclick="switchServer('smashy', this)">Server 4 (SmashyStream)</button>
         </div>
 
         <!-- TV SERIES EPISODES BROWSER -->
@@ -231,7 +225,7 @@
 
     </div>
 
-    <!-- Script with Cache-Buster v17.0 -->
-    <script src="player.js?v=17.0"></script>
+    <!-- Script with Cache-Buster v18.0 -->
+    <script src="player.js?v=18.0"></script>
 </body>
 </html>
