@@ -1,7 +1,7 @@
 // ==========================================
 // 1. CONFIGURATION DYAL TMDB API
 // ==========================================
-const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836"; // API Key dyalek
+const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836";
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMG_BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const IMG_POSTER_BASE = "https://image.tmdb.org/t/p/w500";
@@ -107,7 +107,6 @@ function renderGridItems(items, containerId, defaultType = 'movie') {
             </div>
         `;
 
-        // Click kay-fte7 l-Modal Popup f l-wst direct!
         card.onclick = () => openPreviewModal(item, mType);
         container.appendChild(card);
     });
@@ -117,6 +116,8 @@ function renderGridItems(items, containerId, defaultType = 'movie') {
 // 5. TRAILER QUICK-PREVIEW MODAL ENGINE
 // ==========================================
 async function openPreviewModal(item, type = 'movie') {
+    if (!item) return;
+
     currentModalItem = item;
     currentModalType = type;
 
@@ -124,7 +125,7 @@ async function openPreviewModal(item, type = 'movie') {
     const iframe = document.getElementById("modal-trailer-iframe");
     const fallback = document.getElementById("trailer-fallback-backdrop");
 
-    // Force centered fixed display
+    // Modal kay-t7ell direct b display flex
     modal.style.display = "flex";
 
     const name = item.title || item.name;
@@ -190,8 +191,8 @@ async function openPreviewModal(item, type = 'movie') {
 function closeTrailerModal() {
     const modal = document.getElementById("trailer-modal");
     const iframe = document.getElementById("modal-trailer-iframe");
-    iframe.src = "";
-    modal.style.display = "none";
+    if (iframe) iframe.src = "";
+    if (modal) modal.style.display = "none";
 }
 
 window.addEventListener("click", (e) => {
@@ -313,54 +314,54 @@ function filterCategory(category, buttonEl) {
     if (secSearch) secSearch.style.display = "none";
 
     if (category === 'all') {
-        secTrending.style.display = "block";
-        secTV.style.display = "block";
-        secAnime.style.display = "block";
-        secTopRated.style.display = "block";
-        secHistory.style.display = "none";
-        secMyList.style.display = "none";
+        if (secTrending) secTrending.style.display = "block";
+        if (secTV) secTV.style.display = "block";
+        if (secAnime) secAnime.style.display = "block";
+        if (secTopRated) secTopRated.style.display = "block";
+        if (secHistory) secHistory.style.display = "none";
+        if (secMyList) secMyList.style.display = "none";
     } else if (category === 'movies') {
-        secTrending.style.display = "block";
-        secTopRated.style.display = "block";
-        secTV.style.display = "none";
-        secAnime.style.display = "none";
-        secHistory.style.display = "none";
-        secMyList.style.display = "none";
-        secTrending.scrollIntoView({ behavior: 'smooth' });
+        if (secTrending) secTrending.style.display = "block";
+        if (secTopRated) secTopRated.style.display = "block";
+        if (secTV) secTV.style.display = "none";
+        if (secAnime) secAnime.style.display = "none";
+        if (secHistory) secHistory.style.display = "none";
+        if (secMyList) secMyList.style.display = "none";
+        if (secTrending) secTrending.scrollIntoView({ behavior: 'smooth' });
     } else if (category === 'tv') {
-        secTV.style.display = "block";
-        secTrending.style.display = "none";
-        secAnime.style.display = "none";
-        secTopRated.style.display = "none";
-        secHistory.style.display = "none";
-        secMyList.style.display = "none";
-        secTV.scrollIntoView({ behavior: 'smooth' });
+        if (secTV) secTV.style.display = "block";
+        if (secTrending) secTrending.style.display = "none";
+        if (secAnime) secAnime.style.display = "none";
+        if (secTopRated) secTopRated.style.display = "none";
+        if (secHistory) secHistory.style.display = "none";
+        if (secMyList) secMyList.style.display = "none";
+        if (secTV) secTV.scrollIntoView({ behavior: 'smooth' });
     } else if (category === 'anime') {
-        secAnime.style.display = "block";
-        secTrending.style.display = "none";
-        secTV.style.display = "none";
-        secTopRated.style.display = "none";
-        secHistory.style.display = "none";
-        secMyList.style.display = "none";
-        secAnime.scrollIntoView({ behavior: 'smooth' });
+        if (secAnime) secAnime.style.display = "block";
+        if (secTrending) secTrending.style.display = "none";
+        if (secTV) secTV.style.display = "none";
+        if (secTopRated) secTopRated.style.display = "none";
+        if (secHistory) secHistory.style.display = "none";
+        if (secMyList) secMyList.style.display = "none";
+        if (secAnime) secAnime.scrollIntoView({ behavior: 'smooth' });
     } else if (category === 'mylist') {
-        secMyList.style.display = "block";
+        if (secMyList) secMyList.style.display = "block";
         renderWatchlistGrid();
-        secTrending.style.display = "none";
-        secTV.style.display = "none";
-        secAnime.style.display = "none";
-        secTopRated.style.display = "none";
-        secHistory.style.display = "none";
-        secMyList.scrollIntoView({ behavior: 'smooth' });
+        if (secTrending) secTrending.style.display = "none";
+        if (secTV) secTV.style.display = "none";
+        if (secAnime) secAnime.style.display = "none";
+        if (secTopRated) secTopRated.style.display = "none";
+        if (secHistory) secHistory.style.display = "none";
+        if (secMyList) secMyList.scrollIntoView({ behavior: 'smooth' });
     } else if (category === 'history') {
-        secHistory.style.display = "block";
+        if (secHistory) secHistory.style.display = "block";
         renderHistoryGrid();
-        secTrending.style.display = "none";
-        secTV.style.display = "none";
-        secAnime.style.display = "none";
-        secTopRated.style.display = "none";
-        secMyList.style.display = "none";
-        secHistory.scrollIntoView({ behavior: 'smooth' });
+        if (secTrending) secTrending.style.display = "none";
+        if (secTV) secTV.style.display = "none";
+        if (secAnime) secAnime.style.display = "none";
+        if (secTopRated) secTopRated.style.display = "none";
+        if (secMyList) secMyList.style.display = "none";
+        if (secHistory) secHistory.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
