@@ -27,11 +27,11 @@
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Stylesheet with Cache-Buster v11.0 -->
-    <link rel="stylesheet" href="style.css?v=11.0">
+    <!-- Stylesheet with Cache-Buster v15.0 -->
+    <link rel="stylesheet" href="style.css?v=15.0">
 </head>
 <body>
 
@@ -94,7 +94,7 @@
             <div class="movies-grid" id="search-grid"></div>
         </section>
 
-        <!-- Continue Watching / Watch History Row (Feature 4) -->
+        <!-- Continue Watching / Watch History Row -->
         <section class="movie-row-section" id="history-section" style="display: none;">
             <div class="row-header-wrap">
                 <h2 class="row-title">Continue Watching (Playback History)</h2>
@@ -103,7 +103,7 @@
             <div class="movies-grid" id="history-grid"></div>
         </section>
 
-        <!-- My List (Saved Watchlist) Row (Feature 3) -->
+        <!-- My List (Saved Watchlist) Row -->
         <section class="movie-row-section" id="my-list-section" style="display: none;">
             <div class="row-header-wrap">
                 <h2 class="row-title">My Saved Watchlist</h2>
@@ -124,7 +124,7 @@
             <div class="movies-grid" id="tv-grid"></div>
         </section>
 
-        <!-- Trending Anime Row (Feature 2) -->
+        <!-- Trending Anime Row -->
         <section class="movie-row-section" id="anime-section">
             <h2 class="row-title">Trending Anime & Japanese Animation</h2>
             <div class="movies-grid" id="anime-grid"></div>
@@ -138,8 +138,8 @@
 
     </main>
 
-    <!-- 4. NETFLIX QUICK-LOOK TRAILER MODAL (FEATURE 1) -->
-    <div id="trailer-modal" class="trailer-modal-backdrop" style="display: none;">
+    <!-- 4. NETFLIX QUICK-LOOK TRAILER MODAL (GUARANTEED FIXED CENTERED POPUP) -->
+    <div id="trailer-modal" class="trailer-modal-backdrop" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 5, 8, 0.94); backdrop-filter: blur(16px); z-index: 999999; justify-content: center; align-items: center; padding: 15px;">
         <div class="trailer-modal-box">
             
             <!-- Close Button -->
@@ -188,7 +188,7 @@
         <p class="disclaimer">Powered by TMDB API. No video media stored on host servers.</p>
     </footer>
 
-    <!-- Script with Cache-Buster v11.0 -->
-    <script src="app.js?v=11.0"></script>
+    <!-- Script with Cache-Buster v15.0 -->
+    <script src="app.js?v=15.0"></script>
 </body>
 </html>

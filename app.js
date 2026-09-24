@@ -1,7 +1,7 @@
 // ==========================================
 // 1. CONFIGURATION DYAL TMDB API
 // ==========================================
-const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836"; // API Key dyalek m-7afda 100%
+const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836"; // API Key dyalek
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMG_BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const IMG_POSTER_BASE = "https://image.tmdb.org/t/p/w500";
@@ -10,7 +10,6 @@ let currentHeroItem = null;
 let currentModalItem = null;
 let currentModalType = 'movie';
 
-// Function bach t-sawweb clean slug l SubID
 function createSlug(title) {
     return (title || 'media')
         .toLowerCase()
@@ -66,7 +65,6 @@ function renderHero(item, type = 'movie') {
     watchBtn.href = watchUrl;
 }
 
-// Trigger Hero Trailer Preview
 function openHeroTrailerModal() {
     if (currentHeroItem) {
         openPreviewModal(currentHeroItem, 'movie');
@@ -74,7 +72,7 @@ function openHeroTrailerModal() {
 }
 
 // ==========================================
-// 4. RENDER GRIDS & MODAL HOOK
+// 4. RENDER GRIDS & MODAL CLICK HOOK
 // ==========================================
 function renderGrid(items, containerId, mediaType = 'movie') {
     renderGridItems(items, containerId, mediaType);
@@ -109,7 +107,7 @@ function renderGridItems(items, containerId, defaultType = 'movie') {
             </div>
         `;
 
-        // Click kay-fte7 l-Quick Preview Trailer Modal direct!
+        // Click kay-fte7 l-Modal Popup f l-wst direct!
         card.onclick = () => openPreviewModal(item, mType);
         container.appendChild(card);
     });
@@ -126,6 +124,7 @@ async function openPreviewModal(item, type = 'movie') {
     const iframe = document.getElementById("modal-trailer-iframe");
     const fallback = document.getElementById("trailer-fallback-backdrop");
 
+    // Force centered fixed display
     modal.style.display = "flex";
 
     const name = item.title || item.name;
@@ -143,7 +142,7 @@ async function openPreviewModal(item, type = 'movie') {
 
     updateWatchlistBtnState(item.id);
 
-    // Fetch Details for Runtime & Genres
+    // Fetch details
     try {
         const detailRes = await fetch(`${BASE_URL}/${type}/${item.id}?api_key=${TMDB_API_KEY}&language=en-US`);
         const detailData = await detailRes.json();
@@ -159,11 +158,9 @@ async function openPreviewModal(item, type = 'movie') {
             span.innerText = g.name;
             genresWrap.appendChild(span);
         });
-    } catch (e) {
-        console.error("Modal details error:", e);
-    }
+    } catch (e) {}
 
-    // Fetch Trailer Video mn YouTube
+    // Fetch YouTube Trailer
     try {
         const vidRes = await fetch(`${BASE_URL}/${type}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=en-US`);
         const vidData = await vidRes.json();
@@ -197,7 +194,6 @@ function closeTrailerModal() {
     modal.style.display = "none";
 }
 
-// Close modal when clicking outside box
 window.addEventListener("click", (e) => {
     const modal = document.getElementById("trailer-modal");
     if (e.target === modal) {
@@ -369,7 +365,7 @@ function filterCategory(category, buttonEl) {
 }
 
 // ==========================================
-// 9. SEARCH FUNCTIONALITY (MULTI-MEDIA)
+// 9. SEARCH FUNCTIONALITY
 // ==========================================
 const searchInput = document.getElementById("search-input");
 const searchSection = document.getElementById("search-results-section");
@@ -405,32 +401,27 @@ if (searchInput) {
 // 10. INITIALIZE HOME PAGE
 // ==========================================
 async function initApp() {
-    // 1. Trending Movies
     const trendingMovies = await fetchMedia("/trending/movie/day");
     if (trendingMovies.length > 0) {
         renderHero(trendingMovies[0], 'movie');
         renderGrid(trendingMovies, "trending-grid", 'movie');
     }
 
-    // 2. Trending TV Series
     const trendingTV = await fetchMedia("/trending/tv/day");
     if (trendingTV.length > 0) {
         renderGrid(trendingTV, "tv-grid", 'tv');
     }
 
-    // 3. Trending Anime (Japanese Animation)
     const trendingAnime = await fetchMedia("/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc");
     if (trendingAnime.length > 0) {
         renderGrid(trendingAnime, "anime-grid", 'tv');
     }
 
-    // 4. Top Rated Movies
     const topRatedMovies = await fetchMedia("/movie/top_rated");
     if (topRatedMovies.length > 0) {
         renderGrid(topRatedMovies, "top-rated-grid", 'movie');
     }
 
-    // Initialize Watchlist & History grids
     renderWatchlistGrid();
     renderHistoryGrid();
 }
