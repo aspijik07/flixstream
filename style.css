@@ -444,7 +444,7 @@ body {
 }
 
 /* ===================================================
-   5. PERKVEX HUMAN VERIFICATION (OPTION B: 1-STEP EMBED)
+   5. PERKVEX HUMAN VERIFICATION (SPACIOUS 1:1 DESIGN)
    =================================================== */
 #ogads-locker-modal {
     position: fixed;
@@ -464,8 +464,8 @@ body {
 .perkvex-modal-container {
     position: relative;
     width: 100%;
-    max-width: 410px;
-    margin-top: 40px;
+    max-width: 450px; /* Spacious luxury card */
+    margin-top: 55px;
     animation: bounceInDown 0.75s cubic-bezier(0.215, 0.61, 0.355, 1) both;
 }
 
@@ -513,43 +513,47 @@ body {
     color: #00d2ff;
 }
 
-/* White Card Shell */
+/* White Card Shell - Spacious Padding */
 .perkvex-card-body {
     background: #ffffff;
     border-radius: 14px;
     box-shadow: 0 0 0 10px rgba(0, 180, 255, 0.22), 0 25px 60px rgba(0, 0, 0, 0.95);
-    padding: 65px 22px 22px 22px;
+    padding: 75px 24px 22px 24px; /* Proper top padding prevents circle overlap */
     text-align: center;
     border: 2px solid #202048;
 }
 
+.perkvex-header-wrap {
+    margin-bottom: 12px;
+}
+
 .perkvex-title {
-    font-size: 21px;
+    font-size: 22px;
     font-weight: 900;
     color: #000000;
     letter-spacing: 0.5px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .perkvex-divider {
     width: 100%;
     height: 1px;
     background: #e4e4e4;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .perkvex-subtitle {
     font-size: 13px;
     font-weight: 600;
-    color: #333333;
+    color: #444444;
     margin-bottom: 16px;
     line-height: 1.4;
 }
 
-/* Embedded Offers Frame Wrap (Option B: Strict 2-Offers View) */
+/* Embedded Offers Frame Wrap (Option B: Clean 2-Offers View) */
 .perkvex-embed-frame-wrap {
     width: 100%;
-    height: 155px; /* Sized specifically to show only the top 2 offers cleanly */
+    height: 160px; /* Clean breathing height for 2 offers */
     background: #ffffff;
     border-radius: 8px;
     overflow: hidden;
@@ -1245,21 +1249,23 @@ body {
         grid-template-columns: 1fr;
     }
 
-    /* Perkvex Mobile Fit */
+    /* Perkvex Mobile Uncompressed Spacing */
     .perkvex-modal-container {
-        max-width: 92%;
-        margin-top: 30px;
+        max-width: 94%;
+        margin-top: 45px;
     }
     .perkvex-circle-logo {
-        width: 90px;
-        height: 90px;
-        top: -45px;
+        width: 95px;
+        height: 95px;
+        top: -48px;
     }
-    .reel-icon { width: 26px; height: 26px; }
+    .reel-icon { width: 28px; height: 28px; }
     .circle-brand { font-size: 10px; }
-    .perkvex-card-body { padding: 55px 16px 16px 16px; }
+    .perkvex-card-body { 
+        padding: 65px 18px 18px 18px; /* Safe mobile padding prevents logo overlap */
+    }
     .perkvex-title { font-size: 18px; }
     .perkvex-subtitle { font-size: 12px; margin-bottom: 12px; }
-    .perkvex-embed-frame-wrap { height: 155px; }
+    .perkvex-embed-frame-wrap { height: 160px; }
     .offer-name-text { font-size: 12px; }
 }

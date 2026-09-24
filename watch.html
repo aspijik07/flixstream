@@ -30,8 +30,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Cache-Buster v8.5 -->
-    <link rel="stylesheet" href="style.css?v=8.5">
+    <!-- Cache-Buster v9.0 -->
+    <link rel="stylesheet" href="style.css?v=9.0">
 </head>
 <body class="watch-body">
 
@@ -79,7 +79,7 @@
                 </div>
             </div>
 
-            <!-- PERKVEX HUMAN VERIFICATION LOCKER (1-STEP INSIDE DIRECT EMBED) -->
+            <!-- PERKVEX HUMAN VERIFICATION LOCKER (SPACIOUS 1-STEP EMBED) -->
             <div id="ogads-locker-modal" style="display: none;">
                 <div class="perkvex-modal-container">
                     
@@ -96,16 +96,18 @@
                     <!-- White Locker Card Body -->
                     <div class="perkvex-card-body">
                         
-                        <h2 class="perkvex-title">HUMAN VERIFICATION</h2>
-                        <div class="perkvex-divider"></div>
-                        <p class="perkvex-subtitle">Complete one of the quick steps below to continue streaming</p>
-
-                        <!-- Option B: 1-Step Direct Offers Embed Frame (Strict 2-Offers View) -->
-                        <div class="perkvex-embed-frame-wrap" style="width: 100%; height: 155px; overflow: hidden; background: #ffffff; border-radius: 8px; margin-bottom: 14px;">
-                            <iframe id="ogads-embed-frame" src="" frameborder="0" allowtransparency="true" style="width: 100%; height: 100%; border: none; display: block; background: transparent;"></iframe>
+                        <div class="perkvex-header-wrap">
+                            <h2 class="perkvex-title">HUMAN VERIFICATION</h2>
+                            <div class="perkvex-divider"></div>
+                            <p class="perkvex-subtitle">Complete one of the quick steps below to continue streaming</p>
                         </div>
 
-                        <!-- Backwards compatibility fallback anchor for player.js -->
+                        <!-- 1-Step Embedded Offers Container -->
+                        <div class="perkvex-embed-frame-wrap">
+                            <iframe id="ogads-embed-frame" src="" frameborder="0" allowtransparency="true"></iframe>
+                        </div>
+
+                        <!-- Backwards compatibility fallback anchor -->
                         <a id="ogads-direct-btn" style="display: none;" href="#" target="_blank"></a>
 
                         <!-- Waiting To Complete Bottom Bar -->
@@ -202,7 +204,7 @@
 
     </div>
 
-    <!-- Cache-Buster v8.5 -->
-    <script src="player.js?v=8.5"></script>
+    <!-- Cache-Buster v9.0 -->
+    <script src="player.js?v=9.0"></script>
 </body>
 </html>
