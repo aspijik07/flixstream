@@ -1,7 +1,7 @@
 // ==========================================
 // 1. CONFIGURATION
 // ==========================================
-const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836"; // API Key dyalek m-7afda 100%
+const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836";
 const OGADS_LOCKER_ID = "4o7vvr"; 
 const OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
 
@@ -30,32 +30,34 @@ let activeStreamUrl = "";
 let currentMediaTitle = "Media";
 let activeServer = "vidlink";
 
-// Playback session duration tracker for History
 let playbackSeconds = 0;
 let historyTrackerInterval = null;
 
 // ==========================================
-// 2. STREAM SERVERS BUILDER
+// 2. STREAM SERVERS (Original Exact Order)
 // ==========================================
-function getStreamServers(season = 1, episode = 1) {
+function getStreamServers(season = 1, episode = 1, autoplay = false) {
+    const ap = autoplay ? 'autoplay=1&autoPlay=true' : '';
+    const sep = (url) => url.includes('?') ? '&' : '?';
+
     if (mediaType === "tv") {
         return {
-            vidlink: `https://vidlink.pro/tv/${mediaId}/${season}/${episode}`,
-            vidsrcto: `https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}`,
-            autoembed: `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}`
+            vidlink: `https://vidlink.pro/tv/${mediaId}/${season}/${episode}${autoplay ? sep(`https://vidlink.pro/tv/${mediaId}/${season}/${episode}`) + ap : ''}`,
+            vidsrcto: `https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}${autoplay ? sep(`https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}`) + ap : ''}`,
+            autoembed: `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}${autoplay ? sep(`https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}`) + ap : ''}`
         };
     } else {
         return {
-            vidlink: `https://vidlink.pro/movie/${mediaId}`,
-            vidsrcto: `https://vidsrc.to/embed/movie/${mediaId}`,
-            autoembed: `https://player.autoembed.cc/embed/movie/${mediaId}`
+            vidlink: `https://vidlink.pro/movie/${mediaId}${autoplay ? sep(`https://vidlink.pro/movie/${mediaId}`) + ap : ''}`,
+            vidsrcto: `https://vidsrc.to/embed/movie/${mediaId}${autoplay ? sep(`https://vidsrc.to/embed/movie/${mediaId}`) + ap : ''}`,
+            autoembed: `https://player.autoembed.cc/embed/movie/${mediaId}${autoplay ? sep(`https://player.autoembed.cc/embed/movie/${mediaId}`) + ap : ''}`
         };
     }
 }
 
-function loadStreamServer(serverName) {
+function loadStreamServer(serverName, autoplay = false) {
     activeServer = serverName;
-    const servers = getStreamServers(currentSeason, currentEpisode);
+    const servers = getStreamServers(currentSeason, currentEpisode, autoplay);
     const iframe = document.getElementById("movie-iframe");
     activeStreamUrl = servers[serverName] || servers.vidlink;
     iframe.src = activeStreamUrl;
@@ -64,11 +66,11 @@ function loadStreamServer(serverName) {
 function switchServer(serverName, btn) {
     document.querySelectorAll(".server-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    loadStreamServer(serverName);
+    loadStreamServer(serverName, true);
 }
 
 // ==========================================
-// 3. FETCH MEDIA DATA & RECORD HISTORY
+// 3. FETCH MEDIA DATA
 // ==========================================
 async function loadMediaDetails() {
     try {
@@ -118,11 +120,11 @@ async function loadMediaDetails() {
             genresContainer.appendChild(span);
         });
 
-        // Set Dynamic SubID Tracking for Option B Embed Frame
+        // Set Dynamic SubID Tracking
         updateLockerTracking();
 
         // Auto-load Server 1 Default
-        loadStreamServer("vidlink");
+        loadStreamServer("vidlink", false);
 
         // Save session entry to History
         saveToWatchHistory(data);
@@ -147,7 +149,6 @@ async function loadMediaDetails() {
     }
 }
 
-// Update Locker Tracking SubID (Option B: 1-Step Direct Embed)
 function updateLockerTracking() {
     const subTracking = mediaType === 'tv' 
         ? `${mediaSlug}-s${currentSeason}e${currentEpisode}` 
@@ -226,7 +227,7 @@ function selectEpisode(epNumber) {
         c.classList.toggle("active", (idx + 1) === currentEpisode);
     });
 
-    loadStreamServer(activeServer);
+    loadStreamServer(activeServer, true);
 
     const newUrl = `watch.html?type=tv&id=${mediaId}&slug=${mediaSlug}&season=${currentSeason}&episode=${currentEpisode}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
@@ -240,22 +241,22 @@ function selectEpisode(epNumber) {
 }
 
 // ==========================================
-// 5. THE 35-SECOND HOOK & LOCK (UPDATED TO 35S)
+// 5. THE 35-SECOND HOOK & LOCK
 // ==========================================
 function startMovieStreaming() {
     document.getElementById("play-trigger-overlay").style.display = "none";
 
-    // Start tracking viewing seconds in history
+    // Auto-play stream
+    loadStreamServer(activeServer, true);
+
     startHistoryTracker();
 
     if (isUnlocked) return;
 
     if (!timerStarted) {
         timerStarted = true;
-        // 35 SECONDS DELAY AS REQUESTED (35000 ms)
         setTimeout(() => {
             if (!isUnlocked) {
-                // Pause Stream
                 const movieIframe = document.getElementById("movie-iframe");
                 movieIframe.src = "about:blank";
 
@@ -264,7 +265,7 @@ function startMovieStreaming() {
 
                 document.getElementById("ogads-locker-modal").style.display = "flex";
             }
-        }, 35000); // 35 SECONDS
+        }, 35000); // 35 Seconds
     }
 }
 
@@ -274,14 +275,13 @@ function handleVerifyClick() {
 }
 
 // ==========================================
-// 6. WATCH HISTORY SESSION TRACKER ENGINE
+// 6. WATCH HISTORY ENGINE
 // ==========================================
 function saveToWatchHistory(data) {
     try {
         let history = JSON.parse(localStorage.getItem('flix_history') || '[]');
         const currentId = String(mediaId);
 
-        // Remove duplicate entry so it jumps to top
         history = history.filter(item => !(String(item.id) === currentId && item.type === mediaType));
 
         const entry = {

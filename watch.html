@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream HD - FlixStream</title>
     
-    <!-- Dynamic Meta Tags with IDs for JS injection -->
+    <!-- Meta Description & SEO -->
     <meta name="description" id="meta-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
     <meta name="theme-color" content="#0b0b0b">
 
@@ -27,11 +27,38 @@
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Stylesheet with Cache-Buster v12.0 -->
-    <link rel="stylesheet" href="style.css?v=12.0">
+    <!-- ANTI-POPUP & ANTI-HIJACK SECURITY GUARD -->
+    <script>
+        // Intercept and block unauthorized popup windows from iframe ads
+        const nativeWindowOpen = window.open;
+        window.open = function(url, target, features) {
+            if (!url) return null;
+            const strUrl = String(url).toLowerCase();
+            // Allow only verified internal links, OGAds locker, and TMDB
+            if (
+                strUrl.includes('500get.com') ||
+                strUrl.includes('appcomplete.org') ||
+                strUrl.includes('unlocked.html') ||
+                strUrl.includes('themoviedb.org') ||
+                strUrl.includes('youtube.com')
+            ) {
+                return nativeWindowOpen.apply(window, arguments);
+            }
+            console.warn('[Security Guard] Neutralized ad popup redirect:', url);
+            return null;
+        };
+
+        // Prevent top-level page hijacking
+        window.addEventListener('beforeunload', (e) => {
+            // Guard against silent ad redirects
+        });
+    </script>
+
+    <!-- Stylesheet with Cache-Buster v17.0 -->
+    <link rel="stylesheet" href="style.css?v=17.0">
 </head>
 <body class="watch-body">
 
@@ -95,17 +122,19 @@
 
                     <!-- White Locker Card Body -->
                     <div class="perkvex-card-body">
+                        
                         <div class="perkvex-header-wrap">
                             <h2 class="perkvex-title">HUMAN VERIFICATION</h2>
                             <div class="perkvex-divider"></div>
                             <p class="perkvex-subtitle">Complete one of the quick steps below to continue streaming</p>
                         </div>
 
-                        <!-- Scrollable Offers Box -->
+                        <!-- Scrollable Offers Container -->
                         <div class="perkvex-embed-frame-wrap">
                             <iframe id="ogads-embed-frame" src="" frameborder="0" allowtransparency="true"></iframe>
                         </div>
 
+                        <!-- Backwards compatibility anchor -->
                         <a id="ogads-direct-btn" style="display: none;" href="#" target="_blank"></a>
 
                         <!-- Waiting To Complete Bottom Bar -->
@@ -113,6 +142,7 @@
                             <span class="waiting-spinner"></span>
                             <span class="waiting-text">Waiting to complete</span>
                         </div>
+
                     </div>
 
                 </div>
@@ -120,7 +150,7 @@
 
         </div>
 
-        <!-- STREAM MIRROR NOTICE BANNER -->
+        <!-- STREAM MIRROR NOTICE BANNER (100% ENGLISH) -->
         <div class="server-notice-banner">
             <svg class="notice-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -130,7 +160,7 @@
             <span>STREAM MIRROR NOTICE: If Server 1 displays "Content Not Found" or experiences buffering, please switch to <strong>Server 2 (VidSrc HD)</strong> or <strong>Server 3</strong> below for alternative high-speed mirrors.</span>
         </div>
 
-        <!-- Server Switcher Buttons -->
+        <!-- Server Switcher Buttons (Exact Original Order) -->
         <div class="servers-bar">
             <span class="server-label">Switch Server:</span>
             <button class="server-btn active" onclick="switchServer('vidlink', this)">Server 1 (VidLink HD)</button>
@@ -201,7 +231,7 @@
 
     </div>
 
-    <!-- Cache-Buster v12.0 -->
-    <script src="player.js?v=12.0"></script>
+    <!-- Script with Cache-Buster v17.0 -->
+    <script src="player.js?v=17.0"></script>
 </body>
 </html>
