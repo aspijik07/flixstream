@@ -1,5 +1,5 @@
 // ==========================================
-// 1. CONFIGURATION
+// 1. CONFIGURATION & I18N
 // ==========================================
 const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836";
 const OGADS_LOCKER_ID = "4o7vvr"; 
@@ -13,6 +13,15 @@ const mediaSlug = urlParams.get("slug") || "media";
 let currentSeason = parseInt(urlParams.get("season")) || 1;
 let currentEpisode = parseInt(urlParams.get("episode")) || 1;
 const isUnlockedParam = urlParams.get("unlocked") === "true";
+
+// Language State
+let currentLang = urlParams.get("lang") || localStorage.getItem("flix_lang") || "en";
+const tmdbLangMap = {
+    en: "en-US",
+    fr: "fr-FR",
+    es: "es-ES",
+    de: "de-DE"
+};
 
 if (!mediaId) {
     window.location.href = "index.html";
@@ -28,32 +37,132 @@ let timerStarted = false;
 let isUnlocked = localStorage.getItem(unlockStorageKey) === "true";
 let activeStreamUrl = "";
 let currentMediaTitle = "Media";
-let activeServer = "vidsrcto";
+let activeServer = "vidlink";
 
 let playbackSeconds = 0;
 let historyTrackerInterval = null;
 
+// i18n Dictionary for Watch Page
+const watchI18nDict = {
+    en: {
+        nav_back_browse: "Back to Browse",
+        telemetry_streaming: "VIEWERS STREAMING NOW",
+        telemetry_source: "SOURCE: 1080P ULTRA",
+        telemetry_health: "SERVER HEALTH: 99.8%",
+        btn_start_streaming: "Start Streaming in 1080p Full HD",
+        player_subtext: "Fast CDN Mirror &bull; Multi-Subtitles &bull; Dolby Audio",
+        locker_title: "HUMAN VERIFICATION",
+        locker_subtitle: "Complete one of the quick steps below to continue streaming",
+        locker_waiting: "Waiting to complete",
+        notice_banner: "STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between Server 1 (VidLink), Server 2 (AutoEmbed), or Server 3 (VidSrc CC) below.",
+        label_switch_server: "Switch Mirror:",
+        episodes_tag: "SERIES EPISODES",
+        label_select_season: "Select Season:",
+        proof_tag: "REAL-TIME AUDIT LOG",
+        proof_title: "Viewer Playback Verification",
+        proof_desc: "Live stream verification reports submitted across international CDN nodes",
+        btn_submit_report: "SUBMIT REPORT"
+    },
+    fr: {
+        nav_back_browse: "Retour au Catalogue",
+        telemetry_streaming: "SPECTATEURS EN DIRECT",
+        telemetry_source: "SOURCE: 1080P ULTRA",
+        telemetry_health: "ÉTAT DU SERVEUR: 99.8%",
+        btn_start_streaming: "Lancer la Lecture en 1080p Full HD",
+        player_subtext: "Miroir CDN Rapide &bull; Multi-Sous-titres &bull; Audio Dolby",
+        locker_title: "VÉRIFICATION HUMAINE",
+        locker_subtitle: "Effectuez une étape rapide ci-dessous pour continuer la lecture",
+        locker_waiting: "En attente de validation",
+        notice_banner: "NOTE DU LECTEUR: Si la vidéo ralentit, changez entre Serveur 1 (VidLink), Serveur 2 (AutoEmbed) ou Serveur 3 (VidSrc CC) ci-dessous.",
+        label_switch_server: "Changer de Serveur:",
+        episodes_tag: "ÉPISODES DE LA SÉRIE",
+        label_select_season: "Choisir la Saison:",
+        proof_tag: "JOURNAL D'AUDIT EN DIRECT",
+        proof_title: "Vérification de Lecture par les Spectateurs",
+        proof_desc: "Rapports de vérification en direct soumis sur les serveurs CDN mondiaux",
+        btn_submit_report: "ENVOYER LE RAPPORT"
+    },
+    es: {
+        nav_back_browse: "Volver al Catálogo",
+        telemetry_streaming: "ESPECTADORES EN LÍNEA",
+        telemetry_source: "FUENTE: 1080P ULTRA",
+        telemetry_health: "ESTADO SERVIDOR: 99.8%",
+        btn_start_streaming: "Iniciar Reproducción en 1080p Full HD",
+        player_subtext: "Servidor CDN Rápido &bull; Subtítulos &bull; Audio Dolby",
+        locker_title: "VERIFICACIÓN HUMANA",
+        locker_subtitle: "Completa un paso rápido a continuación para continuar viendo",
+        locker_waiting: "Esperando confirmación",
+        notice_banner: "AVISO: Si la reproducción se detiene, cambia entre Servidor 1 (VidLink), Servidor 2 (AutoEmbed) o Servidor 3 (VidSrc CC).",
+        label_switch_server: "Cambiar Servidor:",
+        episodes_tag: "EPISODIOS DE LA SERIE",
+        label_select_season: "Seleccionar Temporada:",
+        proof_tag: "REGISTRO EN TIEMPO REAL",
+        proof_title: "Verificación de Reproducción",
+        proof_desc: "Informes de verificación de transmisión en vivo en nodos CDN internacionales",
+        btn_submit_report: "ENVIAR INFORME"
+    },
+    de: {
+        nav_back_browse: "Zurück zur Übersicht",
+        telemetry_streaming: "ZUSCHAUER LIVE",
+        telemetry_source: "QUELLE: 1080P ULTRA",
+        telemetry_health: "SERVER STATUS: 99.8%",
+        btn_start_streaming: "Stream in 1080p Full HD Starten",
+        player_subtext: "Schneller CDN Server &bull; Untertitel &bull; Dolby Audio",
+        locker_title: "MENSCHLICHE VERIFIZIERUNG",
+        locker_subtitle: "Schließe einen kurzen Schritt ab um das Streaming fortzusetzen",
+        locker_waiting: "Warten auf Bestätigung",
+        notice_banner: "SERVER HINWEIS: Bei Pufferung wechseln Sie bitte zwischen Server 1, Server 2 oder Server 3 unten.",
+        label_switch_server: "Server Wechseln:",
+        episodes_tag: "SERIEN EPISODEN",
+        label_select_season: "Staffel Wählen:",
+        proof_tag: "ECHTZEIT PRÜFPROTOKOLL",
+        proof_title: "Wiedergabeverifizierung der Zuschauer",
+        proof_desc: "Live-Verifizierungsberichte über internationale CDN-Knoten",
+        btn_submit_report: "BERICHT SENDEN"
+    }
+};
+
+function applyWatchTranslations(lang) {
+    const dict = watchI18nDict[lang] || watchI18nDict.en;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) el.innerHTML = dict[key];
+    });
+
+    const select = document.getElementById("lang-select");
+    if (select) select.value = lang;
+}
+
+function changeLanguage(newLang) {
+    currentLang = newLang;
+    localStorage.setItem("flix_lang", newLang);
+
+    const url = new URL(window.location);
+    url.searchParams.set("lang", newLang);
+    window.history.pushState({}, '', url);
+
+    applyWatchTranslations(newLang);
+    loadMediaDetails(); // Re-fetch TMDB metadata in newly selected language!
+}
+
 // ==========================================
-// 2. STREAM SERVERS (THE 5 REAL WORKING SERVERS)
+// 2. STREAM SERVERS (CLEAN MIRRORS)
 // ==========================================
 function getStreamServers(season = 1, episode = 1) {
     const isTv = mediaType === "tv";
     return {
-        vidsrcto: isTv 
-            ? `https://vidsrc.to/embed/tv/${mediaId}/${season}/${episode}` 
-            : `https://vidsrc.to/embed/movie/${mediaId}`,
-        vidsrcme: isTv 
-            ? `https://vidsrc.me/embed/tv?tmdb=${mediaId}&season=${season}&episode=${episode}` 
-            : `https://vidsrc.me/embed/movie?tmdb=${mediaId}`,
         vidlink: isTv 
             ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}` 
             : `https://vidlink.pro/movie/${mediaId}`,
-        multiembed: isTv 
-            ? `https://multiembed.mov/?video_id=${mediaId}&tmdb=1&s=${season}&e=${episode}` 
-            : `https://multiembed.mov/?video_id=${mediaId}&tmdb=1`,
-        twoembed: isTv 
-            ? `https://www.2embed.cc/embedtv/${mediaId}&s=${season}&episode=${episode}` 
-            : `https://www.2embed.cc/embed/${mediaId}`
+        autoembed: isTv 
+            ? `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://player.autoembed.cc/embed/movie/${mediaId}`,
+        vidsrccc: isTv 
+            ? `https://vidsrc.cc/v2/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://vidsrc.cc/v2/embed/movie/${mediaId}`,
+        smashy: isTv 
+            ? `https://embed.smashystream.com/playere.php?tmdb=${mediaId}&season=${season}&episode=${episode}` 
+            : `https://embed.smashystream.com/playere.php?tmdb=${mediaId}`
     };
 }
 
@@ -61,7 +170,7 @@ function loadStreamServer(serverName) {
     activeServer = serverName;
     const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
-    activeStreamUrl = servers[serverName] || servers.vidsrcto;
+    activeStreamUrl = servers[serverName] || servers.vidlink;
     iframe.src = activeStreamUrl;
 }
 
@@ -76,8 +185,11 @@ function switchServer(serverName, btn) {
 // ==========================================
 async function loadMediaDetails() {
     try {
+        applyWatchTranslations(currentLang);
+        
+        const tmdbLang = tmdbLangMap[currentLang] || "en-US";
         const endpoint = mediaType === "tv" ? `/tv/${mediaId}` : `/movie/${mediaId}`;
-        const res = await fetch(`https://api.themoviedb.org/3${endpoint}?api_key=${TMDB_API_KEY}&language=en-US`);
+        const res = await fetch(`https://api.themoviedb.org/3${endpoint}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
         const data = await res.json();
 
         currentMediaTitle = data.title || data.name || "Media";
@@ -125,8 +237,8 @@ async function loadMediaDetails() {
         // Set Dynamic SubID Tracking
         updateLockerTracking();
 
-        // Auto-load Server 1 Default (VidSrc TO)
-        loadStreamServer("vidsrcto");
+        // Auto-load Server 1 Default (VidLink)
+        loadStreamServer("vidlink");
 
         // Save session entry to History
         saveToWatchHistory(data);
@@ -153,8 +265,8 @@ async function loadMediaDetails() {
 
 function updateLockerTracking() {
     const subTracking = mediaType === 'tv' 
-        ? `${mediaSlug}-s${currentSeason}e${currentEpisode}` 
-        : `${mediaSlug}`;
+        ? `${mediaSlug}-s${currentSeason}e${currentEpisode}-${currentLang}` 
+        : `${mediaSlug}-${currentLang}`;
     
     const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(subTracking)}&aff_sub2=${encodeURIComponent(mediaId)}`;
     const embedFrame = document.getElementById("ogads-embed-frame");
@@ -190,7 +302,8 @@ async function loadSeasonEpisodes(seasonNum) {
     container.innerHTML = "<p class='episodes-loading'>Loading season episodes...</p>";
 
     try {
-        const res = await fetch(`https://api.themoviedb.org/3/tv/${mediaId}/season/${seasonNum}?api_key=${TMDB_API_KEY}&language=en-US`);
+        const tmdbLang = tmdbLangMap[currentLang] || "en-US";
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${mediaId}/season/${seasonNum}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
         const seasonData = await res.json();
         const episodes = seasonData.episodes || [];
 
@@ -231,7 +344,7 @@ function selectEpisode(epNumber) {
 
     loadStreamServer(activeServer);
 
-    const newUrl = `watch.html?type=tv&id=${mediaId}&slug=${mediaSlug}&season=${currentSeason}&episode=${currentEpisode}`;
+    const newUrl = `watch.html?type=tv&id=${mediaId}&slug=${mediaSlug}&season=${currentSeason}&episode=${currentEpisode}&lang=${currentLang}`;
     window.history.pushState({ path: newUrl }, '', newUrl);
 
     timerStarted = false;

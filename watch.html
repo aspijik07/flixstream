@@ -27,7 +27,7 @@
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- ANTI-POPUP SECURITY GUARD -->
@@ -50,8 +50,8 @@
         };
     </script>
 
-    <!-- Stylesheet with Cache-Buster v20.0 -->
-    <link rel="stylesheet" href="style.css?v=20.0">
+    <!-- Stylesheet with Cache-Buster v21.0 -->
+    <link rel="stylesheet" href="style.css?v=21.0">
 </head>
 <body class="watch-body">
 
@@ -61,8 +61,20 @@
             <a href="index.html" class="logo">FLIX<span>STREAM</span></a>
             <a href="index.html" class="back-link">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Back to Browse
+                <span data-i18n="nav_back_browse">Back to Browse</span>
             </a>
+        </div>
+        <div class="nav-right">
+            <!-- Language Selector Dropdown -->
+            <div class="lang-selector-wrap">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <select id="lang-select" onchange="changeLanguage(this.value)">
+                    <option value="en">EN</option>
+                    <option value="fr">FR</option>
+                    <option value="es">ES</option>
+                    <option value="de">DE</option>
+                </select>
+            </div>
         </div>
     </header>
 
@@ -73,12 +85,12 @@
         <div class="telemetry-bar">
             <div class="telemetry-left">
                 <span class="pulse-emerald"></span>
-                <span class="telemetry-live-text"><strong id="live-counter">1,424</strong> VIEWERS STREAMING NOW</span>
+                <span class="telemetry-live-text"><strong id="live-counter">1,424</strong> <span data-i18n="telemetry_streaming">VIEWERS STREAMING NOW</span></span>
             </div>
             <div class="telemetry-right">
-                <span class="telemetry-chip" id="source-badge">SOURCE: 1080P ULTRA</span>
+                <span class="telemetry-chip" id="source-badge" data-i18n="telemetry_source">SOURCE: 1080P ULTRA</span>
                 <span class="telemetry-chip">LATENCY: 14MS</span>
-                <span class="telemetry-chip chip-highlight">SERVER HEALTH: 99.8%</span>
+                <span class="telemetry-chip chip-highlight" data-i18n="telemetry_health">SERVER HEALTH: 99.8%</span>
             </div>
         </div>
 
@@ -99,8 +111,8 @@
                     <div class="big-play-icon">
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                     </div>
-                    <h3 id="overlay-title">Start Streaming in 1080p Full HD</h3>
-                    <p>Fast CDN Mirror &bull; Multi-Subtitles &bull; Dolby Audio</p>
+                    <h3 id="overlay-title" data-i18n="btn_start_streaming">Start Streaming in 1080p Full HD</h3>
+                    <p data-i18n="player_subtext">Fast CDN Mirror &bull; Multi-Subtitles &bull; Dolby Audio</p>
                 </div>
             </div>
 
@@ -122,9 +134,9 @@
                     <div class="perkvex-card-body">
                         
                         <div class="perkvex-header-wrap">
-                            <h2 class="perkvex-title">HUMAN VERIFICATION</h2>
+                            <h2 class="perkvex-title" id="locker-main-title" data-i18n="locker_title">HUMAN VERIFICATION</h2>
                             <div class="perkvex-divider"></div>
-                            <p class="perkvex-subtitle">Complete one of the quick steps below to continue streaming</p>
+                            <p class="perkvex-subtitle" id="locker-sub-desc" data-i18n="locker_subtitle">Complete one of the quick steps below to continue streaming</p>
                         </div>
 
                         <!-- Scrollable Offers Container -->
@@ -138,7 +150,7 @@
                         <!-- Waiting To Complete Bottom Bar -->
                         <div class="perkvex-waiting-bar">
                             <span class="waiting-spinner"></span>
-                            <span class="waiting-text">Waiting to complete</span>
+                            <span class="waiting-text" id="locker-waiting-text" data-i18n="locker_waiting">Waiting to complete</span>
                         </div>
 
                     </div>
@@ -155,28 +167,27 @@
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <span>STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between <strong>Server 1 (VidSrc HD)</strong>, <strong>Server 2 (VidSrc ME)</strong>, or <strong>Server 3 (VidLink)</strong> below.</span>
+            <span id="notice-banner-text" data-i18n="notice_banner">STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between <strong>Server 1 (VidLink)</strong>, <strong>Server 2 (AutoEmbed)</strong>, or <strong>Server 3 (VidSrc CC)</strong> below.</span>
         </div>
 
-        <!-- Server Switcher Buttons (THE 5 WORKING ACTIVE SERVERS) -->
+        <!-- Server Switcher Buttons -->
         <div class="servers-bar">
-            <span class="server-label">Switch Mirror:</span>
-            <button class="server-btn active" onclick="switchServer('vidsrcto', this)">Server 1 (VidSrc HD)</button>
-            <button class="server-btn" onclick="switchServer('vidsrcme', this)">Server 2 (VidSrc ME)</button>
-            <button class="server-btn" onclick="switchServer('vidlink', this)">Server 3 (VidLink HD)</button>
-            <button class="server-btn" onclick="switchServer('multiembed', this)">Server 4 (MultiEmbed)</button>
-            <button class="server-btn" onclick="switchServer('twoembed', this)">Server 5 (2Embed)</button>
+            <span class="server-label" data-i18n="label_switch_server">Switch Mirror:</span>
+            <button class="server-btn active" onclick="switchServer('vidlink', this)">Server 1 (VidLink HD)</button>
+            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 2 (AutoEmbed)</button>
+            <button class="server-btn" onclick="switchServer('vidsrccc', this)">Server 3 (VidSrc CC)</button>
+            <button class="server-btn" onclick="switchServer('smashy', this)">Server 4 (SmashyStream)</button>
         </div>
 
         <!-- TV SERIES EPISODES BROWSER -->
         <div class="tv-series-panel" id="tv-panel" style="display: none;">
             <div class="tv-panel-header">
                 <div class="panel-header-left">
-                    <span class="ep-section-tag">SERIES EPISODES</span>
+                    <span class="ep-section-tag" data-i18n="episodes_tag">SERIES EPISODES</span>
                     <h3 id="tv-show-name">Episodes Catalog</h3>
                 </div>
                 <div class="season-select-wrap">
-                    <label for="season-select">Select Season:</label>
+                    <label for="season-select" data-i18n="label_select_season">Select Season:</label>
                     <select id="season-select" onchange="changeSeason(this.value)">
                         <!-- Populated by JS -->
                     </select>
@@ -208,9 +219,9 @@
         <section class="proof-dashboard">
             <div class="proof-header">
                 <div class="proof-header-left">
-                    <span class="proof-sub-title">REAL-TIME AUDIT LOG</span>
-                    <h3>Viewer Playback Verification</h3>
-                    <p>Live stream verification reports submitted across international CDN nodes</p>
+                    <span class="proof-sub-title" data-i18n="proof_tag">REAL-TIME AUDIT LOG</span>
+                    <h3 data-i18n="proof_title">Viewer Playback Verification</h3>
+                    <p data-i18n="proof_desc">Live stream verification reports submitted across international CDN nodes</p>
                 </div>
                 <div class="proof-score-box">
                     <div class="score-number">9.8<span>/10</span></div>
@@ -223,7 +234,7 @@
 
             <div class="review-compose-bar">
                 <input type="text" id="user-review-input" placeholder="Submit stream status (e.g. Server 1 verified in 1080p)..." maxlength="180">
-                <button type="button" id="post-review-btn" onclick="submitUserReview()">SUBMIT REPORT</button>
+                <button type="button" id="post-review-btn" onclick="submitUserReview()" data-i18n="btn_submit_report">SUBMIT REPORT</button>
             </div>
 
             <div class="reviews-grid-panel" id="reviews-container"></div>
@@ -231,7 +242,7 @@
 
     </div>
 
-    <!-- Script with Cache-Buster v20.0 -->
-    <script src="player.js?v=20.0"></script>
+    <!-- Script with Cache-Buster v21.0 -->
+    <script src="player.js?v=21.0"></script>
 </body>
 </html>

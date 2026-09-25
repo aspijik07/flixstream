@@ -1,14 +1,189 @@
 // ==========================================
-// 1. CONFIGURATION DYAL TMDB API
+// 1. CONFIGURATION & I18N ENGINE
 // ==========================================
 const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836";
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMG_BACKDROP_BASE = "https://image.tmdb.org/t/p/original";
 const IMG_POSTER_BASE = "https://image.tmdb.org/t/p/w500";
 
+// Language State (URL param -> localStorage -> default 'en')
+const urlParams = new URLSearchParams(window.location.search);
+let currentLang = urlParams.get("lang") || localStorage.getItem("flix_lang") || "en";
+const tmdbLangMap = {
+    en: "en-US",
+    fr: "fr-FR",
+    es: "es-ES",
+    de: "de-DE"
+};
+
 let currentHeroItem = null;
 let currentModalItem = null;
 let currentModalType = 'movie';
+
+// UI Translations Dictionary
+const i18nDictionary = {
+    en: {
+        nav_home: "Home",
+        nav_movies: "Movies",
+        nav_tv: "TV Series",
+        nav_anime: "Anime",
+        nav_mylist: "My List",
+        nav_history: "History",
+        nav_toprated: "Top Rated",
+        search_placeholder: "Search movies, series & anime...",
+        hero_trending: "#1 TRENDING TODAY",
+        btn_watch_now: "Watch Now",
+        btn_trailer_preview: "Trailer Preview",
+        filter_all: "All Titles",
+        filter_movies: "Movies",
+        filter_tv: "TV Series",
+        filter_anime: "Anime",
+        filter_history: "Continue Watching",
+        filter_mylist: "My Saved List",
+        title_search_results: "Search Results",
+        title_history: "Continue Watching (Playback History)",
+        title_watchlist: "My Saved Watchlist",
+        title_trending_movies: "Trending Movies This Week",
+        title_trending_tv: "Trending TV Shows & Series",
+        title_trending_anime: "Trending Anime & Japanese Animation",
+        title_top_rated: "Top Rated & Critically Acclaimed",
+        btn_clear: "Clear List",
+        modal_watch_full: "Watch Full Stream (1080p HD)",
+        modal_add_list: "Add to My List",
+        modal_in_list: "In My List (Remove)",
+        empty_watchlist: "Your saved watchlist is currently empty. Click on any title to preview and add it to your list.",
+        empty_history: "No watch history recorded yet. Start streaming any title to track your playback session."
+    },
+    fr: {
+        nav_home: "Accueil",
+        nav_movies: "Films",
+        nav_tv: "Séries TV",
+        nav_anime: "Animés",
+        nav_mylist: "Ma Liste",
+        nav_history: "Historique",
+        nav_toprated: "Mieux Notés",
+        search_placeholder: "Rechercher des films, séries, animés...",
+        hero_trending: "#1 TENDANCE DU JOUR",
+        btn_watch_now: "Regarder Maintenant",
+        btn_trailer_preview: "Bande-annonce",
+        filter_all: "Tous les Titres",
+        filter_movies: "Films",
+        filter_tv: "Séries TV",
+        filter_anime: "Animés",
+        filter_history: "Reprendre la Lecture",
+        filter_mylist: "Ma Liste Enregistrée",
+        title_search_results: "Résultats de Recherche",
+        title_history: "Reprendre la Lecture (Historique)",
+        title_watchlist: "Ma Liste de Visionnage",
+        title_trending_movies: "Films Tendances Cette Semaine",
+        title_trending_tv: "Séries TV Tendances",
+        title_trending_anime: "Animés Japonais Tendances",
+        title_top_rated: "Mieux Notés par la Critique",
+        btn_clear: "Effacer la Liste",
+        modal_watch_full: "Regarder en HD (1080p)",
+        modal_add_list: "Ajouter à Ma Liste",
+        modal_in_list: "Dans Ma Liste (Retirer)",
+        empty_watchlist: "Votre liste est actuellement vide. Cliquez sur un titre pour l'ajouter à votre liste.",
+        empty_history: "Aucun historique de lecture enregistré pour le moment."
+    },
+    es: {
+        nav_home: "Inicio",
+        nav_movies: "Películas",
+        nav_tv: "Series TV",
+        nav_anime: "Anime",
+        nav_mylist: "Mi Lista",
+        nav_history: "Historial",
+        nav_toprated: "Más Valoradas",
+        search_placeholder: "Buscar películas, series y anime...",
+        hero_trending: "#1 TENDENCIA HOY",
+        btn_watch_now: "Ver Ahora",
+        btn_trailer_preview: "Ver Tráiler",
+        filter_all: "Todos los Títulos",
+        filter_movies: "Películas",
+        filter_tv: "Series TV",
+        filter_anime: "Anime",
+        filter_history: "Continuar Viendo",
+        filter_mylist: "Mi Lista Guardada",
+        title_search_results: "Resultados de Búsqueda",
+        title_history: "Continuar Viendo (Historial)",
+        title_watchlist: "Mi Lista de Seguimiento",
+        title_trending_movies: "Películas en Tendencia",
+        title_trending_tv: "Series TV Populares",
+        title_trending_anime: "Anime Japonés en Tendencia",
+        title_top_rated: "Mejor Valoradas por la Crítica",
+        btn_clear: "Borrar Lista",
+        modal_watch_full: "Ver en Completo (1080p HD)",
+        modal_add_list: "Añadir a Mi Lista",
+        modal_in_list: "En Mi Lista (Quitar)",
+        empty_watchlist: "Tu lista guardada está vacía. Haz clic en un título para añadirlo a tu lista.",
+        empty_history: "No hay historial de reproducción aún."
+    },
+    de: {
+        nav_home: "Startseite",
+        nav_movies: "Filme",
+        nav_tv: "Serien",
+        nav_anime: "Anime",
+        nav_mylist: "Meine Liste",
+        nav_history: "Verlauf",
+        nav_toprated: "Top Bewertet",
+        search_placeholder: "Filme, Serien & Anime suchen...",
+        hero_trending: "#1 HEUTE IM TREND",
+        btn_watch_now: "Jetzt Ansehen",
+        btn_trailer_preview: "Trailer Vorschau",
+        filter_all: "Alle Titel",
+        filter_movies: "Filme",
+        filter_tv: "Serien",
+        filter_anime: "Anime",
+        filter_history: "Weiterschauen",
+        filter_mylist: "Meine Gespeicherte Liste",
+        title_search_results: "Suchergebnisse",
+        title_history: "Weiterschauen (Wiedergabeverlauf)",
+        title_watchlist: "Meine Merkliste",
+        title_trending_movies: "Beliebte Filme Diese Woche",
+        title_trending_tv: "Beliebte Serien",
+        title_trending_anime: "Beliebte Anime & Animation",
+        title_top_rated: "Am Besten Bewertet",
+        btn_clear: "Liste Löschen",
+        modal_watch_full: "Vollbild Ansehen (1080p HD)",
+        modal_add_list: "Zur Liste Hinzufügen",
+        modal_in_list: "In Meiner Liste (Entfernen)",
+        empty_watchlist: "Ihre Merkliste ist derzeit leer. Fügen Sie Titel über die Vorschau hinzu.",
+        empty_history: "Noch kein Wiedergabeverlauf aufgezeichnet."
+    }
+};
+
+function applyTranslations(lang) {
+    const dict = i18nDictionary[lang] || i18nDictionary.en;
+    
+    // Update Text Elements
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (dict[key]) el.innerText = dict[key];
+    });
+
+    // Update Placeholder Elements
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (dict[key]) el.placeholder = dict[key];
+    });
+
+    // Update dropdown value
+    const select = document.getElementById("lang-select");
+    if (select) select.value = lang;
+}
+
+function changeLanguage(newLang) {
+    currentLang = newLang;
+    localStorage.setItem("flix_lang", newLang);
+    
+    // Update URL query param cleanly
+    const url = new URL(window.location);
+    url.searchParams.set("lang", newLang);
+    window.history.pushState({}, '', url);
+
+    applyTranslations(newLang);
+    initApp(); // Re-fetch TMDB content in the newly chosen language!
+}
 
 function createSlug(title) {
     return (title || 'media')
@@ -30,12 +205,13 @@ window.addEventListener("scroll", () => {
 });
 
 // ==========================================
-// 3. FETCH DATA MN TMDB
+// 3. FETCH DATA MN TMDB B L-LOUGHA L-MKHTARA
 // ==========================================
 async function fetchMedia(endpoint) {
     try {
+        const tmdbLang = tmdbLangMap[currentLang] || "en-US";
         const separator = endpoint.includes("?") ? "&" : "?";
-        const response = await fetch(`${BASE_URL}${endpoint}${separator}api_key=${TMDB_API_KEY}&language=en-US`);
+        const response = await fetch(`${BASE_URL}${endpoint}${separator}api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
         const data = await response.json();
         return data.results || [];
     } catch (error) {
@@ -54,7 +230,7 @@ function renderHero(item, type = 'movie') {
 
     const name = item.title || item.name;
     const mediaSlug = createSlug(name);
-    const watchUrl = `watch.html?type=${type}&id=${item.id}&slug=${mediaSlug}${type === 'tv' ? '&season=1&episode=1' : ''}`;
+    const watchUrl = `watch.html?type=${type}&id=${item.id}&slug=${mediaSlug}&lang=${currentLang}${type === 'tv' ? '&season=1&episode=1' : ''}`;
 
     if (item.backdrop_path) {
         banner.style.backgroundImage = `url(${IMG_BACKDROP_BASE}${item.backdrop_path})`;
@@ -72,7 +248,7 @@ function openHeroTrailerModal() {
 }
 
 // ==========================================
-// 4. RENDER GRIDS & CLICK HANDLER
+// 4. RENDER GRIDS & MODAL CLICK HOOK
 // ==========================================
 function renderGrid(items, containerId, mediaType = 'movie') {
     renderGridItems(items, containerId, mediaType);
@@ -86,7 +262,6 @@ function renderGridItems(items, containerId, defaultType = 'movie') {
     items.forEach(item => {
         if (!item.poster_path) return;
 
-        // Smart Media Type Detection (Fix for Anime & TV Series)
         let mType = defaultType;
         if (item.media_type) {
             mType = item.media_type;
@@ -122,12 +297,11 @@ function renderGridItems(items, containerId, defaultType = 'movie') {
 }
 
 // ==========================================
-// 5. TRAILER QUICK-PREVIEW MODAL (FIXED TMDB /TV/ & /MOVIE/)
+// 5. TRAILER QUICK-PREVIEW MODAL
 // ==========================================
 async function openPreviewModal(item, type = 'movie') {
     if (!item) return;
 
-    // Detect exact type for TMDB API
     let resolvedType = type;
     if (item.name || item.first_air_date) {
         resolvedType = 'tv';
@@ -146,7 +320,7 @@ async function openPreviewModal(item, type = 'movie') {
 
     const name = item.title || item.name || "Media";
     const mediaSlug = createSlug(name);
-    const watchUrl = `watch.html?type=${resolvedType}&id=${item.id}&slug=${mediaSlug}${resolvedType === 'tv' ? '&season=1&episode=1' : ''}`;
+    const watchUrl = `watch.html?type=${resolvedType}&id=${item.id}&slug=${mediaSlug}&lang=${currentLang}${resolvedType === 'tv' ? '&season=1&episode=1' : ''}`;
 
     document.getElementById("modal-title").innerText = name;
     document.getElementById("modal-overview").innerText = item.overview || "Stream in full 1080p high definition with zero latency.";
@@ -159,9 +333,10 @@ async function openPreviewModal(item, type = 'movie') {
 
     updateWatchlistBtnState(item.id);
 
-    // 1. Fetch Exact Details (Runtime & Genres)
+    // Fetch details in active language
     try {
-        const detailRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}?api_key=${TMDB_API_KEY}&language=en-US`);
+        const tmdbLang = tmdbLangMap[currentLang] || "en-US";
+        const detailRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
         if (detailRes.ok) {
             const detailData = await detailRes.json();
             
@@ -188,24 +363,33 @@ async function openPreviewModal(item, type = 'movie') {
         console.error("Error loading modal details:", e);
     }
 
-    // 2. Fetch Exact YouTube Trailer
+    // Fetch Trailer
     try {
-        const vidRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=en-US`);
+        const tmdbLang = tmdbLangMap[currentLang] || "en-US";
+        const vidRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
+        let videos = [];
         if (vidRes.ok) {
             const vidData = await vidRes.json();
-            const videos = vidData.results || [];
-            
-            let trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Trailer');
-            if (!trailer) trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Teaser');
-            if (!trailer) trailer = videos.find(v => v.site === 'YouTube');
-
-            if (trailer && trailer.key) {
-                fallback.style.display = "none";
-                iframe.style.display = "block";
-                iframe.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&controls=1&rel=0`;
-            } else {
-                showFallbackBackdrop();
+            videos = vidData.results || [];
+        }
+        
+        // Fallback to EN videos if none found in FR/ES/DE
+        if (videos.length === 0) {
+            const fallbackVidRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=en-US`);
+            if (fallbackVidRes.ok) {
+                const fbData = await fallbackVidRes.json();
+                videos = fbData.results || [];
             }
+        }
+
+        let trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+        if (!trailer) trailer = videos.find(v => v.site === 'YouTube' && v.type === 'Teaser');
+        if (!trailer) trailer = videos.find(v => v.site === 'YouTube');
+
+        if (trailer && trailer.key) {
+            fallback.style.display = "none";
+            iframe.style.display = "block";
+            iframe.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1&mute=0&controls=1&rel=0`;
         } else {
             showFallbackBackdrop();
         }
@@ -256,12 +440,13 @@ function isInWatchlist(id) {
 }
 
 function updateWatchlistBtnState(id) {
+    const dict = i18nDictionary[currentLang] || i18nDictionary.en;
     const btnText = document.getElementById("watchlist-btn-text");
     if (!btnText) return;
     if (isInWatchlist(id)) {
-        btnText.innerText = "In My List (Remove)";
+        btnText.innerText = dict.modal_in_list;
     } else {
-        btnText.innerText = "Add to My List";
+        btnText.innerText = dict.modal_add_list;
     }
 }
 
@@ -288,12 +473,13 @@ function toggleWatchlistFromModal() {
 }
 
 function renderWatchlistGrid() {
+    const dict = i18nDictionary[currentLang] || i18nDictionary.en;
     const list = getWatchlist();
     const grid = document.getElementById("my-list-grid");
     if (!grid) return;
     
     if (list.length === 0) {
-        grid.innerHTML = "<p class='empty-notice' style='color:#777; font-size:13px; padding:20px 0;'>Your saved watchlist is currently empty. Click on any title to preview and add it to your list.</p>";
+        grid.innerHTML = `<p class='empty-notice' style='color:#777; font-size:13px; padding:20px 0;'>${dict.empty_watchlist}</p>`;
         return;
     }
     grid.innerHTML = "";
@@ -314,12 +500,13 @@ function getWatchHistory() {
 }
 
 function renderHistoryGrid() {
+    const dict = i18nDictionary[currentLang] || i18nDictionary.en;
     const list = getWatchHistory();
     const grid = document.getElementById("history-grid");
     if (!grid) return;
 
     if (list.length === 0) {
-        grid.innerHTML = "<p class='empty-notice' style='color:#777; font-size:13px; padding:20px 0;'>No watch history recorded yet. Start streaming any title to track your playback session.</p>";
+        grid.innerHTML = `<p class='empty-notice' style='color:#777; font-size:13px; padding:20px 0;'>${dict.empty_history}</p>`;
         return;
     }
     grid.innerHTML = "";
@@ -422,7 +609,8 @@ if (searchInput) {
 
         searchTimeout = setTimeout(async () => {
             try {
-                const res = await fetch(`${BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`);
+                const tmdbLang = tmdbLangMap[currentLang] || "en-US";
+                const res = await fetch(`${BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&language=${tmdbLang}`);
                 const data = await res.json();
                 if (data.results && data.results.length > 0) {
                     if (searchSection) searchSection.style.display = "block";
@@ -439,26 +627,29 @@ if (searchInput) {
 // 10. INITIALIZE HOME PAGE
 // ==========================================
 async function initApp() {
-    // 1. Trending Movies
+    // 1. Apply UI Translations
+    applyTranslations(currentLang);
+
+    // 2. Trending Movies
     const trendingMovies = await fetchMedia("/trending/movie/day");
     if (trendingMovies.length > 0) {
         renderHero(trendingMovies[0], 'movie');
         renderGrid(trendingMovies, "trending-grid", 'movie');
     }
 
-    // 2. Trending TV Series
+    // 3. Trending TV Series
     const trendingTV = await fetchMedia("/trending/tv/day");
     if (trendingTV.length > 0) {
         renderGrid(trendingTV, "tv-grid", 'tv');
     }
 
-    // 3. Trending Anime (Japanese Animation)
+    // 4. Trending Anime
     const trendingAnime = await fetchMedia("/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc");
     if (trendingAnime.length > 0) {
         renderGrid(trendingAnime, "anime-grid", 'tv');
     }
 
-    // 4. Top Rated Movies
+    // 5. Top Rated Movies
     const topRatedMovies = await fetchMedia("/movie/top_rated");
     if (topRatedMovies.length > 0) {
         renderGrid(topRatedMovies, "top-rated-grid", 'movie');
