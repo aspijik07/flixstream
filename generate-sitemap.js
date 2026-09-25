@@ -1,6 +1,6 @@
 // ==========================================
 // FLIXSTREAM pSEO HIGH-SCALE SITEMAP GENERATOR
-// Fetches 1,000+ Live Unique Titles Across Multi-Pages
+// Includes XSL Stylesheet for Human-Readable Luxury UI
 // ==========================================
 import fs from 'fs';
 import path from 'path';
@@ -29,7 +29,6 @@ async function fetchFromTMDB(endpoint) {
     }
 }
 
-// Fetch multi-pages to scale catalog
 async function fetchMultiPages(endpoint, pagesCount = 8) {
     const promises = [];
     for (let p = 1; p <= pagesCount; p++) {
@@ -43,7 +42,6 @@ async function fetchMultiPages(endpoint, pagesCount = 8) {
 async function generateSitemap() {
     console.log("[pSEO ENGINE] Scaling catalog to 1,000+ titles from TMDB...");
 
-    // Fetch deep multi-page catalog across all media types
     const [
         trendingMovies,
         popularMovies,
@@ -52,12 +50,12 @@ async function generateSitemap() {
         popularTV,
         animeSeries
     ] = await Promise.all([
-        fetchMultiPages('/trending/movie/week', 10),      // 200 Movies
-        fetchMultiPages('/movie/popular', 10),            // 200 Movies
-        fetchMultiPages('/movie/top_rated', 10),          // 200 Movies
-        fetchMultiPages('/trending/tv/week', 10),         // 200 TV Series
-        fetchMultiPages('/tv/popular', 10),               // 200 TV Series
-        fetchMultiPages('/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc', 10) // 200 Anime
+        fetchMultiPages('/trending/movie/week', 10),
+        fetchMultiPages('/movie/popular', 10),
+        fetchMultiPages('/movie/top_rated', 10),
+        fetchMultiPages('/trending/tv/week', 10),
+        fetchMultiPages('/tv/popular', 10),
+        fetchMultiPages('/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc', 10)
     ]);
 
     const urlsMap = new Map();
@@ -66,7 +64,7 @@ async function generateSitemap() {
     urlsMap.set(`${DOMAIN}/`, { priority: '1.0', changefreq: 'daily' });
     urlsMap.set(`${DOMAIN}/index.html`, { priority: '0.9', changefreq: 'daily' });
 
-    // 2. Process All Movies (Deduplicated automatically by Map)
+    // 2. Process All Movies
     const allMovies = [...trendingMovies, ...popularMovies, ...topRatedMovies];
     allMovies.forEach(m => {
         if (!m.id) return;
@@ -77,7 +75,7 @@ async function generateSitemap() {
         }
     });
 
-    // 3. Process All TV Shows & Anime (Deduplicated automatically by Map)
+    // 3. Process All TV Shows & Anime
     const allTV = [...trendingTV, ...popularTV, ...animeSeries];
     allTV.forEach(t => {
         if (!t.id) return;
@@ -88,8 +86,9 @@ async function generateSitemap() {
         }
     });
 
-    // 4. Build Clean XML Output
+    // 4. Build XML Output WITH XSL Stylesheet for Human View
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<?xml-stylesheet type="text/xsl" href="sitemap.xsl"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
     for (const [loc, meta] of urlsMap.entries()) {
@@ -108,7 +107,7 @@ async function generateSitemap() {
     fs.writeFileSync(outputPath, xml, 'utf-8');
 
     console.log(`==========================================`);
-    console.log(`[pSEO SUCCESS] Generated sitemap.xml with ${urlsMap.size} UNIQUE LIVE URLs!`);
+    console.log(`[pSEO SUCCESS] Generated sitemap.xml with ${urlsMap.size} URLs and Luxury XSL Stylesheet!`);
     console.log(`==========================================`);
 }
 

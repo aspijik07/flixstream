@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="sitemap.xsl"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://500get.com/</loc>
@@ -247,19 +248,19 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1315772&amp;slug=minions-monsters</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1656489&amp;slug=sultana</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=687163&amp;slug=project-hail-mary</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1124142&amp;slug=the-rivals-of-amziah-king</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1315772&amp;slug=minions-monsters</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -289,13 +290,25 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1422041&amp;slug=la-bola-negra</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1228710&amp;slug=the-mandalorian-and-grogu</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1228710&amp;slug=the-mandalorian-and-grogu</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1514026&amp;slug=buddy</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1101412&amp;slug=fall-2-deadpoint</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1422041&amp;slug=la-bola-negra</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -313,13 +326,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1101412&amp;slug=fall-2-deadpoint</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1284186&amp;slug=sacrifice</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1656489&amp;slug=sultana</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -331,25 +338,31 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1284186&amp;slug=sacrifice</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=843352&amp;slug=legend-of-the-white-dragon</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1386315&amp;slug=the-runner</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1382832&amp;slug=hungry</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=936075&amp;slug=michael</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=1381071&amp;slug=godzilla-minus-zero</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1382832&amp;slug=hungry</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -362,6 +375,12 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=940009&amp;slug=ray-gunn</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1386315&amp;slug=the-runner</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -469,61 +488,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1266643&amp;slug=day-drinker</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1327819&amp;slug=hoppers</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1170608&amp;slug=dune-part-three</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1433583&amp;slug=the-weight</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1340206&amp;slug=tuner</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1291595&amp;slug=insidious-out-of-the-further</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1061474&amp;slug=superman</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1226863&amp;slug=the-super-mario-galaxy-movie</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1198654&amp;slug=bad-apples</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1078605&amp;slug=weapons</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1281331&amp;slug=the-social-reckoning</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -535,7 +500,61 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1281331&amp;slug=the-social-reckoning</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1340206&amp;slug=tuner</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1078605&amp;slug=weapons</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1061474&amp;slug=superman</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1286656&amp;slug=i-play-rocky</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=454639&amp;slug=masters-of-the-universe</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1291595&amp;slug=insidious-out-of-the-further</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1284016&amp;slug=power-ballad</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1122573&amp;slug=in-the-grey</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1226863&amp;slug=the-super-mario-galaxy-movie</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1430077&amp;slug=hokum</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -553,19 +572,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1430077&amp;slug=hokum</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1122573&amp;slug=in-the-grey</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=454639&amp;slug=masters-of-the-universe</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1284041&amp;slug=the-last-house</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -577,13 +584,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1284016&amp;slug=power-ballad</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1286656&amp;slug=i-play-rocky</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1280738&amp;slug=the-furious</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -614,12 +615,6 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=980431&amp;slug=avatar-aang-the-last-airbender</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1284041&amp;slug=the-last-house</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -913,7 +908,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=813418&amp;slug=hot-spot</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1469342&amp;slug=her-private-hell</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1080959&amp;slug=alien-storm</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -937,7 +938,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1522689&amp;slug=why-did-i-get-married-again</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1308767&amp;slug=young-washington</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -949,37 +950,43 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=617126&amp;slug=the-fantastic-4-first-steps</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1288069&amp;slug=tenzing</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1671548&amp;slug=dear-you</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1709391&amp;slug=hanuman-ansh</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=813418&amp;slug=hot-spot</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1297842&amp;slug=goat</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=1317288&amp;slug=marty-supreme</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1284046&amp;slug=onslaught</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1368314&amp;slug=passenger</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1257147&amp;slug=my-best-friend</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1147572&amp;slug=narnia-the-magician-s-nephew</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1304313&amp;slug=lee-cronin-s-the-mummy</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -991,25 +998,31 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1117898&amp;slug=the-cat-in-the-hat</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1311031&amp;slug=demon-slayer-kimetsu-no-yaiba-infinity-castle</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=1594914&amp;slug=lucky-strike</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1408162&amp;slug=vishwanath-sons</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1522689&amp;slug=why-did-i-get-married-again</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=426063&amp;slug=nosferatu</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1117898&amp;slug=the-cat-in-the-hat</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1284046&amp;slug=onslaught</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1069,12 +1082,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1469342&amp;slug=her-private-hell</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=1242898&amp;slug=predator-badlands</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
@@ -1082,12 +1089,6 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=1439930&amp;slug=the-punisher-one-last-kill</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1080959&amp;slug=alien-storm</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1111,19 +1112,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1288069&amp;slug=tenzing</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=1215889&amp;slug=daayra</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1308767&amp;slug=young-washington</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1202,6 +1191,12 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=1130948&amp;slug=rosebush-pruning</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1408162&amp;slug=vishwanath-sons</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1309,13 +1304,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1280738&amp;slug=the-furious</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=27205&amp;slug=inception</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=27205&amp;slug=inception</loc>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1311031&amp;slug=demon-slayer-kimetsu-no-yaiba-infinity-castle</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1346,12 +1341,6 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=895954&amp;slug=</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=936075&amp;slug=michael</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1418,6 +1407,12 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=872585&amp;slug=oppenheimer</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1327819&amp;slug=hoppers</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1771,6 +1766,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://500get.com/watch.html?type=movie&amp;id=1304313&amp;slug=lee-cronin-s-the-mummy</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=615777&amp;slug=babylon</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
@@ -1844,12 +1845,6 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=movie&amp;id=240&amp;slug=the-godfather-part-ii</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=movie&amp;id=1297842&amp;slug=goat</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3391,25 +3386,19 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=202555&amp;slug=daredevil-born-again&amp;season=1&amp;episode=1</loc>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=123528&amp;slug=skeleton-knight-in-another-world&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=253941&amp;slug=the-paper&amp;season=1&amp;episode=1</loc>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=65334&amp;slug=miraculous-tales-of-ladybug-cat-noir&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=108255&amp;slug=all-creatures-great-small&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=4057&amp;slug=criminal-minds&amp;season=1&amp;episode=1</loc>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=329471&amp;slug=the-grand-tour&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3421,13 +3410,49 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=299255&amp;slug=minimum-security&amp;season=1&amp;episode=1</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=300388&amp;slug=sins-and-roses&amp;season=1&amp;episode=1</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=4057&amp;slug=criminal-minds&amp;season=1&amp;episode=1</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=87012&amp;slug=the-great-british-bake-off&amp;season=1&amp;episode=1</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=253941&amp;slug=the-paper&amp;season=1&amp;episode=1</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=387&amp;slug=spongebob-squarepants&amp;season=1&amp;episode=1</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://500get.com/watch.html?type=tv&amp;id=223564&amp;slug=the-100-girlfriends-who-really-really-really-really-really-love-you&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=201834&amp;slug=ted&amp;season=1&amp;episode=1</loc>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=262486&amp;slug=high-value-target-the-hunt-for-saddam&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3439,61 +3464,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=298168&amp;slug=the-shards&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=325755&amp;slug=the-perfect-lie&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=294636&amp;slug=the-ordinary-jackpot&amp;season=1&amp;episode=1</loc>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=201834&amp;slug=ted&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=tv&amp;id=75219&amp;slug=9-1-1&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=333038&amp;slug=love-in-the-moonlight-redrawn&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=278624&amp;slug=lucky&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=123528&amp;slug=skeleton-knight-in-another-world&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=124364&amp;slug=from&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=8840&amp;slug=fightland&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=65334&amp;slug=miraculous-tales-of-ladybug-cat-noir&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3529,12 +3506,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=387&amp;slug=spongebob-squarepants&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://500get.com/watch.html?type=tv&amp;id=255358&amp;slug=the-ghost-in-the-shell&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
@@ -3542,12 +3513,6 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=tv&amp;id=79744&amp;slug=the-rookie&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=299255&amp;slug=minimum-security&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3692,12 +3657,6 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=tv&amp;id=259909&amp;slug=dexter-resurrection&amp;season=1&amp;episode=1</loc>
-    <lastmod>2026-09-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://500get.com/watch.html?type=tv&amp;id=87012&amp;slug=the-great-british-bake-off&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3848,6 +3807,12 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=tv&amp;id=312849&amp;slug=rich-girl-caretaker-i-m-secretly-the-caregiver-of-the-most-popular-girl-in-this-rich-kid-school&amp;season=1&amp;episode=1</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=108255&amp;slug=all-creatures-great-small&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -4568,6 +4533,12 @@
   </url>
   <url>
     <loc>https://500get.com/watch.html?type=tv&amp;id=1402&amp;slug=the-walking-dead&amp;season=1&amp;episode=1</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/watch.html?type=tv&amp;id=124364&amp;slug=from&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
