@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="notranslate">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream HD - FlixStream</title>
     
-    <!-- Dynamic Meta Tags with IDs for JS injection -->
+    <!-- Prevent Browser Auto-Translate Conflicts -->
+    <meta name="google" content="notranslate">
     <meta name="description" id="meta-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
     <meta name="theme-color" content="#0b0b0b">
 
@@ -22,12 +23,27 @@
     <meta name="twitter:description" id="tw-desc" content="Watch full HD stream online with multi-subtitles and fast CDN mirrors on FlixStream.">
     <meta name="twitter:image" id="tw-image" content="https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg">
 
+    <!-- JSON-LD Structured Data Schema Markup (Google Video & Movie Rich Results) -->
+    <script type="application/ld+json" id="schema-jsonld">
+    {
+      "@context": "https://schema.org",
+      "@type": "Movie",
+      "name": "FlixStream Movie Stream",
+      "description": "Watch full HD stream online on FlixStream.",
+      "image": "https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
+      "potentialAction": {
+        "@type": "WatchAction",
+        "target": "https://500get.com"
+      }
+    }
+    </script>
+
     <!-- Inline SVG Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0b'/%3E%3Cpath d='M20 14h24v8H29v10h13v8H29v14H20z' fill='%23e50914'/%3E%3C/svg%3E">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- ANTI-POPUP SECURITY GUARD -->
@@ -50,10 +66,10 @@
         };
     </script>
 
-    <!-- Stylesheet with Cache-Buster v21.0 -->
-    <link rel="stylesheet" href="style.css?v=21.0">
+    <!-- Stylesheet with Cache-Buster v23.0 -->
+    <link rel="stylesheet" href="style.css?v=23.0">
 </head>
-<body class="watch-body">
+<body class="watch-body notranslate">
 
     <!-- Navbar -->
     <header class="navbar scrolled">
@@ -65,7 +81,6 @@
             </a>
         </div>
         <div class="nav-right">
-            <!-- Language Selector Dropdown -->
             <div class="lang-selector-wrap">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                 <select id="lang-select" onchange="changeLanguage(this.value)">
@@ -120,7 +135,6 @@
             <div id="ogads-locker-modal" style="display: none;">
                 <div class="perkvex-modal-container">
                     
-                    <!-- Top Overlapping Circle Logo -->
                     <div class="perkvex-circle-logo">
                         <div class="circle-inner-content">
                             <svg class="reel-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -130,7 +144,6 @@
                         </div>
                     </div>
 
-                    <!-- White Locker Card Body -->
                     <div class="perkvex-card-body">
                         
                         <div class="perkvex-header-wrap">
@@ -139,15 +152,12 @@
                             <p class="perkvex-subtitle" id="locker-sub-desc" data-i18n="locker_subtitle">Complete one of the quick steps below to continue streaming</p>
                         </div>
 
-                        <!-- Scrollable Offers Container -->
                         <div class="perkvex-embed-frame-wrap">
                             <iframe id="ogads-embed-frame" src="" frameborder="0" allowtransparency="true"></iframe>
                         </div>
 
-                        <!-- Backwards compatibility anchor -->
                         <a id="ogads-direct-btn" style="display: none;" href="#" target="_blank"></a>
 
-                        <!-- Waiting To Complete Bottom Bar -->
                         <div class="perkvex-waiting-bar">
                             <span class="waiting-spinner"></span>
                             <span class="waiting-text" id="locker-waiting-text" data-i18n="locker_waiting">Waiting to complete</span>
@@ -167,7 +177,7 @@
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <span id="notice-banner-text" data-i18n="notice_banner">STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between <strong>Server 1 (VidLink)</strong>, <strong>Server 2 (AutoEmbed)</strong>, or <strong>Server 3 (VidSrc CC)</strong> below.</span>
+            <span id="notice-banner-text" data-i18n="notice_banner">STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between Server 1 (VidLink), Server 2 (AutoEmbed), or Server 3 (VidSrc CC) below.</span>
         </div>
 
         <!-- Server Switcher Buttons -->
@@ -242,7 +252,7 @@
 
     </div>
 
-    <!-- Script with Cache-Buster v21.0 -->
-    <script src="player.js?v=21.0"></script>
+    <!-- Script with Cache-Buster v23.0 -->
+    <script src="player.js?v=23.0"></script>
 </body>
 </html>

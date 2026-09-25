@@ -124,6 +124,8 @@ const watchI18nDict = {
 
 function applyWatchTranslations(lang) {
     const dict = watchI18nDict[lang] || watchI18nDict.en;
+    document.documentElement.lang = lang;
+
     document.querySelectorAll("[data-i18n]").forEach(el => {
         const key = el.getAttribute("data-i18n");
         if (dict[key]) el.innerHTML = dict[key];
@@ -142,7 +144,7 @@ function changeLanguage(newLang) {
     window.history.pushState({}, '', url);
 
     applyWatchTranslations(newLang);
-    loadMediaDetails(); // Re-fetch TMDB metadata in newly selected language!
+    loadMediaDetails();
 }
 
 // ==========================================
@@ -181,7 +183,7 @@ function switchServer(serverName, btn) {
 }
 
 // ==========================================
-// 3. FETCH MEDIA DATA
+// 3. FETCH MEDIA DATA & GENERATE JSON-LD SCHEMA
 // ==========================================
 async function loadMediaDetails() {
     try {
@@ -224,6 +226,9 @@ async function loadMediaDetails() {
         document.getElementById("og-title")?.setAttribute("content", pageTitle);
         document.getElementById("tw-title")?.setAttribute("content", pageTitle);
 
+        // Generate JSON-LD Schema.org for Google Video Rich Snippets
+        generateSchemaMarkup(data, backdropUrl, runtime, dateStr);
+
         // Genres
         const genresContainer = document.getElementById("movie-detail-genres");
         genresContainer.innerHTML = "";
@@ -251,7 +256,7 @@ async function loadMediaDetails() {
             loadSeasonEpisodes(currentSeason);
         }
 
-        // Reviews Proof
+        // Reviews Proof localized
         renderDynamicReviews(currentMediaTitle);
 
         if (isUnlocked) {
@@ -260,6 +265,68 @@ async function loadMediaDetails() {
 
     } catch (err) {
         console.error("Error loading media:", err);
+    }
+}
+
+// Generate Google Video & Movie JSON-LD Schema Markup
+function generateSchemaMarkup(data, image, runtimeMinutes, releaseDate) {
+    try {
+        const schemaEl = document.getElementById("schema-jsonld");
+        if (!schemaEl) return;
+
+        const isTv = mediaType === "tv";
+        const currentUrl = window.location.href;
+
+        let schemaObject = {};
+
+        if (isTv) {
+            schemaObject = {
+                "@context": "https://schema.org",
+                "@type": "TVEpisode",
+                "name": `${currentMediaTitle} S${currentSeason}E${currentEpisode}`,
+                "description": data.overview || "Stream episode in 1080p Full HD on FlixStream.",
+                "image": image || "https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
+                "episodeNumber": currentEpisode,
+                "partOfSeason": {
+                    "@type": "TVSeason",
+                    "seasonNumber": currentSeason
+                },
+                "partOfSeries": {
+                    "@type": "TVSeries",
+                    "name": currentMediaTitle
+                },
+                "duration": `PT${runtimeMinutes}M`,
+                "potentialAction": {
+                    "@type": "WatchAction",
+                    "target": currentUrl
+                }
+            };
+        } else {
+            schemaObject = {
+                "@context": "https://schema.org",
+                "@type": "Movie",
+                "name": currentMediaTitle,
+                "description": data.overview || "Watch full movie stream in 1080p HD on FlixStream.",
+                "image": image || "https://image.tmdb.org/t/p/original/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg",
+                "dateCreated": releaseDate || "2026-01-01",
+                "duration": `PT${runtimeMinutes}M`,
+                "aggregateRating": {
+                    "@type": "AggregateRating",
+                    "ratingValue": data.vote_average ? String(data.vote_average) : "9.8",
+                    "bestRating": "10",
+                    "worstRating": "1",
+                    "ratingCount": "1420"
+                },
+                "potentialAction": {
+                    "@type": "WatchAction",
+                    "target": currentUrl
+                }
+            };
+        }
+
+        schemaEl.text = JSON.stringify(schemaObject);
+    } catch (e) {
+        console.error("Schema generation error:", e);
     }
 }
 
@@ -377,7 +444,7 @@ function startMovieStreaming() {
 
                 document.getElementById("ogads-locker-modal").style.display = "flex";
             }
-        }, 35000); // 35 Seconds
+        }, 35000);
     }
 }
 
@@ -438,49 +505,39 @@ function startHistoryTracker() {
 }
 
 // ==========================================
-// 7. SOCIAL PROOF DASHBOARD
+// 7. LOCALIZED SOCIAL PROOF DASHBOARD
 // ==========================================
-const baseReviews = [
-    {
-        user: "Marcus_K",
-        initials: "MK",
-        gradient: "linear-gradient(135deg, #e50914, #800000)",
-        time: "3m ago",
-        text: "Verified stream for {TITLE} on Server 1. Verification completed in under 40s via mobile app, full 1080p stream resumed immediately with zero lag.",
-        chips: ["1080P AUDIO 5.1", "SERVER 1"]
-    },
-    {
-        user: "SarahJenkins",
-        initials: "SJ",
-        gradient: "linear-gradient(135deg, #3b82f6, #1e3a8a)",
-        time: "14m ago",
-        text: "Was hesitant at first, but sponsor check is legitimate. Audio and video in sync for {TITLE}. Highly recommend this mirror over broken sites.",
-        chips: ["STABLE CDN", "FAST UNLOCK"]
-    },
-    {
-        user: "David_B92",
-        initials: "DB",
-        gradient: "linear-gradient(135deg, #10b981, #065f46)",
-        time: "28m ago",
-        text: "Clean stream with working subtitles. Server 1 loaded up right away after verification. Much better than shady pop-up sites.",
-        chips: ["SUBTITLES OK", "NO BUFFER"]
-    },
-    {
-        user: "ElenaR",
-        initials: "ER",
-        gradient: "linear-gradient(135deg, #8b5cf6, #4c1d95)",
-        time: "46m ago",
-        text: "Playback resumed right where it paused. Highest bitrate stream I found today for {TITLE}. Well worth the 30-second verification.",
-        chips: ["HD 60FPS", "SERVER 1"]
-    }
-];
+const localizedReviews = {
+    en: [
+        { user: "Marcus_K", initials: "MK", gradient: "linear-gradient(135deg, #e50914, #800000)", time: "3m ago", text: "Verified stream for {TITLE} on Server 1. Verification completed in under 40s via mobile app, full 1080p stream resumed immediately with zero lag.", chips: ["1080P AUDIO 5.1", "SERVER 1"] },
+        { user: "SarahJenkins", initials: "SJ", gradient: "linear-gradient(135deg, #3b82f6, #1e3a8a)", time: "14m ago", text: "Was hesitant at first, but sponsor check is legitimate. Audio and video in sync for {TITLE}. Highly recommend this mirror over broken sites.", chips: ["STABLE CDN", "FAST UNLOCK"] },
+        { user: "David_B92", initials: "DB", gradient: "linear-gradient(135deg, #10b981, #065f46)", time: "28m ago", text: "Clean stream with working subtitles. Server 1 loaded up right away after verification. Much better than shady pop-up sites.", chips: ["SUBTITLES OK", "NO BUFFER"] }
+    ],
+    fr: [
+        { user: "Jean_Luc", initials: "JL", gradient: "linear-gradient(135deg, #e50914, #800000)", time: "Il y a 3 min", text: "Flux vérifié pour {TITLE} sur le Serveur 1. Validation effectuée en moins de 40s sur mobile, lecture 1080p reprise immédiatement sans aucun bug.", chips: ["1080P AUDIO 5.1", "SERVEUR 1"] },
+        { user: "Claire_D", initials: "CD", gradient: "linear-gradient(135deg, #3b82f6, #1e3a8a)", time: "Il y a 14 min", text: "J'hésitais au début, mais la vérification est rapide et sécurisée. Son et image parfaitement synchronisés pour {TITLE}.", chips: ["CDN STABLE", "DÉBLOCAGE RAPIDE"] },
+        { user: "Antoine_M", initials: "AM", gradient: "linear-gradient(135deg, #10b981, #065f46)", time: "Il y a 28 min", text: "Lecture propre avec sous-titres fonctionnels. Le serveur 1 s'est lancé immédiatement après validation.", chips: ["SOUS-TITRES OK", "SANS COUPURE"] }
+    ],
+    es: [
+        { user: "Carlos_R", initials: "CR", gradient: "linear-gradient(135deg, #e50914, #800000)", time: "Hace 3 min", text: "Transmisión verificada para {TITLE} en el Servidor 1. Verificación rápida en menos de 40s, reproducción 1080p continua sin cortes.", chips: ["1080P AUDIO 5.1", "SERVIDOR 1"] },
+        { user: "Lucia_M", initials: "LM", gradient: "linear-gradient(135deg, #3b82f6, #1e3a8a)", time: "Hace 14 min", text: "Tenía dudas al principio, pero la verificación es 100% real. Audio y video en sincronía para {TITLE}.", chips: ["CDN ESTABLE", "DESBLOQUEO RÁPIDO"] },
+        { user: "Mateo_G", initials: "MG", gradient: "linear-gradient(135deg, #10b981, #065f46)", time: "Hace 28 min", text: "Excelente calidad de transmisión con subtítulos. El Servidor 1 cargó al instante tras la verificación.", chips: ["SUBTÍTULOS OK", "SIN BUFFER"] }
+    ],
+    de: [
+        { user: "Felix_W", initials: "FW", gradient: "linear-gradient(135deg, #e50914, #800000)", time: "Vor 3 Min", text: "Verifizierter Stream für {TITLE} auf Server 1. Schnelle Überprüfung in unter 40s, 1080p-Stream läuft direkt flüssig weiter.", chips: ["1080P AUDIO 5.1", "SERVER 1"] },
+        { user: "Laura_S", initials: "LS", gradient: "linear-gradient(135deg, #3b82f6, #1e3a8a)", time: "Vor 14 Min", text: "War erst skeptisch, aber der Sponsor-Check ist echt. Bild und Ton synchron für {TITLE}.", chips: ["STABILER CDN", "SCHNELL FREIGESCHALTET"] },
+        { user: "Maximilian_K", initials: "MK", gradient: "linear-gradient(135deg, #10b981, #065f46)", time: "Vor 28 Min", text: "Klarer Stream mit funktionierenden Untertiteln. Server 1 lief sofort nach der Überprüfung an.", chips: ["UNTERTITEL OK", "KEIN PUFFERN"] }
+    ]
+};
 
 function renderDynamicReviews(title) {
     const container = document.getElementById("reviews-container");
     if (!container) return;
     container.innerHTML = "";
 
-    baseReviews.forEach(rev => {
+    const list = localizedReviews[currentLang] || localizedReviews.en;
+
+    list.forEach(rev => {
         const card = document.createElement("div");
         card.className = "review-card-item";
         card.innerHTML = `
@@ -490,7 +547,7 @@ function renderDynamicReviews(title) {
                         <div class="user-avatar-circle" style="background: ${rev.gradient}">${rev.initials}</div>
                         <div class="user-handle-wrap">
                             <span class="user-handle">${rev.user}</span>
-                            <span class="verified-tag">VERIFIED STREAMER</span>
+                            <span class="verified-tag">${currentLang === 'fr' ? 'SPECTATEUR VÉRIFIÉ' : (currentLang === 'es' ? 'ESPECTADOR VERIFICADO' : (currentLang === 'de' ? 'VERIFIZIERTER ZUSCHAUER' : 'VERIFIED STREAMER'))}</span>
                         </div>
                     </div>
                     <span class="timestamp-text">${rev.time}</span>
@@ -520,10 +577,10 @@ function submitUserReview() {
                     <div class="user-avatar-circle" style="background: linear-gradient(135deg, #e50914, #ff4d58)">YOU</div>
                     <div class="user-handle-wrap">
                         <span class="user-handle">Guest Streamer</span>
-                        <span class="verified-tag">VERIFIED STREAMER</span>
+                        <span class="verified-tag">${currentLang === 'fr' ? 'SPECTATEUR VÉRIFIÉ' : 'VERIFIED STREAMER'}</span>
                     </div>
                 </div>
-                <span class="timestamp-text">Just now</span>
+                <span class="timestamp-text">${currentLang === 'fr' ? "À l'instant" : "Just now"}</span>
             </div>
             <p class="card-comment-text">${val}</p>
         </div>
