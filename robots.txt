@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /unlocked.html
+Disallow: /.bridge_backups/
+
+Sitemap: https://500get.com/sitemap.xml
