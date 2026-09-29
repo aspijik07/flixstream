@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-High-Scale Programmatic SEO (pSEO) Automated Engine
-==================================================
-Scales to 50 movies per day by paginating TMDB, generating long-form SEO content
-using Gemini 3.8 Flash, applying intelligent rate-limiting (4s delay),
-embedding Schema.org Rich Results, and building an automated XML sitemap.
+Intelligent Scalable Programmatic SEO (pSEO) Engine
+===================================================
+Generates SEO movie articles using Gemini 3.8 Flash with smart quota protection.
+Immediately halts if 429 Resource Exhausted is encountered to avoid wasting runner time.
 """
 
 import html
@@ -36,9 +35,9 @@ WATCH_ACTION_URL = "https://500get.com"
 MOVIES_DIR = "movies"
 SITEMAP_PATH = "sitemap.xml"
 
-# TARGET: 50 Movies per Day
-DAILY_MOVIES_TARGET = int(os.environ.get("MOVIES_LIMIT", 50))
-DELAY_BETWEEN_CALLS = 4  # Seconds to avoid Google Gemini 15 RPM rate limits
+# Free tier safe batch: 6 movies per run (run multiple times daily)
+DAILY_MOVIES_TARGET = int(os.environ.get("MOVIES_LIMIT", 6))
+DELAY_BETWEEN_CALLS = 6  # 6 seconds delay between requests
 
 TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -58,11 +57,9 @@ def validate_environment() -> None:
 
 
 # ---------------------------------------------------------
-# TMDB Fetching with Pagination (Fetches up to 50 movies)
+# TMDB Fetching
 # ---------------------------------------------------------
-def fetch_top_trending_movies(target_count: int = 50) -> List[Dict[str, Any]]:
-    """Fetches trending movies across multiple pages to reach the target count."""
-    logger.info(f"Fetching up to {target_count} trending movies from TMDB...")
+def fetch_top_trending_movies(target_count: int = 10) -> List[Dict[str, Any]]:
     headers = {"accept": "application/json"}
     params = {}
     if len(TMDB_API_KEY) > 50:
@@ -73,7 +70,7 @@ def fetch_top_trending_movies(target_count: int = 50) -> List[Dict[str, Any]]:
     movies = []
     page = 1
 
-    while len(movies) < target_count and page <= 5:
+    while len(movies) < target_count and page <= 3:
         try:
             params["page"] = page
             url = "https://api.themoviedb.org/3/trending/movie/day"
@@ -110,14 +107,17 @@ def fetch_top_trending_movies(target_count: int = 50) -> List[Dict[str, Any]]:
             logger.error(f"TMDB fetch error on page {page}: {e}")
             break
 
-    logger.info(f"Collected {len(movies)} trending movies ready for processing.")
     return movies
 
 
 # ---------------------------------------------------------
-# Content Generation with Backoff Retries
+# Content Generation with Quota Detection
 # ---------------------------------------------------------
-def generate_article_content(client: genai.Client, movie: Dict[str, Any], max_retries: int = 3) -> Optional[str]:
+def generate_article_content(client: genai.Client, movie: Dict[str, Any]) -> tuple[Optional[str], bool]:
+    """
+    Returns (article_html, quota_exhausted_flag).
+    If 429 RESOURCE_EXHAUSTED is returned, flags quota_exhausted=True to stop run.
+    """
     prompt = f"""
 You are a senior entertainment journalist and elite Technical SEO copywriter.
 Write an in-depth, captivating, 800 to 1000 words SEO-optimized article about the movie "{movie['title']}".
@@ -148,7 +148,7 @@ CRITICAL REQUIREMENTS:
 
     model_name = "gemini-3.8-flash"
 
-    for attempt in range(1, max_retries + 1):
+    for attempt in range(1, 3):
         try:
             response = client.models.generate_content(
                 model=model_name,
@@ -167,16 +167,20 @@ CRITICAL REQUIREMENTS:
             if body_match:
                 cleaned_html = body_match.group(1).strip()
 
-            return cleaned_html
+            return cleaned_html, False
 
         except Exception as e:
-            logger.warning(f"Attempt {attempt} failed for '{movie['title']}': {e}")
-            if attempt < max_retries:
-                wait_time = attempt * 7
-                logger.info(f"Retrying '{movie['title']}' in {wait_time}s...")
-                time.sleep(wait_time)
+            error_str = str(e)
+            # Detect Daily Quota Exhaustion
+            if "429" in error_str and "RESOURCE_EXHAUSTED" in error_str:
+                logger.error(f"Google Gemini Daily Quota Limit Reached! Stopping run immediately.")
+                return None, True
 
-    return None
+            logger.warning(f"Attempt {attempt} failed for '{movie['title']}': {e}")
+            if attempt < 2:
+                time.sleep(8)
+
+    return None, False
 
 
 # ---------------------------------------------------------
@@ -397,45 +401,49 @@ def main() -> None:
     os.makedirs(MOVIES_DIR, exist_ok=True)
     client = genai.Client(api_key=GEMINI_API_KEY)
 
-    # Fetch 50 trending movies
-    movies = fetch_top_trending_movies(target_count=DAILY_MOVIES_TARGET)
+    movies = fetch_top_trending_movies(target_count=DAILY_MOVIES_TARGET + 5)
     if not movies:
         logger.warning("No movies found to process.")
         return
 
-    generated_today = 0
+    generated_count = 0
 
     for idx, movie in enumerate(movies, start=1):
+        if generated_count >= DAILY_MOVIES_TARGET:
+            logger.info(f"Target of {DAILY_MOVIES_TARGET} movies reached for this batch. Done.")
+            break
+
         slug = slugify(movie["title"])
         filename = f"{slug}-streaming.html"
         file_path = os.path.join(MOVIES_DIR, filename)
         canonical_url = f"{SITE_BASE_URL}/{MOVIES_DIR}/{filename}"
 
-        # Skip existing files to save API quota
         if os.path.exists(file_path):
             continue
 
-        logger.info(f"[{idx}/{len(movies)}] Processing: {movie['title']}")
-        article_body = generate_article_content(client, movie)
+        logger.info(f"Generating article for: {movie['title']}")
+        article_body, quota_exhausted = generate_article_content(client, movie)
+
+        # Immediate exit if free quota is fully exhausted
+        if quota_exhausted:
+            logger.error("Stopping run to prevent runner timeout. Quota will reset next cycle.")
+            break
 
         if not article_body:
-            logger.warning(f"Could not generate article for '{movie['title']}'. Skipping.")
+            logger.warning(f"Skipping '{movie['title']}' due to generation failure.")
             continue
 
-        # Save HTML file
         full_html = render_full_html_document(movie, article_body, canonical_url)
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(full_html)
 
-        # Update Sitemap
         update_sitemap(canonical_url, SITEMAP_PATH)
-        generated_today += 1
-        logger.info(f"Successfully published [{generated_today}]: {filename}")
+        generated_count += 1
+        logger.info(f"Published [{generated_count}/{DAILY_MOVIES_TARGET}]: {filename}")
 
-        # Rate-limiting delay to keep Gemini API happy
         time.sleep(DELAY_BETWEEN_CALLS)
 
-    logger.info(f"Run completed. Successfully published {generated_today} new articles.")
+    logger.info(f"Run completed. Generated {generated_count} new movie article(s).")
 
 
 if __name__ == "__main__":
