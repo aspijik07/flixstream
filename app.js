@@ -657,6 +657,33 @@ async function initApp() {
 
     renderWatchlistGrid();
     renderHistoryGrid();
+
+    // Start Telemetry Radar Heartbeat for Browsing Sessions
+    sendCatalogHeartbeat();
+    setInterval(sendCatalogHeartbeat, 15000);
+}
+
+function sendCatalogHeartbeat() {
+    try {
+        let sid = sessionStorage.getItem('flix_session_id');
+        if (!sid) {
+            sid = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+            sessionStorage.setItem('flix_session_id', sid);
+        }
+
+        fetch('/api/telemetry/heartbeat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: sid,
+                page: 'home',
+                mediaTitle: 'Browsing Catalog',
+                status: 'browsing',
+                lang: currentLang,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+            })
+        }).catch(() => {});
+    } catch(e) {}
 }
 
 initApp();

@@ -2,8 +2,83 @@
 // 1. CONFIGURATION & I18N
 // ==========================================
 const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836";
-const OGADS_LOCKER_ID = "4o7vvr"; 
-const OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
+let OGADS_LOCKER_ID = "4o7vvr"; 
+let OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
+let LOCKER_DELAY_SECONDS = 35;
+let LOCKER_ENABLED = true;
+
+// Session ID for Live Telemetry Radar
+function getFlixSessionId() {
+    let sid = sessionStorage.getItem('flix_session_id');
+    if (!sid) {
+        sid = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+        sessionStorage.setItem('flix_session_id', sid);
+    }
+    return sid;
+}
+
+// Fetch dynamic locker config from server
+async function fetchServerConfig() {
+    try {
+        const res = await fetch('/api/config');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.lockerId) {
+                OGADS_LOCKER_ID = data.lockerId;
+                OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
+            }
+            if (data.lockerDelay !== undefined) {
+                LOCKER_DELAY_SECONDS = parseInt(data.lockerDelay, 10) || 35;
+            }
+            if (data.lockerEnabled !== undefined) {
+                LOCKER_ENABLED = data.lockerEnabled;
+            }
+            updateLockerTracking();
+        }
+    } catch (e) {
+        console.warn("[FlixStream Config] Using defaults:", e);
+    }
+}
+
+// Broadcast live stream heartbeat for Admin Radar
+function sendStreamHeartbeat(forcedStatus = null) {
+    try {
+        let st = isUnlocked ? 'unlocked_watching' : (timerStarted ? 'watching' : 'idle');
+        if (forcedStatus) st = forcedStatus;
+
+        fetch('/api/telemetry/heartbeat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                sessionId: getFlixSessionId(),
+                page: 'watch',
+                mediaId: mediaId,
+                mediaType: mediaType,
+                mediaSlug: mediaSlug,
+                mediaTitle: currentMediaTitle,
+                streamServer: activeServer,
+                playbackSeconds: playbackSeconds,
+                status: st,
+                lang: currentLang,
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+            })
+        }).then(r => r.json()).then(data => {
+            if (data && data.config) {
+                if (data.config.lockerId && data.config.lockerId !== OGADS_LOCKER_ID) {
+                    OGADS_LOCKER_ID = data.config.lockerId;
+                    OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
+                    updateLockerTracking();
+                }
+                if (data.config.lockerDelay !== undefined) {
+                    LOCKER_DELAY_SECONDS = parseInt(data.config.lockerDelay, 10);
+                }
+                if (data.config.lockerEnabled !== undefined) {
+                    LOCKER_ENABLED = data.config.lockerEnabled;
+                }
+            }
+        }).catch(() => {});
+    } catch (err) {}
+}
 
 // Parse URL Parameters
 const urlParams = new URLSearchParams(window.location.search);
@@ -423,28 +498,33 @@ function selectEpisode(epNumber) {
 }
 
 // ==========================================
-// 5. THE 35-SECOND HOOK & LOCK
+// 5. DYNAMIC HOOK & LOCK ENGINE
 // ==========================================
 function startMovieStreaming() {
     document.getElementById("play-trigger-overlay").style.display = "none";
 
     startHistoryTracker();
+    sendStreamHeartbeat('watching');
 
-    if (isUnlocked) return;
+    if (isUnlocked || !LOCKER_ENABLED) return;
 
     if (!timerStarted) {
         timerStarted = true;
+        const delayMs = Math.max(5000, LOCKER_DELAY_SECONDS * 1000);
+        console.log(`[FlixStream Locker] Active. Triggering in ${delayMs / 1000}s (Locker ID: ${OGADS_LOCKER_ID})`);
+
         setTimeout(() => {
-            if (!isUnlocked) {
+            if (!isUnlocked && LOCKER_ENABLED) {
                 const movieIframe = document.getElementById("movie-iframe");
                 movieIframe.src = "about:blank";
 
                 localStorage.setItem("last_movie_url", window.location.href);
                 localStorage.setItem("last_movie_id", mediaId);
 
+                sendStreamHeartbeat('locker_triggered');
                 document.getElementById("ogads-locker-modal").style.display = "flex";
             }
-        }, 35000);
+        }, delayMs);
     }
 }
 
@@ -603,5 +683,13 @@ setInterval(() => {
     if (el) el.innerText = baseViewerCount.toLocaleString();
 }, 4000);
 
-// Initialiser l-page
-loadMediaDetails();
+// Initialiser l-page & Live Telemetry
+fetchServerConfig().then(() => {
+    loadMediaDetails();
+    setTimeout(() => sendStreamHeartbeat(), 1200);
+});
+
+// Periodic heartbeat to keep session alive on Admin Radar
+setInterval(() => {
+    sendStreamHeartbeat();
+}, 12000);

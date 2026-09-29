@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlixStream - Admin Control Panel & Live Stream Radar</title>
+    
+    <!-- Meta & Theme -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0a0a0a">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Cpath d='M20 14h24v8H29v10h13v8H29v14H20z' fill='%23e50914'/%3E%3C/svg%3E">
+
+    <style>
+        :root {
+            --bg-base: #070708;
+            --bg-card: #111114;
+            --bg-card-hover: #17171c;
+            --bg-elevated: #1a1a22;
+            --border-subtle: #24242e;
+            --border-highlight: #363646;
+            --text-primary: #ffffff;
+            --text-secondary: #9e9ea7;
+            --text-muted: #5e5e6e;
+            --brand-red: #e50914;
+            --brand-red-glow: rgba(229, 9, 20, 0.35);
+            --accent-green: #10b981;
+            --accent-green-glow: rgba(16, 185, 129, 0.3);
+            --accent-blue: #3b82f6;
+            --accent-amber: #f59e0b;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-main);
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Top Admin Navbar */
+        .admin-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 12, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .nav-logo {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-logo span {
+            color: var(--brand-red);
+        }
+
+        .badge-ops {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(229, 9, 20, 0.15);
+            color: #ff4d4d;
+            border: 1px solid rgba(229, 9, 20, 0.4);
+            padding: 2px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .radar-live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-green);
+            letter-spacing: 0.5px;
+        }
+
+        .pulse-beacon {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-nav:hover {
+            color: #fff;
+            background: var(--bg-card-hover);
+            border-color: var(--border-highlight);
+        }
+
+        /* Container */
+        .dashboard-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        /* Top KPI Stats Row */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--border-highlight);
+            transform: translateY(-2px);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--card-accent, #333);
+        }
+
+        .kpi-card.red { --card-accent: var(--brand-red); }
+        .kpi-card.green { --card-accent: var(--accent-green); }
+        .kpi-card.blue { --card-accent: var(--accent-blue); }
+        .kpi-card.amber { --card-accent: var(--accent-amber); }
+
+        .kpi-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .kpi-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .kpi-icon {
+            font-size: 18px;
+            opacity: 0.8;
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 900;
+            font-family: var(--font-mono);
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        .kpi-sub {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .kpi-sub strong {
+            color: var(--text-secondary);
+        }
+
+        /* Two-Column Layout for Controls & Country breakdown */
+        .middle-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 22px;
+        }
+
+        @media (max-width: 1024px) {
+            .middle-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Panel Wrapper */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .panel-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .panel-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Locker Control Center Styles */
+        .locker-form {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-label span.hint {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-control {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-family: var(--font-mono);
+            color: #fff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-control:focus {
+            border-color: var(--brand-red);
+            box-shadow: 0 0 0 3px var(--brand-red-glow);
+        }
+
+        .input-addon-btn {
+            position: absolute;
+            right: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .input-addon-btn:hover {
+            color: #fff;
+            background: var(--bg-card-hover);
+        }
+
+        /* Delay Slider & Presets */
+        .delay-slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .delay-value-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .delay-huge {
+            font-size: 26px;
+            font-weight: 900;
+            font-family: var(--font-mono);
+            color: var(--brand-red);
+        }
+
+        .delay-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #2a2a35;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .delay-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--brand-red);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--brand-red-glow);
+            transition: transform 0.1s;
+        }
+
+        .delay-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .preset-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preset-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            background: var(--brand-red);
+            color: #fff;
+            border-color: var(--brand-red);
+            box-shadow: 0 0 10px var(--brand-red-glow);
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .btn-save-locker {
+            background: var(--brand-red);
+            color: #fff;
+            border: none;
+            padding: 13px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px var(--brand-red-glow);
+            transition: transform 0.15s, background-color 0.15s;
+        }
+
+        .btn-save-locker:hover {
+            background: #ff1f2d;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 13px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            color: #fff;
+            border-color: var(--border-highlight);
+        }
+
+        /* Country Breakdown List */
+        .country-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .country-item {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: border-color 0.2s;
+        }
+
+        .country-item:hover {
+            border-color: var(--border-highlight);
+        }
+
+        .country-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .country-flag {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        .country-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .country-code-pill {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        .country-metrics {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .country-bar-wrap {
+            width: 80px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .country-bar-fill {
+            height: 100%;
+            background: var(--brand-red);
+            border-radius: 3px;
+        }
+
+        .country-count {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            min-width: 32px;
+            text-align: right;
+        }
+
+        /* Device Ratio Bar */
+        .device-ratio-bar {
+            display: flex;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #222;
+            margin-top: 14px;
+        }
+
+        .device-seg {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .device-seg.mobile { background: #3b82f6; }
+        .device-seg.desktop { background: #10b981; }
+        .device-seg.tablet { background: #f59e0b; }
+
+        .device-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .device-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* LIVE STREAM RADAR SECTION */
+        .radar-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .radar-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .radar-search-box {
+            position: relative;
+            flex: 1;
+            min-width: 260px;
+            max-width: 440px;
+        }
+
+        .radar-search-input {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 14px 10px 36px;
+            font-size: 13px;
+            color: #fff;
+            outline: none;
+        }
+
+        .radar-search-input:focus {
+            border-color: var(--border-highlight);
+        }
+
+        .radar-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .radar-filters {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-select {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            border-color: var(--border-highlight);
+            color: #fff;
+        }
+
+        /* Radar Stream Table */
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            background: var(--bg-elevated);
+        }
+
+        .radar-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .radar-table th {
+            background: #14141a;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+        }
+
+        .radar-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            vertical-align: middle;
+        }
+
+        .radar-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .user-ip-cell {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-ip-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px;
+            display: inline-flex;
+            transition: color 0.15s;
+        }
+
+        .copy-ip-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .movie-title-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .movie-mini-badge {
+            width: 32px;
+            height: 44px;
+            background: #222;
+            border-radius: 4px;
+            object-cover: cover;
+            border: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .movie-meta-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .movie-name {
+            font-weight: 700;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .movie-sub-info {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .device-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .status-chip.streaming {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-chip.locker {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            animation: pulse-amber 2s infinite;
+        }
+
+        @keyframes pulse-amber {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        .status-chip.browsing {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .time-pill {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #181820;
+            border: 1px solid var(--accent-green);
+            color: #fff;
+            padding: 14px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            color: var(--accent-green);
+            font-size: 18px;
+        }
+
+        /* Activity Feed */
+        .activity-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .activity-item {
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .activity-item strong {
+            color: #fff;
+        }
+
+        .activity-time {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Admin Navigation Bar -->
+    <header class="admin-nav">
+        <div class="nav-brand">
+            <a href="admin.html" class="nav-logo">FLIX<span>STREAM</span></a>
+            <span class="badge-ops">OPERATIONS RADAR</span>
+            <div class="radar-live-indicator">
+                <span class="pulse-beacon"></span>
+                <span>RADAR ONLINE (AUTO-SYNC 3S)</span>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <button type="button" class="btn-nav" id="sim-toggle-btn" onclick="toggleSimulation()">
+                <span id="sim-icon">⚡</span>
+                <span id="sim-label">Simulated Traffic: ON</span>
+            </button>
+            <a href="index.html" class="btn-nav" target="_blank">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                <span>Browse Website</span>
+            </a>
+            <a href="watch.html?type=movie&id=693134&slug=dune-part-two" class="btn-nav" target="_blank">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <span>Test Player</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+
+        <!-- 1. Real-Time Top KPIs -->
+        <section class="kpi-grid">
+            <div class="kpi-card green">
+                <div class="kpi-header">
+                    <span class="kpi-title">Live Visitors Online</span>
+                    <span class="kpi-icon">👥</span>
+                </div>
+                <div class="kpi-value" id="kpi-online">0</div>
+                <div class="kpi-sub">
+                    <span id="kpi-real-badge">Real: 0</span> &bull; 
+                    <span id="kpi-sim-badge">Sim: 0</span>
+                </div>
+            </div>
+
+            <div class="kpi-card red">
+                <div class="kpi-header">
+                    <span class="kpi-title">Active Streaming Now</span>
+                    <span class="kpi-icon">🎬</span>
+                </div>
+                <div class="kpi-value" id="kpi-streaming">0</div>
+                <div class="kpi-sub">
+                    <span>Watching full 1080p stream</span>
+                </div>
+            </div>
+
+            <div class="kpi-card amber">
+                <div class="kpi-header">
+                    <span class="kpi-title">Locker Triggers / Verify</span>
+                    <span class="kpi-icon">🔒</span>
+                </div>
+                <div class="kpi-value" id="kpi-lockers">0</div>
+                <div class="kpi-sub">
+                    <span>Viewers on locker modal</span>
+                </div>
+            </div>
+
+            <div class="kpi-card blue">
+                <div class="kpi-header">
+                    <span class="kpi-title">Current Locker Settings</span>
+                    <span class="kpi-icon">⚙️</span>
+                </div>
+                <div class="kpi-value" id="kpi-delay-display" style="font-size: 24px;">35s</div>
+                <div class="kpi-sub">
+                    <span>Locker ID: <strong id="kpi-lid-display">4o7vvr</strong></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Middle Row: Locker Control Center & Live Countries Breakdown -->
+        <section class="middle-grid">
+            
+            <!-- Panel A: Locker Control Center (تحكم اللوكر) -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title-wrap">
+                        <span style="font-size: 22px;">🎛️</span>
+                        <div>
+                            <h2 class="panel-title">Content Locker Control Center</h2>
+                            <p class="panel-subtitle">Configure locker delay timer, switch Locker ID & manage monetization rules</p>
+                        </div>
+                    </div>
+                    <span class="badge-ops" id="config-status-badge">SAVED & SYNCED</span>
+                </div>
+
+                <form class="locker-form" id="locker-form" onsubmit="saveLockerConfig(event)">
+                    
+                    <!-- 1. Locker ID Input -->
+                    <div class="form-group">
+                        <label class="form-label" for="input-locker-id">
+                            <span>Locker ID (OGAds / Network Key)</span>
+                            <span class="hint">Beddel l-ID dyal l-locker hna</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="text" id="input-locker-id" class="input-control" placeholder="e.g. 4o7vvr" value="4o7vvr" required>
+                            <button type="button" class="input-addon-btn" onclick="testLockerPreview()">Preview Locker</button>
+                        </div>
+                        <p class="panel-subtitle" style="font-size: 11px; margin-top: 4px;">
+                            Active Embed URL: <code id="embed-url-preview" style="color: var(--accent-blue);">https://appcomplete.org/cl/i/4o7vvr</code>
+                        </p>
+                    </div>
+
+                    <!-- 2. Delay Controller (Slider + Presets) -->
+                    <div class="form-group">
+                        <label class="form-label" for="input-delay-slider">
+                            <span>Locker Display Delay (Seconds)</span>
+                            <span class="hint">Thakem f chhal kiban l-locker (20s, 30s, htal 60s)</span>
+                        </label>
+
+                        <div class="delay-slider-container">
+                            <div class="delay-value-display">
+                                <div>
+                                    <span class="delay-huge" id="slider-display-text">35</span>
+                                    <span style="font-size: 16px; color: var(--text-secondary); font-weight: 700;">seconds</span>
+                                </div>
+                                <span class="badge-ops" style="background: rgba(255,255,255,0.06); color: #fff;">LIVE SYNC</span>
+                            </div>
+
+                            <input type="range" id="input-delay-slider" class="delay-slider" min="10" max="90" step="5" value="35" oninput="onSliderMove(this.value)">
+
+                            <!-- Quick Preset Buttons -->
+                            <div class="preset-pills">
+                                <button type="button" class="preset-btn" onclick="setPresetDelay(15)">15s</button>
+                                <button type="button" class="preset-btn" onclick="setPresetDelay(20)">20s (Fast)</button>
+                                <button type="button" class="preset-btn" onclick="setPresetDelay(30)">30s</button>
+                                <button type="button" class="preset-btn active" onclick="setPresetDelay(35)">35s (Standard)</button>
+                                <button type="button" class="preset-btn" onclick="setPresetDelay(45)">45s</button>
+                                <button type="button" class="preset-btn" onclick="setPresetDelay(60)">60s (Long)</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Form Submit Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn-save-locker">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>
+                            <span>Save & Apply Live to All Viewers</span>
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="resetToDefaults()">
+                            <span>Reset Defaults</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+            <!-- Panel B: Live Users by Country (المستخدمين النشطين حسب البلد) -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title-wrap">
+                        <span style="font-size: 22px;">🌍</span>
+                        <div>
+                            <h2 class="panel-title">Live Users by Country</h2>
+                            <p class="panel-subtitle">Chhal men wahed f site o ina blad ja menha</p>
+                        </div>
+                    </div>
+                    <span id="country-total-badge" class="badge-ops" style="background: rgba(16,185,129,0.15); color: var(--accent-green); border-color: rgba(16,185,129,0.4);">
+                        0 COUNTRIES
+                    </span>
+                </div>
+
+                <!-- Country List Container -->
+                <div class="country-list" id="country-list-container">
+                    <p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">Fetching country radar telemetry...</p>
+                </div>
+
+                <!-- Device Distribution Bar -->
+                <div style="margin-top: 20px; border-top: 1px solid var(--border-subtle); pt-4;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">
+                        <span>DEVICE BREAKDOWN</span>
+                        <span id="device-summary-text">Mobile 60% &bull; Desktop 40%</span>
+                    </div>
+                    <div class="device-ratio-bar">
+                        <div class="device-seg mobile" id="dev-mobile-bar" style="width: 60%;"></div>
+                        <div class="device-seg desktop" id="dev-desktop-bar" style="width: 35%;"></div>
+                        <div class="device-seg tablet" id="dev-tablet-bar" style="width: 5%;"></div>
+                    </div>
+                    <div class="device-legend">
+                        <div class="device-legend-item">
+                            <span class="legend-dot" style="background: #3b82f6;"></span>
+                            <span id="legend-mobile">Mobile: 0</span>
+                        </div>
+                        <div class="device-legend-item">
+                            <span class="legend-dot" style="background: #10b981;"></span>
+                            <span id="legend-desktop">Desktop: 0</span>
+                        </div>
+                        <div class="device-legend-item">
+                            <span class="legend-dot" style="background: #f59e0b;"></span>
+                            <span id="legend-tablet">Tablet: 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 3. LIVE STREAM RADAR TABLE (رادار المشاهدين في الوقت الفعلي) -->
+        <section class="radar-panel">
+            <div class="panel-header">
+                <div class="panel-title-wrap">
+                    <span style="font-size: 22px;">📡</span>
+                    <div>
+                        <h2 class="panel-title">Live Stream Radar (Real-Time Audience Telemetry)</h2>
+                        <p class="panel-subtitle">Tracking users actively watching movies: IP, Country, Device, and Exact Media Title</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-nav" onclick="fetchRadarData(true)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span>Refresh Radar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Toolbar & Search -->
+            <div class="radar-toolbar">
+                <div class="radar-search-box">
+                    <svg class="radar-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                    <input type="text" id="radar-search-input" class="radar-search-input" placeholder="Search by IP, Movie title, or Country..." oninput="filterRadarTable()">
+                </div>
+
+                <div class="radar-filters">
+                    <select id="filter-status" class="filter-select" onchange="filterRadarTable()">
+                        <option value="all">All States</option>
+                        <option value="watching">🟢 Streaming (Watching)</option>
+                        <option value="locker_pending">🟡 On Locker</option>
+                        <option value="browsing">🔵 Browsing Catalog</option>
+                    </select>
+
+                    <select id="filter-device" class="filter-select" onchange="filterRadarTable()">
+                        <option value="all">All Devices</option>
+                        <option value="Mobile">Mobile Only</option>
+                        <option value="Desktop">Desktop Only</option>
+                        <option value="Tablet">Tablet Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-wrap">
+                <table class="radar-table">
+                    <thead>
+                        <tr>
+                            <th>Visitor IP</th>
+                            <th>Origin Country</th>
+                            <th>Device & Browser</th>
+                            <th>Movie / Target Media</th>
+                            <th>Active Server</th>
+                            <th>Session Watch Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="radar-table-body">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                Scanning network nodes for active viewers...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 4. Recent Stream Access Audit Feed -->
+        <section class="panel">
+            <div class="panel-header">
+                <div class="panel-title-wrap">
+                    <span style="font-size: 20px;">📜</span>
+                    <div>
+                        <h3 class="panel-title">Recent Stream Access Feed</h3>
+                        <p class="panel-subtitle">Immediate log of visitors who initiated playback</p>
+                    </div>
+                </div>
+                <button class="btn-nav" onclick="clearActivityLogs()" style="font-size: 11px;">Clear History</button>
+            </div>
+            <div class="activity-stream" id="activity-stream-container">
+                <p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 14px;">No recent stream events logged yet.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">
+        <span class="toast-icon">✓</span>
+        <span id="toast-message">Settings updated successfully!</span>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        let cachedRadarData = null;
+        let autoSyncTimer = null;
+
+        // 1. Fetch Radar Telemetry from Server
+        async function fetchRadarData(manual = false) {
+            try {
+                const res = await fetch('/api/admin/radar');
+                if (!res.ok) throw new Error('Network error');
+                const data = await res.json();
+                cachedRadarData = data;
+
+                renderKPIs(data);
+                renderLockerControls(data.config);
+                renderCountryBreakdown(data.countries, data.devices, data.totalOnline);
+                renderRadarTable(data.sessions);
+                renderActivityLog(data.recentActivity);
+
+                if (manual) {
+                    showToast('Radar data refreshed successfully!');
+                }
+            } catch (err) {
+                console.error('Radar poll error:', err);
+            }
+        }
+
+        // 2. Render KPIs
+        function renderKPIs(data) {
+            document.getElementById('kpi-online').innerText = data.totalOnline || 0;
+            document.getElementById('kpi-streaming').innerText = data.streamingCount || 0;
+            document.getElementById('kpi-lockers').innerText = data.lockerCount || 0;
+            
+            const delaySec = data.config?.lockerDelay || 35;
+            const lid = data.config?.lockerId || '4o7vvr';
+            document.getElementById('kpi-delay-display').innerText = `${delaySec}s`;
+            document.getElementById('kpi-lid-display').innerText = lid;
+
+            document.getElementById('kpi-real-badge').innerText = `Real: ${data.realCount || 0}`;
+            document.getElementById('kpi-sim-badge').innerText = `Sim: ${data.simCount || 0}`;
+
+            const simBtn = document.getElementById('sim-label');
+            if (simBtn) {
+                simBtn.innerText = data.simulationEnabled ? 'Simulated Traffic: ON' : 'Simulated Traffic: OFF';
+            }
+        }
+
+        // 3. Render Locker Controls
+        function renderLockerControls(cfg) {
+            if (!cfg) return;
+
+            // Only update input if not currently focused by user
+            const lidInput = document.getElementById('input-locker-id');
+            if (document.activeElement !== lidInput && cfg.lockerId) {
+                lidInput.value = cfg.lockerId;
+                updateLockerUrlPreview(cfg.lockerId);
+            }
+
+            const slider = document.getElementById('input-delay-slider');
+            const display = document.getElementById('slider-display-text');
+            if (document.activeElement !== slider && cfg.lockerDelay) {
+                slider.value = cfg.lockerDelay;
+                display.innerText = cfg.lockerDelay;
+                highlightPresetPill(cfg.lockerDelay);
+            }
+        }
+
+        function updateLockerUrlPreview(id) {
+            document.getElementById('embed-url-preview').innerText = `https://appcomplete.org/cl/i/${encodeURIComponent(id)}`;
+        }
+
+        document.getElementById('input-locker-id').addEventListener('input', (e) => {
+            updateLockerUrlPreview(e.target.value.trim());
+        });
+
+        function onSliderMove(val) {
+            document.getElementById('slider-display-text').innerText = val;
+            highlightPresetPill(val);
+        }
+
+        function setPresetDelay(val) {
+            document.getElementById('input-delay-slider').value = val;
+            document.getElementById('slider-display-text').innerText = val;
+            highlightPresetPill(val);
+        }
+
+        function highlightPresetPill(val) {
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                const btnVal = parseInt(btn.innerText);
+                btn.classList.toggle('active', btnVal === parseInt(val));
+            });
+        }
+
+        function testLockerPreview() {
+            const lid = document.getElementById('input-locker-id').value.trim() || '4o7vvr';
+            window.open(`https://appcomplete.org/cl/i/${encodeURIComponent(lid)}`, '_blank');
+        }
+
+        function resetToDefaults() {
+            document.getElementById('input-locker-id').value = '4o7vvr';
+            updateLockerUrlPreview('4o7vvr');
+            setPresetDelay(35);
+            showToast('Reset form to defaults. Click Save to apply.');
+        }
+
+        // 4. Save Locker Configuration
+        async function saveLockerConfig(e) {
+            if (e) e.preventDefault();
+
+            const lockerId = document.getElementById('input-locker-id').value.trim() || '4o7vvr';
+            const lockerDelay = parseInt(document.getElementById('input-delay-slider').value, 10) || 35;
+
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lockerId,
+                        lockerDelay,
+                        lockerEnabled: true
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`Settings Saved! Locker: "${lockerId}" | Delay: ${lockerDelay}s`);
+                    renderLockerControls(data.config);
+                    fetchRadarData();
+                } else {
+                    showToast('Failed to save configuration');
+                }
+            } catch (err) {
+                console.error('Error saving config:', err);
+                showToast('Error saving settings: ' + err.message);
+            }
+        }
+
+        // 5. Render Country Breakdown
+        function renderCountryBreakdown(countries = [], devices = {}, totalOnline = 1) {
+            const container = document.getElementById('country-list-container');
+            const totalBadge = document.getElementById('country-total-badge');
+            
+            totalBadge.innerText = `${countries.length} COUNTRIES ACTIVE`;
+
+            if (countries.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">No country telemetry recorded yet.</p>';
+                return;
+            }
+
+            const maxCount = Math.max(...countries.map(c => c.count), 1);
+
+            container.innerHTML = countries.map(c => {
+                const pct = Math.round((c.count / maxCount) * 100);
+                return `
+                    <div class="country-item">
+                        <div class="country-info">
+                            <span class="country-flag">${c.flag || '🌐'}</span>
+                            <div>
+                                <span class="country-name">${c.name}</span>
+                                <span class="country-code-pill">${c.code}</span>
+                            </div>
+                        </div>
+                        <div class="country-metrics">
+                            <div class="country-bar-wrap">
+                                <div class="country-bar-fill" style="width: ${pct}%;"></div>
+                            </div>
+                            <span class="country-count">${c.count}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Device ratio
+            const mob = devices.Mobile || 0;
+            const desk = devices.Desktop || 0;
+            const tab = devices.Tablet || 0;
+            const totalDev = Math.max(1, mob + desk + tab);
+
+            const mobPct = Math.round((mob / totalDev) * 100);
+            const deskPct = Math.round((desk / totalDev) * 100);
+            const tabPct = 100 - mobPct - deskPct;
+
+            document.getElementById('dev-mobile-bar').style.width = `${mobPct}%`;
+            document.getElementById('dev-desktop-bar').style.width = `${deskPct}%`;
+            document.getElementById('dev-tablet-bar').style.width = `${tabPct}%`;
+
+            document.getElementById('device-summary-text').innerText = `Mobile ${mobPct}% &bull; Desktop ${deskPct}% &bull; Tablet ${tabPct}%`;
+            document.getElementById('legend-mobile').innerText = `Mobile: ${mob}`;
+            document.getElementById('legend-desktop').innerText = `Desktop: ${desk}`;
+            document.getElementById('legend-tablet').innerText = `Tablet: ${tab}`;
+        }
+
+        // 6. Render Radar Table
+        function renderRadarTable(sessions = []) {
+            const tbody = document.getElementById('radar-table-body');
+            const searchVal = (document.getElementById('radar-search-input').value || '').toLowerCase().trim();
+            const statusFilter = document.getElementById('filter-status').value;
+            const deviceFilter = document.getElementById('filter-device').value;
+
+            // Apply filters
+            const filtered = sessions.filter(s => {
+                // Search filter
+                if (searchVal) {
+                    const matchIp = (s.ip || '').toLowerCase().includes(searchVal);
+                    const matchTitle = (s.mediaTitle || '').toLowerCase().includes(searchVal);
+                    const matchCountry = (s.country?.name || '').toLowerCase().includes(searchVal) || (s.country?.code || '').toLowerCase().includes(searchVal);
+                    if (!matchIp && !matchTitle && !matchCountry) return false;
+                }
+
+                // Status filter
+                if (statusFilter !== 'all') {
+                    if (statusFilter === 'watching' && s.status !== 'watching') return false;
+                    if (statusFilter === 'locker_pending' && !s.status.includes('locker')) return false;
+                    if (statusFilter === 'browsing' && s.status !== 'browsing') return false;
+                }
+
+                // Device filter
+                if (deviceFilter !== 'all') {
+                    if (s.device !== deviceFilter) return false;
+                }
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            No visitors match the selected filters or search terms.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => {
+                const durMins = Math.floor((s.duration || 0) / 60);
+                const durSecs = (s.duration || 0) % 60;
+                const formattedTime = `${durMins < 10 ? '0' + durMins : durMins}:${durSecs < 10 ? '0' + durSecs : durSecs}`;
+
+                let statusClass = 'browsing';
+                let statusLabel = 'Browsing Catalog';
+
+                if (s.status === 'watching') {
+                    statusClass = 'streaming';
+                    statusLabel = '1080p Streaming';
+                } else if (s.status === 'locker_pending' || s.status === 'locker_triggered') {
+                    statusClass = 'locker';
+                    statusLabel = 'Locker Active';
+                } else if (s.status === 'unlocked_watching') {
+                    statusClass = 'streaming';
+                    statusLabel = 'Unlocked HD';
+                }
+
+                const deviceIcon = s.device === 'Mobile' ? '📱' : (s.device === 'Tablet' ? '📲' : '💻');
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="user-ip-cell">
+                                <span>${s.ip || '197.230.144.12'}</span>
+                                <button type="button" class="copy-ip-btn" title="Copy IP" onclick="copyText('${s.ip}')">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 18px;">${s.country?.flag || '🌐'}</span>
+                                <span style="font-weight: 600;">${s.country?.name || 'Morocco'}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="device-badge">
+                                <span>${deviceIcon}</span>
+                                <span>${s.device} &bull; ${s.browser || 'Chrome'}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="movie-title-cell">
+                                <div class="movie-mini-badge">🎬</div>
+                                <div class="movie-meta-wrap">
+                                    <span class="movie-name">${s.mediaTitle || 'Home Page'}</span>
+                                    <span class="movie-sub-info">${s.mediaType === 'tv' ? 'TV Series' : (s.mediaId ? 'Feature Film' : 'Browsing')}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge-ops" style="background: rgba(255,255,255,0.05); color: #ccc; border: 1px solid rgba(255,255,255,0.1);">
+                                ${s.streamServer || 'VidLink'}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="time-pill">${formattedTime}</span>
+                        </td>
+                        <td>
+                            <span class="status-chip ${statusClass}">
+                                <span style="width: 6px; height: 6px; border-radius: 50%; background: currentColor;"></span>
+                                <span>${statusLabel}</span>
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterRadarTable() {
+            if (cachedRadarData) {
+                renderRadarTable(cachedRadarData.sessions);
+            }
+        }
+
+        // 7. Render Activity Log
+        function renderActivityLog(logs = []) {
+            const container = document.getElementById('activity-stream-container');
+            if (!logs || logs.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 14px;">No recent stream events logged yet.</p>';
+                return;
+            }
+
+            container.innerHTML = logs.map(item => `
+                <div class="activity-item">
+                    <div>
+                        <span>${item.country?.flag || '🌐'}</span>
+                        <strong style="margin-left: 6px;">${item.ip}</strong>
+                        <span style="margin: 0 4px;">entered</span>
+                        <strong style="color: var(--brand-red);">${item.mediaTitle}</strong>
+                        <span style="color: var(--text-muted); font-size: 11px; margin-left: 6px;">(${item.device})</span>
+                    </div>
+                    <span class="activity-time">${new Date(item.timestamp).toLocaleTimeString()}</span>
+                </div>
+            `).join('');
+        }
+
+        async function clearActivityLogs() {
+            try {
+                await fetch('/api/admin/clear-logs', { method: 'POST' });
+                showToast('Activity logs cleared');
+                fetchRadarData();
+            } catch (e) {}
+        }
+
+        async function toggleSimulation() {
+            try {
+                const res = await fetch('/api/admin/toggle-sim', { method: 'POST' });
+                const d = await res.json();
+                showToast(d.simulationEnabled ? 'Simulated live visitors enabled' : 'Simulated live visitors disabled');
+                fetchRadarData();
+            } catch (e) {}
+        }
+
+        // Utilities
+        function copyText(str) {
+            navigator.clipboard.writeText(str).then(() => {
+                showToast(`Copied ${str} to clipboard!`);
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Startup & Real-time Auto Refresh (Every 3 seconds)
+        fetchRadarData();
+        autoSyncTimer = setInterval(() => {
+            fetchRadarData(false);
+        }, 3000);
+    </script>
+</body>
+</html>
