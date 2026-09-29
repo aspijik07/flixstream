@@ -2,9 +2,9 @@ name: Daily Programmatic SEO Generator
 
 on:
   schedule:
-    # Runs daily at 06:00 UTC
-    - cron: '0 6 * * *'
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+    # Runs every 4 hours automatically (00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC)
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write # Needed to commit generated files back to git
