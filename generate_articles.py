@@ -3,8 +3,8 @@
 Automated Programmatic SEO (pSEO) Article Generator
 ===================================================
 Fetches daily trending movies from TMDB, generates long-form SEO articles
-using Google Gemini, embeds Google Rich Results compliant JSON-LD schema,
-saves static HTML files, and updates the XML sitemap.
+using the official Google GenAI SDK (gemini-2.5-flash), embeds Schema.org
+JSON-LD markup, saves static HTML files, and updates sitemap.xml.
 """
 
 import html
@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import requests
-import google.generativeai as genai
+from google import genai
 
 # ---------------------------------------------------------
 # Configuration & Constants
@@ -30,12 +30,10 @@ logger = logging.getLogger("pSEO-Pipeline")
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "").strip()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 
-# Site Configuration
 SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "https://500get.com").rstrip("/")
 WATCH_ACTION_URL = "https://500get.com"
 MOVIES_DIR = "movies"
 SITEMAP_PATH = "sitemap.xml"
-GEMINI_MODEL_NAME = os.environ.get("GEMINI_MODEL", "gemini-1.5-flash")
 
 TMDB_TRENDING_URL = "https://api.themoviedb.org/3/trending/movie/day"
 TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
@@ -70,15 +68,11 @@ def validate_environment() -> None:
 # Step 1: TMDB Data Fetching
 # ---------------------------------------------------------
 def fetch_top_trending_movies(limit: int = 3) -> List[Dict[str, Any]]:
-    """
-    Fetches the top trending movies from TMDB API for the current day.
-    Extracts title, overview, release date, poster URL, and vote average.
-    """
+    """Fetches the top trending movies from TMDB API for the current day."""
     logger.info("Fetching trending movies from TMDB...")
     headers = {"accept": "application/json"}
     params = {}
 
-    # Support both TMDB v3 API Key and v4 Bearer Read Token
     if len(TMDB_API_KEY) > 50:
         headers["Authorization"] = f"Bearer {TMDB_API_KEY}"
     else:
@@ -121,15 +115,11 @@ def fetch_top_trending_movies(limit: int = 3) -> List[Dict[str, Any]]:
 
 
 # ---------------------------------------------------------
-# Step 2: Content Generation via Google Gemini
+# Step 2: Content Generation via Official Google GenAI SDK
 # ---------------------------------------------------------
 def generate_article_content(movie: Dict[str, Any]) -> Optional[str]:
-    """
-    Prompts Gemini to generate an 800-1000 word SEO-optimized HTML article.
-    Includes H1, plot breakdown, cast, streaming guide, FAQs, and required CTA.
-    """
-    genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel(GEMINI_MODEL_NAME)
+    """Generates 800-1000 word SEO HTML article using Google GenAI SDK."""
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
     prompt = f"""
 You are a senior entertainment journalist and elite Technical SEO copywriter.
@@ -155,47 +145,50 @@ CRITICAL REQUIREMENTS:
    - Cast Performances & Character Highlights
    - Streaming Availability & Where to Watch Online in Full HD
    - Frequently Asked Questions (FAQ) with at least 4 detailed answers
-5. Length: 800 to 1000 words. Keep paragraphs readable and punchy.
+5. Length: 800 to 1000 words.
 6. FORMAT: Output ONLY clean semantic HTML content (do NOT include <!DOCTYPE>, <html>, <head>, <body>, or markdown code fences like ```html).
 """
 
-    try:
-        logger.info(f"Generating article with Gemini ({GEMINI_MODEL_NAME}) for: {movie['title']}")
-        response = model.generate_content(
-            prompt,
-            generation_config={"temperature": 0.7, "max_output_tokens": 2500}
-        )
+    # Model candidates to ensure compatibility
+    candidate_models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+    configured_model = os.environ.get("GEMINI_MODEL")
+    if configured_model:
+        candidate_models.insert(0, configured_model)
 
-        if not response or not response.text:
-            logger.error(f"Gemini returned an empty response for {movie['title']}.")
-            return None
+    for model_name in candidate_models:
+        try:
+            logger.info(f"Generating article with Gemini ({model_name}) for: {movie['title']}")
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt
+            )
 
-        # Clean any accidental Markdown formatting
-        cleaned_html = response.text.strip()
-        if cleaned_html.startswith("```"):
-            cleaned_html = re.sub(r"^```(?:html)?\s*", "", cleaned_html, flags=re.IGNORECASE)
-            cleaned_html = re.sub(r"\s*```$", "", cleaned_html)
+            if not response or not response.text:
+                continue
 
-        # Ensure body content extraction if full HTML was returned
-        body_match = re.search(r"<body[^>]*>(.*?)</body>", cleaned_html, flags=re.DOTALL | re.IGNORECASE)
-        if body_match:
-            cleaned_html = body_match.group(1).strip()
+            cleaned_html = response.text.strip()
+            if cleaned_html.startswith("```"):
+                cleaned_html = re.sub(r"^```(?:html)?\s*", "", cleaned_html, flags=re.IGNORECASE)
+                cleaned_html = re.sub(r"\s*```$", "", cleaned_html)
 
-        return cleaned_html
+            body_match = re.search(r"<body[^>]*>(.*?)</body>", cleaned_html, flags=re.DOTALL | re.IGNORECASE)
+            if body_match:
+                cleaned_html = body_match.group(1).strip()
 
-    except Exception as e:
-        logger.error(f"Gemini generation error for '{movie['title']}': {e}")
-        return None
+            return cleaned_html
+
+        except Exception as e:
+            logger.warning(f"Model '{model_name}' failed for '{movie['title']}': {e}")
+            continue
+
+    logger.error(f"All candidate models failed for '{movie['title']}'.")
+    return None
 
 
 # ---------------------------------------------------------
 # Step 3: Schema Markup (JSON-LD) & HTML Template
 # ---------------------------------------------------------
 def build_json_ld_schema(movie: Dict[str, Any]) -> str:
-    """
-    Builds a Schema.org compliant JSON-LD schema for a Movie with a WatchAction
-    EntryPoint targeting https://500get.com, compliant with Google Rich Results.
-    """
     schema = {
         "@context": "https://schema.org",
         "@type": "Movie",
@@ -217,7 +210,6 @@ def build_json_ld_schema(movie: Dict[str, Any]) -> str:
         }
     }
 
-    # Include aggregateRating if TMDB votes exist
     if movie.get("vote_count", 0) > 0 and movie.get("vote_average", 0) > 0:
         schema["aggregateRating"] = {
             "@type": "AggregateRating",
@@ -235,7 +227,6 @@ def render_full_html_document(
     article_body: str,
     page_url: str
 ) -> str:
-    """Assembles a valid HTML5 page with SEO meta tags, CSS styling, and JSON-LD schema."""
     title_escaped = html.escape(movie["title"])
     desc_escaped = html.escape(movie["overview"])
     poster_escaped = html.escape(movie["poster_url"])
@@ -281,7 +272,6 @@ def render_full_html_document(
       --bg: #0b0c10;
       --card-bg: #151821;
       --text: #e2e8f0;
-      --text-muted: #94a3b8;
       --heading: #ffffff;
       --accent: #e50914;
       --accent-glow: rgba(229, 9, 20, 0.45);
@@ -392,17 +382,12 @@ def render_full_html_document(
 # Step 4 & 5: File Handling & Sitemap Automation
 # ---------------------------------------------------------
 def save_html_file(file_path: str, html_content: str) -> None:
-    """Saves the generated HTML content into the designated path."""
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(html_content)
     logger.info(f"Saved: {file_path}")
 
 
 def update_sitemap(page_url: str, sitemap_path: str = SITEMAP_PATH) -> None:
-    """
-    Appends the URL to sitemap.xml. Creates a standard XML sitemap if
-    none exists. Skips appending if the URL is already registered.
-    """
     ET.register_namespace("", SITEMAP_NS)
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
@@ -418,7 +403,6 @@ def update_sitemap(page_url: str, sitemap_path: str = SITEMAP_PATH) -> None:
         root = ET.Element(f"{{{SITEMAP_NS}}}urlset")
         tree = ET.ElementTree(root)
 
-    # Check for existing <loc> tag
     existing_locs = {
         loc.text.strip()
         for loc in root.findall(f".//{{{SITEMAP_NS}}}loc")
@@ -429,7 +413,6 @@ def update_sitemap(page_url: str, sitemap_path: str = SITEMAP_PATH) -> None:
         logger.info(f"Sitemap entry already exists for: {page_url}")
         return
 
-    # Create <url> node
     url_node = ET.SubElement(root, f"{{{SITEMAP_NS}}}url")
     loc_node = ET.SubElement(url_node, f"{{{SITEMAP_NS}}}loc")
     loc_node.text = page_url
@@ -470,24 +453,17 @@ def main() -> None:
         file_path = os.path.join(MOVIES_DIR, filename)
         canonical_url = f"{SITE_BASE_URL}/{MOVIES_DIR}/{filename}"
 
-        # Duplicate Check
         if os.path.exists(file_path):
             logger.info(f"Skipping '{movie['title']}': File '{file_path}' already exists.")
             continue
 
-        # AI Content Generation
         article_body = generate_article_content(movie)
         if not article_body:
             logger.warning(f"Skipping '{movie['title']}' due to AI generation failure.")
             continue
 
-        # HTML Assembly
         full_html = render_full_html_document(movie, article_body, canonical_url)
-
-        # File Persistence
         save_html_file(file_path, full_html)
-
-        # Sitemap Indexing
         update_sitemap(canonical_url, SITEMAP_PATH)
         processed_count += 1
 
