@@ -150,7 +150,7 @@ CRITICAL REQUIREMENTS:
 """
 
     # Model candidates to ensure compatibility
-    candidate_models = ["gemini-2.5-flash", "gemini-2.0-flash"]
+    candidate_models = ["gemini-3.8-flash"]
     configured_model = os.environ.get("GEMINI_MODEL")
     if configured_model:
         candidate_models.insert(0, configured_model)
