@@ -30,8 +30,32 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Stylesheet with Cache-Buster v21.0 -->
-    <link rel="stylesheet" href="style.css?v=21.0">
+    <!-- Stylesheet with Cache-Buster v25.0 -->
+    <link rel="stylesheet" href="style.css?v=25.0">
+
+    <!-- Immediate Live Radar Telemetry Beacon -->
+    <script>
+        (function() {
+            try {
+                let sid = sessionStorage.getItem('flix_session_id');
+                if (!sid) {
+                    sid = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+                    sessionStorage.setItem('flix_session_id', sid);
+                }
+                fetch('/api/telemetry/heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: sid,
+                        page: 'home',
+                        mediaTitle: 'Browsing Catalog',
+                        status: 'browsing',
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+                    })
+                }).catch(function(){});
+            } catch(e) {}
+        })();
+    </script>
 </head>
 <body>
 
@@ -195,7 +219,7 @@
         <p class="disclaimer">Powered by TMDB API. No video media stored on host servers.</p>
     </footer>
 
-    <!-- Script with Cache-Buster v21.0 -->
-    <script src="app.js?v=21.0"></script>
+    <!-- Script with Cache-Buster v25.0 -->
+    <script src="app.js?v=25.0"></script>
 </body>
 </html>

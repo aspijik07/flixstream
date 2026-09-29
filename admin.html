@@ -7,31 +7,31 @@
     
     <!-- Meta & Theme -->
     <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#070708">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 
-    <!-- Favicon -->
+    <!-- Inline SVG Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Cpath d='M20 14h24v8H29v10h13v8H29v14H20z' fill='%23e50914'/%3E%3C/svg%3E">
 
     <style>
         :root {
-            --bg-base: #070708;
-            --bg-card: #111114;
-            --bg-card-hover: #17171c;
-            --bg-elevated: #1a1a22;
-            --border-subtle: #24242e;
-            --border-highlight: #363646;
+            --bg-base: #070709;
+            --bg-card: #101014;
+            --bg-card-hover: #16161c;
+            --bg-elevated: #181822;
+            --border-subtle: #23232f;
+            --border-highlight: #3b3b4f;
             --text-primary: #ffffff;
-            --text-secondary: #9e9ea7;
-            --text-muted: #5e5e6e;
+            --text-secondary: #9a9aa8;
+            --text-muted: #5e5e70;
             --brand-red: #e50914;
-            --brand-red-glow: rgba(229, 9, 20, 0.35);
+            --brand-red-glow: rgba(229, 9, 20, 0.4);
             --accent-green: #10b981;
-            --accent-green-glow: rgba(16, 185, 129, 0.3);
+            --accent-green-glow: rgba(16, 185, 129, 0.35);
             --accent-blue: #3b82f6;
             --accent-amber: #f59e0b;
             --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -53,30 +53,31 @@
             overflow-x: hidden;
         }
 
-        /* Top Admin Navbar */
+        /* Top Header */
         .admin-nav {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(10, 10, 12, 0.85);
+            background: rgba(9, 9, 12, 0.88);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border-subtle);
-            padding: 14px 28px;
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 16px;
         }
 
-        .nav-brand {
+        .nav-left {
             display: flex;
             align-items: center;
             gap: 14px;
         }
 
         .nav-logo {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             color: #fff;
             text-decoration: none;
             display: flex;
@@ -95,53 +96,53 @@
             background: rgba(229, 9, 20, 0.15);
             color: #ff4d4d;
             border: 1px solid rgba(229, 9, 20, 0.4);
-            padding: 2px 8px;
+            padding: 3px 8px;
             border-radius: 6px;
             letter-spacing: 0.5px;
         }
 
-        .radar-live-indicator {
+        .radar-status-beacon {
             display: flex;
             align-items: center;
             gap: 8px;
             background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 6px 14px;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            padding: 5px 12px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--accent-green);
             letter-spacing: 0.5px;
         }
 
-        .pulse-beacon {
-            width: 8px;
-            height: 8px;
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
             background: var(--accent-green);
             border-radius: 50%;
             box-shadow: 0 0 10px var(--accent-green);
-            animation: pulse-ring 1.5s infinite;
+            animation: pulse-ring 1.6s infinite;
         }
 
         @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
         .nav-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .btn-nav {
+        .btn-header {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
             color: var(--text-secondary);
-            padding: 8px 14px;
+            padding: 7px 12px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             text-decoration: none;
             display: inline-flex;
@@ -151,114 +152,173 @@
             transition: all 0.2s;
         }
 
-        .btn-nav:hover {
+        .btn-header:hover {
             color: #fff;
             background: var(--bg-card-hover);
             border-color: var(--border-highlight);
+        }
+
+        .btn-header.sim-active {
+            border-color: rgba(245, 158, 11, 0.4);
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.08);
         }
 
         /* Container */
         .dashboard-container {
             max-width: 1440px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 20px 24px 60px;
             display: flex;
             flex-direction: column;
-            gap: 28px;
+            gap: 20px;
         }
 
-        /* Top KPI Stats Row */
-        .kpi-grid {
+        /* Top KPI Banner */
+        .kpi-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
         }
 
-        .kpi-card {
+        .kpi-chip {
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
-            border-radius: 14px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 14px 18px;
             position: relative;
             overflow: hidden;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-
-        .kpi-card:hover {
-            border-color: var(--border-highlight);
-            transform: translateY(-2px);
-        }
-
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--card-accent, #333);
-        }
-
-        .kpi-card.red { --card-accent: var(--brand-red); }
-        .kpi-card.green { --card-accent: var(--accent-green); }
-        .kpi-card.blue { --card-accent: var(--accent-blue); }
-        .kpi-card.amber { --card-accent: var(--accent-amber); }
-
-        .kpi-header {
-            display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 12px;
         }
 
-        .kpi-title {
-            font-size: 12px;
+        .kpi-chip::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--chip-accent, #333);
+        }
+
+        .kpi-chip.green { --chip-accent: var(--accent-green); }
+        .kpi-chip.red { --chip-accent: var(--brand-red); }
+        .kpi-chip.amber { --chip-accent: var(--accent-amber); }
+        .kpi-chip.blue { --chip-accent: var(--accent-blue); }
+
+        .kpi-chip-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-chip-title {
+            font-size: 11px;
             font-weight: 700;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.6px;
         }
 
-        .kpi-icon {
-            font-size: 18px;
+        .kpi-chip-value {
+            font-family: var(--font-mono);
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+
+        .kpi-chip-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .kpi-chip-icon {
+            font-size: 24px;
             opacity: 0.8;
         }
 
-        .kpi-value {
-            font-size: 32px;
-            font-weight: 900;
-            font-family: var(--font-mono);
-            color: #fff;
-            letter-spacing: -0.5px;
-        }
-
-        .kpi-sub {
-            margin-top: 6px;
-            font-size: 12px;
-            color: var(--text-muted);
+        /* ============================================================== */
+        /* TABBED NAVIGATION SYSTEM (طلب المستخدم: Kola fonction f tab)   */
+        /* ============================================================== */
+        .tabs-nav-bar {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 8px;
+            overflow-x: auto;
         }
 
-        .kpi-sub strong {
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
             color: var(--text-secondary);
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
 
-        /* Two-Column Layout for Controls & Country breakdown */
-        .middle-grid {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 22px;
+        .tab-btn:hover {
+            color: #fff;
+            background: var(--bg-card);
         }
 
-        @media (max-width: 1024px) {
-            .middle-grid {
-                grid-template-columns: 1fr;
-            }
+        .tab-btn.active {
+            background: var(--bg-card);
+            border-color: var(--border-highlight);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 14px;
+            right: 14px;
+            height: 2px;
+            background: var(--brand-red);
+            border-radius: 2px;
+        }
+
+        .tab-badge {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        .tab-btn.active .tab-badge {
+            background: var(--brand-red);
+        }
+
+        /* Tab Content Containers */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Panel Wrapper */
@@ -289,7 +349,6 @@
             font-size: 17px;
             font-weight: 800;
             color: #fff;
-            letter-spacing: -0.2px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -301,7 +360,253 @@
             margin-top: 2px;
         }
 
-        /* Locker Control Center Styles */
+        /* ============================================================== */
+        /* TAB 1: RADAR TABLE & STREAM CARDS                             */
+        /* ============================================================== */
+        .radar-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .radar-search-box {
+            position: relative;
+            flex: 1;
+            min-width: 260px;
+            max-width: 440px;
+        }
+
+        .radar-search-input {
+            width: 100%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 9px 14px 9px 36px;
+            font-size: 13px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .radar-search-input:focus {
+            border-color: var(--border-highlight);
+        }
+
+        .radar-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .radar-filters {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-select {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            background: var(--bg-elevated);
+        }
+
+        .radar-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .radar-table th {
+            background: #13131a;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+        }
+
+        .radar-table td {
+            padding: 13px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            vertical-align: middle;
+        }
+
+        .radar-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .user-ip-cell {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-ip-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px;
+            display: inline-flex;
+            transition: color 0.15s;
+        }
+
+        .copy-ip-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .real-badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 800;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .sim-badge {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            font-weight: 800;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .movie-title-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .movie-mini-icon {
+            width: 32px;
+            height: 42px;
+            background: #242430;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .movie-meta-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .movie-name {
+            font-weight: 700;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .movie-sub-info {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .device-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .status-chip.streaming {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-chip.locker {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            animation: pulse-amber 1.8s infinite;
+        }
+
+        @keyframes pulse-amber {
+            0% { opacity: 0.75; }
+            50% { opacity: 1; }
+            100% { opacity: 0.75; }
+        }
+
+        .status-chip.browsing {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .time-pill {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ============================================================== */
+        /* TAB 2: LOCKER CONTROLS STYLES                                  */
+        /* ============================================================== */
+        .locker-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .locker-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .locker-form {
             display: flex;
             flex-direction: column;
@@ -372,14 +677,13 @@
             background: var(--bg-card-hover);
         }
 
-        /* Delay Slider & Presets */
         .delay-slider-container {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             background: var(--bg-elevated);
             border: 1px solid var(--border-subtle);
-            padding: 16px;
+            padding: 18px;
             border-radius: 12px;
         }
 
@@ -390,7 +694,7 @@
         }
 
         .delay-huge {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 900;
             font-family: var(--font-mono);
             color: var(--brand-red);
@@ -401,7 +705,7 @@
             width: 100%;
             height: 8px;
             border-radius: 4px;
-            background: #2a2a35;
+            background: #2a2a38;
             outline: none;
             cursor: pointer;
         }
@@ -414,7 +718,7 @@
             border-radius: 50%;
             background: var(--brand-red);
             cursor: pointer;
-            box-shadow: 0 0 10px var(--brand-red-glow);
+            box-shadow: 0 0 12px var(--brand-red-glow);
             transition: transform 0.1s;
         }
 
@@ -432,7 +736,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border-subtle);
             color: var(--text-secondary);
-            padding: 6px 14px;
+            padding: 7px 14px;
             border-radius: 8px;
             font-size: 12px;
             font-weight: 700;
@@ -448,19 +752,11 @@
             box-shadow: 0 0 10px var(--brand-red-glow);
         }
 
-        /* Action Buttons */
-        .form-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 6px;
-        }
-
         .btn-save-locker {
             background: var(--brand-red);
             color: #fff;
             border: none;
-            padding: 13px 24px;
+            padding: 14px 24px;
             border-radius: 10px;
             font-size: 14px;
             font-weight: 800;
@@ -477,31 +773,55 @@
             transform: translateY(-1px);
         }
 
-        .btn-secondary {
+        .locker-info-box {
             background: var(--bg-elevated);
-            color: var(--text-secondary);
             border: 1px solid var(--border-subtle);
-            padding: 13px 18px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
 
-        .btn-secondary:hover {
-            background: var(--bg-card-hover);
-            color: #fff;
-            border-color: var(--border-highlight);
+        .info-step {
+            display: flex;
+            gap: 12px;
         }
 
-        /* Country Breakdown List */
+        .info-step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(229, 9, 20, 0.15);
+            color: var(--brand-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================== */
+        /* TAB 3: COUNTRIES & DEVICE BREAKDOWN                            */
+        /* ============================================================== */
+        .countries-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .countries-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .country-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 380px;
+            max-height: 480px;
             overflow-y: auto;
             padding-right: 6px;
         }
@@ -514,11 +834,6 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: border-color 0.2s;
-        }
-
-        .country-item:hover {
-            border-color: var(--border-highlight);
         }
 
         .country-info {
@@ -555,9 +870,9 @@
         }
 
         .country-bar-wrap {
-            width: 80px;
+            width: 100px;
             height: 6px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             border-radius: 3px;
             overflow: hidden;
         }
@@ -577,11 +892,10 @@
             text-align: right;
         }
 
-        /* Device Ratio Bar */
         .device-ratio-bar {
             display: flex;
-            height: 8px;
-            border-radius: 4px;
+            height: 10px;
+            border-radius: 5px;
             overflow: hidden;
             background: #222;
             margin-top: 14px;
@@ -598,8 +912,9 @@
 
         .device-legend {
             display: flex;
+            flex-wrap: wrap;
             gap: 16px;
-            margin-top: 10px;
+            margin-top: 12px;
             font-size: 12px;
             color: var(--text-secondary);
         }
@@ -616,224 +931,38 @@
             border-radius: 50%;
         }
 
-        /* LIVE STREAM RADAR SECTION */
-        .radar-panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
-            padding: 24px;
-        }
-
-        .radar-toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .radar-search-box {
-            position: relative;
-            flex: 1;
-            min-width: 260px;
-            max-width: 440px;
-        }
-
-        .radar-search-input {
-            width: 100%;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-subtle);
-            border-radius: 8px;
-            padding: 10px 14px 10px 36px;
-            font-size: 13px;
-            color: #fff;
-            outline: none;
-        }
-
-        .radar-search-input:focus {
-            border-color: var(--border-highlight);
-        }
-
-        .radar-search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        .radar-filters {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .filter-select {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-subtle);
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 8px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .filter-select:focus {
-            border-color: var(--border-highlight);
-            color: #fff;
-        }
-
-        /* Radar Stream Table */
-        .table-wrap {
-            overflow-x: auto;
-            border: 1px solid var(--border-subtle);
-            border-radius: 12px;
-            background: var(--bg-elevated);
-        }
-
-        .radar-table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 13px;
-        }
-
-        .radar-table th {
-            background: #14141a;
-            color: var(--text-secondary);
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border-subtle);
-            white-space: nowrap;
-        }
-
-        .radar-table td {
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-            vertical-align: middle;
-        }
-
-        .radar-table tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .user-ip-cell {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .copy-ip-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 2px;
-            display: inline-flex;
-            transition: color 0.15s;
-        }
-
-        .copy-ip-btn:hover {
-            color: var(--text-primary);
-        }
-
-        .movie-title-cell {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .movie-mini-badge {
-            width: 32px;
-            height: 44px;
-            background: #222;
-            border-radius: 4px;
-            object-cover: cover;
-            border: 1px solid var(--border-subtle);
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-
-        .movie-meta-wrap {
+        /* ============================================================== */
+        /* TAB 4: ACCESS LOG                                              */
+        /* ============================================================== */
+        .activity-stream {
             display: flex;
             flex-direction: column;
+            gap: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 6px;
         }
 
-        .movie-name {
-            font-weight: 700;
-            color: #fff;
+        .activity-item {
             font-size: 13px;
+            color: var(--text-secondary);
+            padding: 10px 14px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .movie-sub-info {
+        .activity-item strong {
+            color: #fff;
+        }
+
+        .activity-time {
+            font-family: var(--font-mono);
             font-size: 11px;
             color: var(--text-muted);
-        }
-
-        .device-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255, 255, 255, 0.06);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .status-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-
-        .status-chip.streaming {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--accent-green);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .status-chip.locker {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--accent-amber);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            animation: pulse-amber 2s infinite;
-        }
-
-        @keyframes pulse-amber {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; }
-            100% { opacity: 0.8; }
-        }
-
-        .status-chip.browsing {
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--accent-blue);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-
-        .time-pill {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--text-secondary);
         }
 
         /* Toast notification */
@@ -846,7 +975,7 @@
             color: #fff;
             padding: 14px 20px;
             border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -867,122 +996,181 @@
             color: var(--accent-green);
             font-size: 18px;
         }
-
-        /* Activity Feed */
-        .activity-stream {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 240px;
-            overflow-y: auto;
-            padding-right: 6px;
-        }
-
-        .activity-item {
-            font-size: 12px;
-            color: var(--text-secondary);
-            padding: 8px 12px;
-            background: var(--bg-elevated);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .activity-item strong {
-            color: #fff;
-        }
-
-        .activity-time {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--text-muted);
-        }
     </style>
 </head>
 <body>
 
-    <!-- Admin Navigation Bar -->
+    <!-- Top Navigation -->
     <header class="admin-nav">
-        <div class="nav-brand">
+        <div class="nav-left">
             <a href="admin.html" class="nav-logo">FLIX<span>STREAM</span></a>
-            <span class="badge-ops">OPERATIONS RADAR</span>
-            <div class="radar-live-indicator">
-                <span class="pulse-beacon"></span>
-                <span>RADAR ONLINE (AUTO-SYNC 3S)</span>
+            <span class="badge-ops">LIVE RADAR OPS</span>
+            <div class="radar-status-beacon">
+                <span class="pulse-dot"></span>
+                <span id="beacon-text">RADAR CONNECTED</span>
             </div>
         </div>
 
         <div class="nav-actions">
-            <button type="button" class="btn-nav" id="sim-toggle-btn" onclick="toggleSimulation()">
+            <button type="button" class="btn-header" id="sim-toggle-btn" onclick="toggleSimulation()">
                 <span id="sim-icon">⚡</span>
-                <span id="sim-label">Simulated Traffic: ON</span>
+                <span id="sim-label">Simulated Visitors: ON</span>
             </button>
-            <a href="index.html" class="btn-nav" target="_blank">
+            <a href="index.html" class="btn-header" target="_blank">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
-                <span>Browse Website</span>
+                <span>Open Website</span>
             </a>
-            <a href="watch.html?type=movie&id=693134&slug=dune-part-two" class="btn-nav" target="_blank">
+            <a href="watch.html?type=movie&id=693134&slug=dune-part-two" class="btn-header" target="_blank">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                <span>Test Player</span>
+                <span>Open Watch Page</span>
             </a>
         </div>
     </header>
 
     <main class="dashboard-container">
 
-        <!-- 1. Real-Time Top KPIs -->
-        <section class="kpi-grid">
-            <div class="kpi-card green">
-                <div class="kpi-header">
-                    <span class="kpi-title">Live Visitors Online</span>
-                    <span class="kpi-icon">👥</span>
+        <!-- 1. Real-Time Top KPIs Chips -->
+        <section class="kpi-row">
+            <div class="kpi-chip green">
+                <div class="kpi-chip-info">
+                    <span class="kpi-chip-title">Total Active Online</span>
+                    <span class="kpi-chip-value" id="kpi-online">0</span>
+                    <span class="kpi-chip-meta" id="kpi-breakdown-text">Real: 0 &bull; Sim: 0</span>
                 </div>
-                <div class="kpi-value" id="kpi-online">0</div>
-                <div class="kpi-sub">
-                    <span id="kpi-real-badge">Real: 0</span> &bull; 
-                    <span id="kpi-sim-badge">Sim: 0</span>
-                </div>
+                <span class="kpi-chip-icon">👥</span>
             </div>
 
-            <div class="kpi-card red">
-                <div class="kpi-header">
-                    <span class="kpi-title">Active Streaming Now</span>
-                    <span class="kpi-icon">🎬</span>
+            <div class="kpi-chip red">
+                <div class="kpi-chip-info">
+                    <span class="kpi-chip-title">Streaming Movies/Series</span>
+                    <span class="kpi-chip-value" id="kpi-streaming">0</span>
+                    <span class="kpi-chip-meta">Actively playing 1080p</span>
                 </div>
-                <div class="kpi-value" id="kpi-streaming">0</div>
-                <div class="kpi-sub">
-                    <span>Watching full 1080p stream</span>
-                </div>
+                <span class="kpi-chip-icon">🎬</span>
             </div>
 
-            <div class="kpi-card amber">
-                <div class="kpi-header">
-                    <span class="kpi-title">Locker Triggers / Verify</span>
-                    <span class="kpi-icon">🔒</span>
+            <div class="kpi-chip amber">
+                <div class="kpi-chip-info">
+                    <span class="kpi-chip-title">Locker Triggers</span>
+                    <span class="kpi-chip-value" id="kpi-lockers">0</span>
+                    <span class="kpi-chip-meta">Waiting on verification</span>
                 </div>
-                <div class="kpi-value" id="kpi-lockers">0</div>
-                <div class="kpi-sub">
-                    <span>Viewers on locker modal</span>
-                </div>
+                <span class="kpi-chip-icon">🔒</span>
             </div>
 
-            <div class="kpi-card blue">
-                <div class="kpi-header">
-                    <span class="kpi-title">Current Locker Settings</span>
-                    <span class="kpi-icon">⚙️</span>
+            <div class="kpi-chip blue">
+                <div class="kpi-chip-info">
+                    <span class="kpi-chip-title">Active Delay & Locker</span>
+                    <span class="kpi-chip-value" id="kpi-delay-display">35s</span>
+                    <span class="kpi-chip-meta">Locker ID: <strong id="kpi-lid-display" style="color: #fff;">4o7vvr</strong></span>
                 </div>
-                <div class="kpi-value" id="kpi-delay-display" style="font-size: 24px;">35s</div>
-                <div class="kpi-sub">
-                    <span>Locker ID: <strong id="kpi-lid-display">4o7vvr</strong></span>
-                </div>
+                <span class="kpi-chip-icon">⚙️</span>
             </div>
         </section>
 
-        <!-- 2. Middle Row: Locker Control Center & Live Countries Breakdown -->
-        <section class="middle-grid">
-            
-            <!-- Panel A: Locker Control Center (تحكم اللوكر) -->
+        <!-- 2. TABBED NAVIGATION (Kola Fonction f Tab) -->
+        <nav class="tabs-nav-bar">
+            <button class="tab-btn active" onclick="switchTab('radar', this)">
+                <span>📡</span>
+                <span>Live Stream Radar</span>
+                <span class="tab-badge" id="tab-badge-radar">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('locker', this)">
+                <span>🎛️</span>
+                <span>Content Locker Controls</span>
+                <span class="tab-badge" id="tab-badge-delay">35s</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('countries', this)">
+                <span>🌍</span>
+                <span>Live Users by Country</span>
+                <span class="tab-badge" id="tab-badge-countries">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('audit', this)">
+                <span>📜</span>
+                <span>Stream Access Audit Log</span>
+                <span class="tab-badge" id="tab-badge-logs">0</span>
+            </button>
+        </nav>
+
+        <!-- ========================================================== -->
+        <!-- TAB 1: LIVE STREAM RADAR (رادار المشاهدين في الوقت الفعلي) -->
+        <!-- ========================================================== -->
+        <div id="tab-radar" class="tab-content active">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title-wrap">
+                        <span style="font-size: 22px;">📡</span>
+                        <div>
+                            <h2 class="panel-title">Live Stream Radar (Real-Time Audience Telemetry)</h2>
+                            <p class="panel-subtitle">Tracking users actively watching movies: IP, Country, Device, and Exact Media Title</p>
+                        </div>
+                    </div>
+                    <button class="btn-header" onclick="fetchRadarData(true)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span>Refresh Radar</span>
+                    </button>
+                </div>
+
+                <!-- Toolbar & Search -->
+                <div class="radar-toolbar">
+                    <div class="radar-search-box">
+                        <svg class="radar-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                        <input type="text" id="radar-search-input" class="radar-search-input" placeholder="Search by IP, Movie title, or Country..." oninput="filterRadarTable()">
+                    </div>
+
+                    <div class="radar-filters">
+                        <select id="filter-type" class="filter-select" onchange="filterRadarTable()">
+                            <option value="all">All (Real + Sim)</option>
+                            <option value="real">Real Visitors Only</option>
+                            <option value="sim">Simulated Only</option>
+                        </select>
+
+                        <select id="filter-status" class="filter-select" onchange="filterRadarTable()">
+                            <option value="all">All Statuses</option>
+                            <option value="watching">🟢 Streaming (Watching)</option>
+                            <option value="locker_pending">🟡 On Locker</option>
+                            <option value="browsing">🔵 Browsing Catalog</option>
+                        </select>
+
+                        <select id="filter-device" class="filter-select" onchange="filterRadarTable()">
+                            <option value="all">All Devices</option>
+                            <option value="Mobile">Mobile</option>
+                            <option value="Desktop">Desktop</option>
+                            <option value="Tablet">Tablet</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Radar Table -->
+                <div class="table-wrap">
+                    <table class="radar-table">
+                        <thead>
+                            <tr>
+                                <th>Visitor IP</th>
+                                <th>Origin Country</th>
+                                <th>Device & Browser</th>
+                                <th>Movie / Target Media</th>
+                                <th>Active Server</th>
+                                <th>Watch Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="radar-table-body">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                    Scanning network nodes for active viewers...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- TAB 2: CONTENT LOCKER CONTROLS (التحكم في اللوكر)           -->
+        <!-- ========================================================== -->
+        <div id="tab-locker" class="tab-content">
             <div class="panel">
                 <div class="panel-header">
                     <div class="panel-title-wrap">
@@ -995,68 +1183,100 @@
                     <span class="badge-ops" id="config-status-badge">SAVED & SYNCED</span>
                 </div>
 
-                <form class="locker-form" id="locker-form" onsubmit="saveLockerConfig(event)">
-                    
-                    <!-- 1. Locker ID Input -->
-                    <div class="form-group">
-                        <label class="form-label" for="input-locker-id">
-                            <span>Locker ID (OGAds / Network Key)</span>
-                            <span class="hint">Beddel l-ID dyal l-locker hna</span>
-                        </label>
-                        <div class="input-group">
-                            <input type="text" id="input-locker-id" class="input-control" placeholder="e.g. 4o7vvr" value="4o7vvr" required>
-                            <button type="button" class="input-addon-btn" onclick="testLockerPreview()">Preview Locker</button>
+                <div class="locker-grid">
+                    <!-- Form -->
+                    <form class="locker-form" id="locker-form" onsubmit="saveLockerConfig(event)">
+                        
+                        <!-- 1. Locker ID -->
+                        <div class="form-group">
+                            <label class="form-label" for="input-locker-id">
+                                <span>Locker ID (OGAds / Network Key)</span>
+                                <span class="hint">Beddel l-ID dyal l-locker hna</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="text" id="input-locker-id" class="input-control" placeholder="e.g. 4o7vvr" value="4o7vvr" required>
+                                <button type="button" class="input-addon-btn" onclick="testLockerPreview()">Preview Locker</button>
+                            </div>
+                            <p class="panel-subtitle" style="font-size: 11px; margin-top: 4px;">
+                                Active Embed URL: <code id="embed-url-preview" style="color: var(--accent-blue);">https://appcomplete.org/cl/i/4o7vvr</code>
+                            </p>
                         </div>
-                        <p class="panel-subtitle" style="font-size: 11px; margin-top: 4px;">
-                            Active Embed URL: <code id="embed-url-preview" style="color: var(--accent-blue);">https://appcomplete.org/cl/i/4o7vvr</code>
-                        </p>
-                    </div>
 
-                    <!-- 2. Delay Controller (Slider + Presets) -->
-                    <div class="form-group">
-                        <label class="form-label" for="input-delay-slider">
-                            <span>Locker Display Delay (Seconds)</span>
-                            <span class="hint">Thakem f chhal kiban l-locker (20s, 30s, htal 60s)</span>
-                        </label>
+                        <!-- 2. Delay Controller (Slider + Presets) -->
+                        <div class="form-group">
+                            <label class="form-label" for="input-delay-slider">
+                                <span>Locker Display Delay (Seconds)</span>
+                                <span class="hint">Thakem f chhal kiban l-locker (20s, 30s, htal 60s)</span>
+                            </label>
 
-                        <div class="delay-slider-container">
-                            <div class="delay-value-display">
-                                <div>
-                                    <span class="delay-huge" id="slider-display-text">35</span>
-                                    <span style="font-size: 16px; color: var(--text-secondary); font-weight: 700;">seconds</span>
+                            <div class="delay-slider-container">
+                                <div class="delay-value-display">
+                                    <div>
+                                        <span class="delay-huge" id="slider-display-text">35</span>
+                                        <span style="font-size: 16px; color: var(--text-secondary); font-weight: 700;">seconds</span>
+                                    </div>
+                                    <span class="badge-ops" style="background: rgba(255,255,255,0.06); color: #fff;">LIVE SYNC</span>
                                 </div>
-                                <span class="badge-ops" style="background: rgba(255,255,255,0.06); color: #fff;">LIVE SYNC</span>
+
+                                <input type="range" id="input-delay-slider" class="delay-slider" min="10" max="90" step="5" value="35" oninput="onSliderMove(this.value)">
+
+                                <!-- Quick Presets -->
+                                <div class="preset-pills">
+                                    <button type="button" class="preset-btn" onclick="setPresetDelay(15)">15s</button>
+                                    <button type="button" class="preset-btn" onclick="setPresetDelay(20)">20s (Fast)</button>
+                                    <button type="button" class="preset-btn" onclick="setPresetDelay(30)">30s</button>
+                                    <button type="button" class="preset-btn active" onclick="setPresetDelay(35)">35s (Standard)</button>
+                                    <button type="button" class="preset-btn" onclick="setPresetDelay(45)">45s</button>
+                                    <button type="button" class="preset-btn" onclick="setPresetDelay(60)">60s (Long)</button>
+                                </div>
                             </div>
+                        </div>
 
-                            <input type="range" id="input-delay-slider" class="delay-slider" min="10" max="90" step="5" value="35" oninput="onSliderMove(this.value)">
+                        <!-- Submit -->
+                        <div>
+                            <button type="submit" class="btn-save-locker">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>
+                                <span>Save & Apply Live to All Viewers</span>
+                            </button>
+                        </div>
+                    </form>
 
-                            <!-- Quick Preset Buttons -->
-                            <div class="preset-pills">
-                                <button type="button" class="preset-btn" onclick="setPresetDelay(15)">15s</button>
-                                <button type="button" class="preset-btn" onclick="setPresetDelay(20)">20s (Fast)</button>
-                                <button type="button" class="preset-btn" onclick="setPresetDelay(30)">30s</button>
-                                <button type="button" class="preset-btn active" onclick="setPresetDelay(35)">35s (Standard)</button>
-                                <button type="button" class="preset-btn" onclick="setPresetDelay(45)">45s</button>
-                                <button type="button" class="preset-btn" onclick="setPresetDelay(60)">60s (Long)</button>
+                    <!-- Info Box -->
+                    <div class="locker-info-box">
+                        <h3 style="font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 4px;">Kifach Khedam l-Locker:</h3>
+                        
+                        <div class="info-step">
+                            <span class="info-step-num">1</span>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                <strong style="color: #fff;">User Start Streaming:</strong>
+                                <p>User kay-dkhol l chi film o kay-brek 3la "Start Streaming".</p>
+                            </div>
+                        </div>
+
+                        <div class="info-step">
+                            <span class="info-step-num">2</span>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                <strong style="color: #fff;">Hook Delay Countdown:</strong>
+                                <p>Kay-tferrej f l-film f 1080p HD mzyan 7ta katwsal l-moda li 7dedti (e.g. 20s aw 35s).</p>
+                            </div>
+                        </div>
+
+                        <div class="info-step">
+                            <span class="info-step-num">3</span>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                <strong style="color: #fff;">Locker Modal Pop:</strong>
+                                <p>L-video kay-twaqqaf o kay-ban lih l-locker dialك (OGAds ID). Men ba3d ma kay-kmmel l-verification, kay-tkhewa l-film كامل unlocked!</p>
                             </div>
                         </div>
                     </div>
-
-                    <!-- 3. Form Submit Actions -->
-                    <div class="form-actions">
-                        <button type="submit" class="btn-save-locker">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8"/></svg>
-                            <span>Save & Apply Live to All Viewers</span>
-                        </button>
-                        <button type="button" class="btn-secondary" onclick="resetToDefaults()">
-                            <span>Reset Defaults</span>
-                        </button>
-                    </div>
-
-                </form>
+                </div>
             </div>
+        </div>
 
-            <!-- Panel B: Live Users by Country (المستخدمين النشطين حسب البلد) -->
+        <!-- ========================================================== -->
+        <!-- TAB 3: LIVE USERS BY COUNTRY (المستخدمين حسب الدول)          -->
+        <!-- ========================================================== -->
+        <div id="tab-countries" class="tab-content">
             <div class="panel">
                 <div class="panel-header">
                     <div class="panel-title-wrap">
@@ -1067,128 +1287,66 @@
                         </div>
                     </div>
                     <span id="country-total-badge" class="badge-ops" style="background: rgba(16,185,129,0.15); color: var(--accent-green); border-color: rgba(16,185,129,0.4);">
-                        0 COUNTRIES
+                        0 COUNTRIES ACTIVE
                     </span>
                 </div>
 
-                <!-- Country List Container -->
-                <div class="country-list" id="country-list-container">
-                    <p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">Fetching country radar telemetry...</p>
-                </div>
+                <div class="countries-grid">
+                    <!-- Country List -->
+                    <div class="country-list" id="country-list-container">
+                        <p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">Fetching country radar telemetry...</p>
+                    </div>
 
-                <!-- Device Distribution Bar -->
-                <div style="margin-top: 20px; border-top: 1px solid var(--border-subtle); pt-4;">
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">
-                        <span>DEVICE BREAKDOWN</span>
-                        <span id="device-summary-text">Mobile 60% &bull; Desktop 40%</span>
-                    </div>
-                    <div class="device-ratio-bar">
-                        <div class="device-seg mobile" id="dev-mobile-bar" style="width: 60%;"></div>
-                        <div class="device-seg desktop" id="dev-desktop-bar" style="width: 35%;"></div>
-                        <div class="device-seg tablet" id="dev-tablet-bar" style="width: 5%;"></div>
-                    </div>
-                    <div class="device-legend">
-                        <div class="device-legend-item">
-                            <span class="legend-dot" style="background: #3b82f6;"></span>
-                            <span id="legend-mobile">Mobile: 0</span>
+                    <!-- Device Analytics -->
+                    <div style="background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px;">
+                        <h3 style="font-size: 13px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">Device Distribution</h3>
+                        <p id="device-summary-text" style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Calculating ratios...</p>
+                        
+                        <div class="device-ratio-bar">
+                            <div class="device-seg mobile" id="dev-mobile-bar" style="width: 50%;"></div>
+                            <div class="device-seg desktop" id="dev-desktop-bar" style="width: 45%;"></div>
+                            <div class="device-seg tablet" id="dev-tablet-bar" style="width: 5%;"></div>
                         </div>
-                        <div class="device-legend-item">
-                            <span class="legend-dot" style="background: #10b981;"></span>
-                            <span id="legend-desktop">Desktop: 0</span>
+
+                        <div class="device-legend">
+                            <div class="device-legend-item">
+                                <span class="legend-dot" style="background: #3b82f6;"></span>
+                                <span id="legend-mobile">Mobile: 0</span>
+                            </div>
+                            <div class="device-legend-item">
+                                <span class="legend-dot" style="background: #10b981;"></span>
+                                <span id="legend-desktop">Desktop: 0</span>
+                            </div>
+                            <div class="device-legend-item">
+                                <span class="legend-dot" style="background: #f59e0b;"></span>
+                                <span id="legend-tablet">Tablet: 0</span>
+                            </div>
                         </div>
-                        <div class="device-legend-item">
-                            <span class="legend-dot" style="background: #f59e0b;"></span>
-                            <span id="legend-tablet">Tablet: 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- TAB 4: ACCESS AUDIT LOG (سجل النشاط المباشر)                -->
+        <!-- ========================================================== -->
+        <div id="tab-audit" class="tab-content">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title-wrap">
+                        <span style="font-size: 20px;">📜</span>
+                        <div>
+                            <h3 class="panel-title">Stream Access Audit Feed</h3>
+                            <p class="panel-subtitle">Immediate log of visitors who initiated playback or entered pages</p>
                         </div>
                     </div>
+                    <button class="btn-header" onclick="clearActivityLogs()">Clear Log History</button>
+                </div>
+                <div class="activity-stream" id="activity-stream-container">
+                    <p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">No stream entry events recorded yet.</p>
                 </div>
             </div>
-
-        </section>
-
-        <!-- 3. LIVE STREAM RADAR TABLE (رادار المشاهدين في الوقت الفعلي) -->
-        <section class="radar-panel">
-            <div class="panel-header">
-                <div class="panel-title-wrap">
-                    <span style="font-size: 22px;">📡</span>
-                    <div>
-                        <h2 class="panel-title">Live Stream Radar (Real-Time Audience Telemetry)</h2>
-                        <p class="panel-subtitle">Tracking users actively watching movies: IP, Country, Device, and Exact Media Title</p>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn-nav" onclick="fetchRadarData(true)">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                        <span>Refresh Radar</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Toolbar & Search -->
-            <div class="radar-toolbar">
-                <div class="radar-search-box">
-                    <svg class="radar-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-                    <input type="text" id="radar-search-input" class="radar-search-input" placeholder="Search by IP, Movie title, or Country..." oninput="filterRadarTable()">
-                </div>
-
-                <div class="radar-filters">
-                    <select id="filter-status" class="filter-select" onchange="filterRadarTable()">
-                        <option value="all">All States</option>
-                        <option value="watching">🟢 Streaming (Watching)</option>
-                        <option value="locker_pending">🟡 On Locker</option>
-                        <option value="browsing">🔵 Browsing Catalog</option>
-                    </select>
-
-                    <select id="filter-device" class="filter-select" onchange="filterRadarTable()">
-                        <option value="all">All Devices</option>
-                        <option value="Mobile">Mobile Only</option>
-                        <option value="Desktop">Desktop Only</option>
-                        <option value="Tablet">Tablet Only</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Table -->
-            <div class="table-wrap">
-                <table class="radar-table">
-                    <thead>
-                        <tr>
-                            <th>Visitor IP</th>
-                            <th>Origin Country</th>
-                            <th>Device & Browser</th>
-                            <th>Movie / Target Media</th>
-                            <th>Active Server</th>
-                            <th>Session Watch Time</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="radar-table-body">
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                                Scanning network nodes for active viewers...
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- 4. Recent Stream Access Audit Feed -->
-        <section class="panel">
-            <div class="panel-header">
-                <div class="panel-title-wrap">
-                    <span style="font-size: 20px;">📜</span>
-                    <div>
-                        <h3 class="panel-title">Recent Stream Access Feed</h3>
-                        <p class="panel-subtitle">Immediate log of visitors who initiated playback</p>
-                    </div>
-                </div>
-                <button class="btn-nav" onclick="clearActivityLogs()" style="font-size: 11px;">Clear History</button>
-            </div>
-            <div class="activity-stream" id="activity-stream-container">
-                <p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 14px;">No recent stream events logged yet.</p>
-            </div>
-        </section>
+        </div>
 
     </main>
 
@@ -1198,18 +1356,30 @@
         <span id="toast-message">Settings updated successfully!</span>
     </div>
 
-    <!-- JavaScript Application Logic -->
+    <!-- Application JavaScript Engine -->
     <script>
         let cachedRadarData = null;
         let autoSyncTimer = null;
 
-        // 1. Fetch Radar Telemetry from Server
+        // 1. Tab Switching Function
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            if (btn) btn.classList.add('active');
+            const target = document.getElementById(`tab-${tabName}`);
+            if (target) target.classList.add('active');
+        }
+
+        // 2. Fetch Radar Telemetry from Server
         async function fetchRadarData(manual = false) {
             try {
-                const res = await fetch('/api/admin/radar');
-                if (!res.ok) throw new Error('Network error');
+                const res = await fetch('/api/admin/radar?t=' + Date.now());
+                if (!res.ok) throw new Error('Network error: ' + res.status);
                 const data = await res.json();
                 cachedRadarData = data;
+
+                document.getElementById('beacon-text').innerText = 'RADAR CONNECTED';
 
                 renderKPIs(data);
                 renderLockerControls(data.config);
@@ -1222,10 +1392,11 @@
                 }
             } catch (err) {
                 console.error('Radar poll error:', err);
+                document.getElementById('beacon-text').innerText = 'RECONNECTING...';
             }
         }
 
-        // 2. Render KPIs
+        // 3. Render Top KPIs
         function renderKPIs(data) {
             document.getElementById('kpi-online').innerText = data.totalOnline || 0;
             document.getElementById('kpi-streaming').innerText = data.streamingCount || 0;
@@ -1236,20 +1407,28 @@
             document.getElementById('kpi-delay-display').innerText = `${delaySec}s`;
             document.getElementById('kpi-lid-display').innerText = lid;
 
-            document.getElementById('kpi-real-badge').innerText = `Real: ${data.realCount || 0}`;
-            document.getElementById('kpi-sim-badge').innerText = `Sim: ${data.simCount || 0}`;
+            document.getElementById('kpi-breakdown-text').innerHTML = `Real: <strong style="color:#10b981;">${data.realCount || 0}</strong> &bull; Sim: ${data.simCount || 0}`;
 
-            const simBtn = document.getElementById('sim-label');
+            // Tab Badges
+            document.getElementById('tab-badge-radar').innerText = data.totalOnline || 0;
+            document.getElementById('tab-badge-delay').innerText = `${delaySec}s`;
+            document.getElementById('tab-badge-countries').innerText = (data.countries || []).length;
+            document.getElementById('tab-badge-logs').innerText = (data.recentActivity || []).length;
+
+            const simBtn = document.getElementById('sim-toggle-btn');
+            const simLabel = document.getElementById('sim-label');
+            if (simLabel) {
+                simLabel.innerText = data.simulationEnabled ? 'Simulated Visitors: ON' : 'Simulated Visitors: OFF';
+            }
             if (simBtn) {
-                simBtn.innerText = data.simulationEnabled ? 'Simulated Traffic: ON' : 'Simulated Traffic: OFF';
+                simBtn.classList.toggle('sim-active', data.simulationEnabled);
             }
         }
 
-        // 3. Render Locker Controls
+        // 4. Render Locker Controls
         function renderLockerControls(cfg) {
             if (!cfg) return;
 
-            // Only update input if not currently focused by user
             const lidInput = document.getElementById('input-locker-id');
             if (document.activeElement !== lidInput && cfg.lockerId) {
                 lidInput.value = cfg.lockerId;
@@ -1296,14 +1475,6 @@
             window.open(`https://appcomplete.org/cl/i/${encodeURIComponent(lid)}`, '_blank');
         }
 
-        function resetToDefaults() {
-            document.getElementById('input-locker-id').value = '4o7vvr';
-            updateLockerUrlPreview('4o7vvr');
-            setPresetDelay(35);
-            showToast('Reset form to defaults. Click Save to apply.');
-        }
-
-        // 4. Save Locker Configuration
         async function saveLockerConfig(e) {
             if (e) e.preventDefault();
 
@@ -1394,11 +1565,16 @@
         function renderRadarTable(sessions = []) {
             const tbody = document.getElementById('radar-table-body');
             const searchVal = (document.getElementById('radar-search-input').value || '').toLowerCase().trim();
+            const typeFilter = document.getElementById('filter-type').value;
             const statusFilter = document.getElementById('filter-status').value;
             const deviceFilter = document.getElementById('filter-device').value;
 
             // Apply filters
             const filtered = sessions.filter(s => {
+                // Type filter
+                if (typeFilter === 'real' && !s.isReal) return false;
+                if (typeFilter === 'sim' && s.isReal) return false;
+
                 // Search filter
                 if (searchVal) {
                     const matchIp = (s.ip || '').toLowerCase().includes(searchVal);
@@ -1409,7 +1585,7 @@
 
                 // Status filter
                 if (statusFilter !== 'all') {
-                    if (statusFilter === 'watching' && s.status !== 'watching') return false;
+                    if (statusFilter === 'watching' && s.status !== 'watching' && s.status !== 'unlocked_watching') return false;
                     if (statusFilter === 'locker_pending' && !s.status.includes('locker')) return false;
                     if (statusFilter === 'browsing' && s.status !== 'browsing') return false;
                 }
@@ -1453,15 +1629,19 @@
                 }
 
                 const deviceIcon = s.device === 'Mobile' ? '📱' : (s.device === 'Tablet' ? '📲' : '💻');
+                const realBadgeHtml = s.isReal 
+                    ? `<span class="real-badge">REAL USER</span>` 
+                    : `<span class="sim-badge">SIM</span>`;
 
                 return `
                     <tr>
                         <td>
                             <div class="user-ip-cell">
-                                <span>${s.ip || '197.230.144.12'}</span>
+                                <span>${s.ip || '160.166.7.43'}</span>
                                 <button type="button" class="copy-ip-btn" title="Copy IP" onclick="copyText('${s.ip}')">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                                 </button>
+                                ${realBadgeHtml}
                             </div>
                         </td>
                         <td>
@@ -1478,10 +1658,10 @@
                         </td>
                         <td>
                             <div class="movie-title-cell">
-                                <div class="movie-mini-badge">🎬</div>
+                                <div class="movie-mini-icon">🎬</div>
                                 <div class="movie-meta-wrap">
-                                    <span class="movie-name">${s.mediaTitle || 'Home Page'}</span>
-                                    <span class="movie-sub-info">${s.mediaType === 'tv' ? 'TV Series' : (s.mediaId ? 'Feature Film' : 'Browsing')}</span>
+                                    <span class="movie-name">${s.mediaTitle || 'Catalog Home'}</span>
+                                    <span class="movie-sub-info">${s.mediaType === 'tv' ? 'TV Series' : (s.mediaId ? 'Movie Stream' : 'Home Page')}</span>
                                 </div>
                             </div>
                         </td>
@@ -1514,7 +1694,7 @@
         function renderActivityLog(logs = []) {
             const container = document.getElementById('activity-stream-container');
             if (!logs || logs.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 14px;">No recent stream events logged yet.</p>';
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">No stream entry events recorded yet.</p>';
                 return;
             }
 
@@ -1544,7 +1724,7 @@
             try {
                 const res = await fetch('/api/admin/toggle-sim', { method: 'POST' });
                 const d = await res.json();
-                showToast(d.simulationEnabled ? 'Simulated live visitors enabled' : 'Simulated live visitors disabled');
+                showToast(d.simulationEnabled ? 'Simulated visitors enabled' : 'Simulated visitors disabled');
                 fetchRadarData();
             } catch (e) {}
         }
@@ -1563,11 +1743,11 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // Startup & Real-time Auto Refresh (Every 3 seconds)
+        // Initial Data Fetch & 2.5-second Real-time Polling
         fetchRadarData();
         autoSyncTimer = setInterval(() => {
             fetchRadarData(false);
-        }, 3000);
+        }, 2500);
     </script>
 </body>
 </html>

@@ -66,8 +66,39 @@
         };
     </script>
 
-    <!-- Stylesheet with Cache-Buster v23.0 -->
-    <link rel="stylesheet" href="style.css?v=23.0">
+    <!-- Stylesheet with Cache-Buster v25.0 -->
+    <link rel="stylesheet" href="style.css?v=25.0">
+
+    <!-- Immediate Stream Radar Beacon -->
+    <script>
+        (function() {
+            try {
+                let sid = sessionStorage.getItem('flix_session_id');
+                if (!sid) {
+                    sid = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+                    sessionStorage.setItem('flix_session_id', sid);
+                }
+                const p = new URLSearchParams(window.location.search);
+                const mid = p.get('id');
+                const mslug = p.get('slug') || 'Movie';
+                fetch('/api/telemetry/heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: sid,
+                        page: 'watch',
+                        mediaId: mid,
+                        mediaType: p.get('type') || 'movie',
+                        mediaSlug: mslug,
+                        mediaTitle: mslug.replace(/-/g, ' ').replace(/\b\w/g, function(l){ return l.toUpperCase(); }),
+                        status: 'watching',
+                        action: 'stream_start',
+                        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+                    })
+                }).catch(function(){});
+            } catch(e) {}
+        })();
+    </script>
 </head>
 <body class="watch-body notranslate">
 
@@ -252,7 +283,7 @@
 
     </div>
 
-    <!-- Script with Cache-Buster v23.0 -->
-    <script src="player.js?v=23.0"></script>
+    <!-- Script with Cache-Buster v25.0 -->
+    <script src="player.js?v=25.0"></script>
 </body>
 </html>

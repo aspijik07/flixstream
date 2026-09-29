@@ -50,7 +50,7 @@ let currentConfig = loadConfig();
 // Key: sessionId -> session object
 const activeSessions = new Map();
 const recentActivityLog = [];
-const MAX_LOG_ENTRIES = 60;
+const MAX_LOG_ENTRIES = 80;
 let simulationEnabled = true;
 
 // Helper: Country code to flag emoji & name
@@ -175,8 +175,7 @@ function resolveCountry(req, clientPayload = {}) {
     return { code: 'US', name: 'United States', flag: '🇺🇸' };
   }
 
-  // Fallback default
-  return { code: 'US', name: 'United States', flag: '🇺🇸' };
+  return { code: 'MA', name: 'Morocco', flag: '🇲🇦' };
 }
 
 function getClientIp(req) {
@@ -189,25 +188,25 @@ function getClientIp(req) {
   if (realIp && realIp !== '::1' && realIp !== '127.0.0.1') {
     return realIp.replace('::ffff:', '');
   }
-  return '197.230.144.' + Math.floor(10 + Math.random() * 80);
+  return '160.166.7.' + Math.floor(10 + Math.random() * 80);
 }
 
-// Simulated active pool to give the live radar an active realistic display when testing
+// Simulated active pool
 const SIMULATED_VISITORS = [
-  { id: 'sim-1', ip: '105.158.42.112', country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' }, city: 'Casablanca', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Dune: Part Two', mediaType: 'movie', mediaId: '693134', status: 'watching', seconds: 124 },
-  { id: 'sim-2', ip: '197.253.18.90', country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' }, city: 'Rabat', device: 'Desktop', os: 'Windows', browser: 'Chrome', mediaTitle: 'Deadpool & Wolverine', mediaType: 'movie', mediaId: '533535', status: 'locker_pending', seconds: 32 },
-  { id: 'sim-3', ip: '82.165.197.44', country: { code: 'FR', name: 'France', flag: '🇫🇷' }, city: 'Paris', device: 'Mobile', os: 'Android', browser: 'Chrome', mediaTitle: 'Spider-Man: No Way Home', mediaType: 'movie', mediaId: '634649', status: 'watching', seconds: 89 },
-  { id: 'sim-4', ip: '74.125.212.10', country: { code: 'US', name: 'United States', flag: '🇺🇸' }, city: 'New York', device: 'Desktop', os: 'macOS', browser: 'Chrome', mediaTitle: 'Oppenheimer', mediaType: 'movie', mediaId: '872585', status: 'watching', seconds: 215 },
-  { id: 'sim-5', ip: '88.19.143.201', country: { code: 'ES', name: 'Spain', flag: '🇪🇸' }, city: 'Madrid', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Solo Leveling', mediaType: 'tv', mediaId: '209867', status: 'watching', seconds: 45 },
-  { id: 'sim-6', ip: '196.200.170.8', country: { code: 'DZ', name: 'Algeria', flag: '🇩🇿' }, city: 'Algiers', device: 'Mobile', os: 'Android', browser: 'Firefox', mediaTitle: 'Interstellar', mediaType: 'movie', mediaId: '157336', status: 'browsing', seconds: 18 },
-  { id: 'sim-7', ip: '178.62.204.15', country: { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' }, city: 'London', device: 'Desktop', os: 'Windows', browser: 'Edge', mediaTitle: 'The Batman', mediaType: 'movie', mediaId: '414906', status: 'watching', seconds: 178 }
+  { id: 'sim-1', ip: '105.158.42.112', country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' }, city: 'Casablanca', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Dune: Part Two', mediaType: 'movie', mediaId: '693134', status: 'watching', seconds: 135 },
+  { id: 'sim-2', ip: '197.253.18.90', country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' }, city: 'Rabat', device: 'Desktop', os: 'Windows', browser: 'Chrome', mediaTitle: 'Deadpool & Wolverine', mediaType: 'movie', mediaId: '533535', status: 'locker_pending', seconds: 35 },
+  { id: 'sim-3', ip: '82.165.197.44', country: { code: 'FR', name: 'France', flag: '🇫🇷' }, city: 'Paris', device: 'Mobile', os: 'Android', browser: 'Chrome', mediaTitle: 'Spider-Man: No Way Home', mediaType: 'movie', mediaId: '634649', status: 'watching', seconds: 120 },
+  { id: 'sim-4', ip: '74.125.212.10', country: { code: 'US', name: 'United States', flag: '🇺🇸' }, city: 'New York', device: 'Desktop', os: 'macOS', browser: 'Chrome', mediaTitle: 'Oppenheimer', mediaType: 'movie', mediaId: '872585', status: 'watching', seconds: 240 },
+  { id: 'sim-5', ip: '88.19.143.201', country: { code: 'ES', name: 'Spain', flag: '🇪🇸' }, city: 'Madrid', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Solo Leveling', mediaType: 'tv', mediaId: '209867', status: 'watching', seconds: 50 },
+  { id: 'sim-6', ip: '196.200.170.8', country: { code: 'DZ', name: 'Algeria', flag: '🇩🇿' }, city: 'Algiers', device: 'Mobile', os: 'Android', browser: 'Firefox', mediaTitle: 'Interstellar', mediaType: 'movie', mediaId: '157336', status: 'browsing', seconds: 22 },
+  { id: 'sim-7', ip: '178.62.204.15', country: { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' }, city: 'London', device: 'Desktop', os: 'Windows', browser: 'Edge', mediaTitle: 'The Batman', mediaType: 'movie', mediaId: '414906', status: 'watching', seconds: 180 }
 ];
 
-// Clean inactive sessions every 15s
+// Clean inactive sessions every 15s (keep real sessions alive for 60 seconds)
 setInterval(() => {
   const now = Date.now();
   for (const [id, session] of activeSessions.entries()) {
-    if (now - session.lastSeen > 45000) {
+    if (now - session.lastSeen > 60000) {
       activeSessions.delete(id);
     }
   }
@@ -219,6 +218,7 @@ setInterval(() => {
 
 // Config for Player (Locker ID & Delay)
 app.get('/api/config', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.json({
     success: true,
     lockerId: currentConfig.lockerId || '4o7vvr',
@@ -259,7 +259,7 @@ app.post('/api/config', (req, res) => {
   });
 });
 
-// Heartbeat Telemetry from Visitors (called every 10-15s from index.html and watch.html)
+// Heartbeat Telemetry from Visitors
 app.post('/api/telemetry/heartbeat', (req, res) => {
   try {
     const payload = req.body || {};
@@ -291,13 +291,14 @@ app.post('/api/telemetry/heartbeat', (req, res) => {
       playbackSeconds: payload.playbackSeconds || 0,
       firstSeen: existing.firstSeen,
       lastSeen: now,
-      duration: Math.floor((now - existing.firstSeen) / 1000)
+      duration: Math.floor((now - existing.firstSeen) / 1000),
+      isReal: true
     };
 
     activeSessions.set(sessionId, sessionData);
 
-    // Record into recent activity if newly started stream
-    if (payload.page === 'watch' && isNew) {
+    // Record into recent activity on new session or page change
+    if (isNew || payload.action === 'stream_start' || (payload.page === 'watch' && existing.page !== 'watch')) {
       recentActivityLog.unshift({
         id: `act-${now}`,
         timestamp: new Date().toISOString(),
@@ -306,7 +307,7 @@ app.post('/api/telemetry/heartbeat', (req, res) => {
         mediaTitle: sessionData.mediaTitle,
         mediaType: sessionData.mediaType,
         device: sessionData.device,
-        action: 'Started 1080p Stream'
+        action: payload.page === 'watch' ? 'Started 1080p Stream' : 'Browsing Website'
       });
       if (recentActivityLog.length > MAX_LOG_ENTRIES) {
         recentActivityLog.pop();
@@ -329,16 +330,18 @@ app.post('/api/telemetry/heartbeat', (req, res) => {
 
 // Admin Radar Data Provider
 app.get('/api/admin/radar', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   const now = Date.now();
   const realSessions = Array.from(activeSessions.values()).map(s => ({
     ...s,
-    duration: Math.floor((now - s.firstSeen) / 1000)
+    duration: Math.floor((now - s.firstSeen) / 1000),
+    isReal: true
   }));
 
-  // Merge simulated visitors if enabled to ensure live radar always has rich data
+  // Merge simulated visitors if enabled
   let allSessions = [...realSessions];
   if (simulationEnabled) {
-    const simWithTimestamps = SIMULATED_VISITORS.map((sim, i) => ({
+    const simWithTimestamps = SIMULATED_VISITORS.map((sim) => ({
       sessionId: sim.id,
       ip: sim.ip,
       country: sim.country,
@@ -355,6 +358,7 @@ app.get('/api/admin/radar', (req, res) => {
       firstSeen: now - (sim.seconds * 1000),
       lastSeen: now,
       duration: sim.seconds + Math.floor((Date.now() / 1000) % 60),
+      isReal: false,
       isSimulated: true
     }));
     allSessions = [...realSessions, ...simWithTimestamps];
@@ -424,9 +428,15 @@ app.post('/api/admin/clear-logs', (req, res) => {
 });
 
 // ==========================================
-// 4. STATIC ASSETS & CLEAN ROUTES
+// 4. STATIC ASSETS WITH ZERO CACHE FOR SCRIPTS
 // ==========================================
-app.use(express.static(__dirname));
+app.use(express.static(__dirname, {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js') || filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+}));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
