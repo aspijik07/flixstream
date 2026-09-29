@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Automated Programmatic SEO (pSEO) Article Generator
-===================================================
-Fetches daily trending movies from TMDB, generates long-form SEO articles
-using the official Google GenAI SDK (gemini-3.8-flash), embeds Schema.org
-JSON-LD markup, saves static HTML files, and updates sitemap.xml.
-Includes automatic retries with exponential backoff for 503 high-demand errors.
+High-Scale Programmatic SEO (pSEO) Automated Engine
+==================================================
+Scales to 50 movies per day by paginating TMDB, generating long-form SEO content
+using Gemini 3.8 Flash, applying intelligent rate-limiting (4s delay),
+embedding Schema.org Rich Results, and building an automated XML sitemap.
 """
 
 import html
@@ -23,11 +22,11 @@ import requests
 from google import genai
 
 # ---------------------------------------------------------
-# Configuration & Constants
+# Configuration
 # ---------------------------------------------------------
 LOG_FORMAT = "%(asctime)s [%(levelname)s] %(message)s"
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
-logger = logging.getLogger("pSEO-Pipeline")
+logger = logging.getLogger("pSEO-Engine")
 
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "").strip()
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
@@ -37,16 +36,15 @@ WATCH_ACTION_URL = "https://500get.com"
 MOVIES_DIR = "movies"
 SITEMAP_PATH = "sitemap.xml"
 
-TMDB_TRENDING_URL = "https://api.themoviedb.org/3/trending/movie/day"
+# TARGET: 50 Movies per Day
+DAILY_MOVIES_TARGET = int(os.environ.get("MOVIES_LIMIT", 50))
+DELAY_BETWEEN_CALLS = 4  # Seconds to avoid Google Gemini 15 RPM rate limits
+
 TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 SITEMAP_NS = "http://www.sitemaps.org/schemas/sitemap/0.9"
 
 
-# ---------------------------------------------------------
-# Utility Functions
-# ---------------------------------------------------------
 def slugify(text: str) -> str:
-    """Converts a title string into an SEO-friendly URL slug."""
     text = text.lower().strip()
     text = re.sub(r"[^\w\s-]", "", text)
     text = re.sub(r"[\s_-]+", "-", text)
@@ -54,78 +52,72 @@ def slugify(text: str) -> str:
 
 
 def validate_environment() -> None:
-    """Ensures required API keys are configured."""
-    missing = []
-    if not TMDB_API_KEY:
-        missing.append("TMDB_API_KEY")
-    if not GEMINI_API_KEY:
-        missing.append("GEMINI_API_KEY")
-
-    if missing:
-        logger.error(f"Missing required environment variable(s): {', '.join(missing)}")
+    if not TMDB_API_KEY or not GEMINI_API_KEY:
+        logger.error("Missing TMDB_API_KEY or GEMINI_API_KEY.")
         sys.exit(1)
 
 
 # ---------------------------------------------------------
-# Step 1: TMDB Data Fetching
+# TMDB Fetching with Pagination (Fetches up to 50 movies)
 # ---------------------------------------------------------
-def fetch_top_trending_movies(limit: int = 3) -> List[Dict[str, Any]]:
-    """Fetches the top trending movies from TMDB API for the current day."""
-    logger.info("Fetching trending movies from TMDB...")
+def fetch_top_trending_movies(target_count: int = 50) -> List[Dict[str, Any]]:
+    """Fetches trending movies across multiple pages to reach the target count."""
+    logger.info(f"Fetching up to {target_count} trending movies from TMDB...")
     headers = {"accept": "application/json"}
     params = {}
-
     if len(TMDB_API_KEY) > 50:
         headers["Authorization"] = f"Bearer {TMDB_API_KEY}"
     else:
         params["api_key"] = TMDB_API_KEY
 
-    try:
-        response = requests.get(
-            TMDB_TRENDING_URL,
-            headers=headers,
-            params=params,
-            timeout=15
-        )
-        response.raise_for_status()
-        data = response.json()
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch data from TMDB: {e}")
-        return []
+    movies = []
+    page = 1
 
-    results = data.get("results", [])
-    extracted_movies = []
+    while len(movies) < target_count and page <= 5:
+        try:
+            params["page"] = page
+            url = "https://api.themoviedb.org/3/trending/movie/day"
+            response = requests.get(url, headers=headers, params=params, timeout=15)
+            response.raise_for_status()
+            data = response.json()
+            results = data.get("results", [])
 
-    for item in results[:limit]:
-        title = item.get("title") or item.get("original_title") or "Untitled Movie"
-        poster_path = item.get("poster_path")
-        poster_url = f"{TMDB_IMAGE_BASE_URL}{poster_path}" if poster_path else ""
+            if not results:
+                break
 
-        movie_info = {
-            "id": item.get("id"),
-            "title": title,
-            "overview": item.get("overview", "No synopsis available."),
-            "release_date": item.get("release_date", "N/A"),
-            "poster_url": poster_url,
-            "vote_average": float(item.get("vote_average", 0.0)),
-            "vote_count": int(item.get("vote_count", 0)),
-        }
-        extracted_movies.append(movie_info)
+            for item in results:
+                title = item.get("title") or item.get("original_title") or "Untitled Movie"
+                poster_path = item.get("poster_path")
+                poster_url = f"{TMDB_IMAGE_BASE_URL}{poster_path}" if poster_path else ""
 
-    logger.info(f"Successfully retrieved {len(extracted_movies)} trending movies.")
-    return extracted_movies
+                movies.append({
+                    "id": item.get("id"),
+                    "title": title,
+                    "overview": item.get("overview", "No synopsis available."),
+                    "release_date": item.get("release_date", "2024"),
+                    "poster_url": poster_url,
+                    "vote_average": float(item.get("vote_average", 0.0)),
+                    "vote_count": int(item.get("vote_count", 0)),
+                })
+
+                if len(movies) >= target_count:
+                    break
+
+            page += 1
+            time.sleep(0.5)
+
+        except requests.RequestException as e:
+            logger.error(f"TMDB fetch error on page {page}: {e}")
+            break
+
+    logger.info(f"Collected {len(movies)} trending movies ready for processing.")
+    return movies
 
 
 # ---------------------------------------------------------
-# Step 2: Content Generation via Google GenAI (with Auto-Retry)
+# Content Generation with Backoff Retries
 # ---------------------------------------------------------
-def generate_article_content(movie: Dict[str, Any], max_retries: int = 3) -> Optional[str]:
-    """
-    Generates an 800-1000 word SEO HTML article using Google GenAI SDK.
-    Includes automated retries and backoff for 503 high-demand errors.
-    """
-    client = genai.Client(api_key=GEMINI_API_KEY)
-
+def generate_article_content(client: genai.Client, movie: Dict[str, Any], max_retries: int = 3) -> Optional[str]:
     prompt = f"""
 You are a senior entertainment journalist and elite Technical SEO copywriter.
 Write an in-depth, captivating, 800 to 1000 words SEO-optimized article about the movie "{movie['title']}".
@@ -158,7 +150,6 @@ CRITICAL REQUIREMENTS:
 
     for attempt in range(1, max_retries + 1):
         try:
-            logger.info(f"[{attempt}/{max_retries}] Requesting article for: {movie['title']}")
             response = client.models.generate_content(
                 model=model_name,
                 contents=prompt
@@ -181,17 +172,15 @@ CRITICAL REQUIREMENTS:
         except Exception as e:
             logger.warning(f"Attempt {attempt} failed for '{movie['title']}': {e}")
             if attempt < max_retries:
-                wait_time = attempt * 6  # 6s then 12s backoff
-                logger.info(f"Waiting {wait_time}s before retrying due to server load...")
+                wait_time = attempt * 7
+                logger.info(f"Retrying '{movie['title']}' in {wait_time}s...")
                 time.sleep(wait_time)
-            else:
-                logger.error(f"All {max_retries} attempts failed for '{movie['title']}'.")
 
     return None
 
 
 # ---------------------------------------------------------
-# Step 3: Schema Markup (JSON-LD) & HTML Template
+# Schema Markup (JSON-LD)
 # ---------------------------------------------------------
 def build_json_ld_schema(movie: Dict[str, Any]) -> str:
     schema = {
@@ -227,11 +216,7 @@ def build_json_ld_schema(movie: Dict[str, Any]) -> str:
     return json.dumps(schema, ensure_ascii=False, indent=2).replace("</script", "<\\/script")
 
 
-def render_full_html_document(
-    movie: Dict[str, Any],
-    article_body: str,
-    page_url: str
-) -> str:
+def render_full_html_document(movie: Dict[str, Any], article_body: str, page_url: str) -> str:
     title_escaped = html.escape(movie["title"])
     desc_escaped = html.escape(movie["overview"])
     poster_escaped = html.escape(movie["poster_url"])
@@ -267,7 +252,7 @@ def render_full_html_document(
   <meta name="twitter:description" content="{desc_escaped}">
   <meta name="twitter:image" content="{poster_escaped}">
 
-  <!-- Google Rich Results: Movie & WatchAction JSON-LD Schema -->
+  <!-- Google Rich Results Schema -->
   <script type="application/ld+json">
 {json_ld}
   </script>
@@ -282,11 +267,7 @@ def render_full_html_document(
       --accent-glow: rgba(229, 9, 20, 0.45);
       --link: #38bdf8;
     }}
-    * {{
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }}
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg);
@@ -303,10 +284,7 @@ def render_full_html_document(
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
       border: 1px solid #1f2430;
     }}
-    .movie-poster-box {{
-      text-align: center;
-      margin-bottom: 2rem;
-    }}
+    .movie-poster-box {{ text-align: center; margin-bottom: 2rem; }}
     .movie-poster-box img {{
       max-width: 100%;
       height: auto;
@@ -319,7 +297,6 @@ def render_full_html_document(
       line-height: 1.3;
       margin-bottom: 1.5rem;
       text-align: center;
-      letter-spacing: -0.5px;
     }}
     h2 {{
       font-size: 1.6rem;
@@ -328,25 +305,11 @@ def render_full_html_document(
       border-bottom: 2px solid #242a38;
       padding-bottom: 0.5rem;
     }}
-    h3 {{
-      font-size: 1.25rem;
-      color: var(--link);
-      margin: 1.5rem 0 0.5rem;
-    }}
-    p {{
-      margin-bottom: 1.25rem;
-      font-size: 1.05rem;
-    }}
-    ul, ol {{
-      margin: 1rem 0 1.5rem 1.5rem;
-    }}
-    li {{
-      margin-bottom: 0.5rem;
-    }}
-    .cta-wrapper {{
-      text-align: center;
-      margin: 2.5rem 0;
-    }}
+    h3 {{ font-size: 1.25rem; color: var(--link); margin: 1.5rem 0 0.5rem; }}
+    p {{ margin-bottom: 1.25rem; font-size: 1.05rem; }}
+    ul, ol {{ margin: 1rem 0 1.5rem 1.5rem; }}
+    li {{ margin-bottom: 0.5rem; }}
+    .cta-wrapper {{ text-align: center; margin: 2.5rem 0; }}
     .watch-btn {{
       display: inline-block;
       background: linear-gradient(135deg, #e50914 0%, #ff3838 100%);
@@ -357,14 +320,11 @@ def render_full_html_document(
       padding: 1.1rem 2.8rem;
       border-radius: 50px;
       box-shadow: 0 8px 25px var(--accent-glow);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease;
       text-transform: uppercase;
       letter-spacing: 1px;
     }}
-    .watch-btn:hover {{
-      transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 12px 30px rgba(229, 9, 20, 0.7);
-    }}
+    .watch-btn:hover {{ transform: translateY(-3px) scale(1.03); }}
     @media (max-width: 640px) {{
       .article-container {{ padding: 1.5rem; }}
       h1 {{ font-size: 1.7rem; }}
@@ -384,14 +344,8 @@ def render_full_html_document(
 
 
 # ---------------------------------------------------------
-# Step 4 & 5: File Handling & Sitemap Automation
+# Sitemap Handling
 # ---------------------------------------------------------
-def save_html_file(file_path: str, html_content: str) -> None:
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(html_content)
-    logger.info(f"Saved: {file_path}")
-
-
 def update_sitemap(page_url: str, sitemap_path: str = SITEMAP_PATH) -> None:
     ET.register_namespace("", SITEMAP_NS)
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -401,7 +355,6 @@ def update_sitemap(page_url: str, sitemap_path: str = SITEMAP_PATH) -> None:
             tree = ET.parse(sitemap_path)
             root = tree.getroot()
         except ET.ParseError:
-            logger.warning(f"Corrupted {sitemap_path}. Initializing clean sitemap.")
             root = ET.Element(f"{{{SITEMAP_NS}}}urlset")
             tree = ET.ElementTree(root)
     else:
@@ -415,7 +368,6 @@ def update_sitemap(page_url: str, sitemap_path: str = SITEMAP_PATH) -> None:
     }
 
     if page_url in existing_locs:
-        logger.info(f"Sitemap entry already exists for: {page_url}")
         return
 
     url_node = ET.SubElement(root, f"{{{SITEMAP_NS}}}url")
@@ -435,7 +387,6 @@ def update_sitemap(page_url: str, sitemap_path: str = SITEMAP_PATH) -> None:
         ET.indent(tree, space="  ", level=0)
 
     tree.write(sitemap_path, encoding="utf-8", xml_declaration=True)
-    logger.info(f"Appended {page_url} to {sitemap_path}")
 
 
 # ---------------------------------------------------------
@@ -444,35 +395,47 @@ def update_sitemap(page_url: str, sitemap_path: str = SITEMAP_PATH) -> None:
 def main() -> None:
     validate_environment()
     os.makedirs(MOVIES_DIR, exist_ok=True)
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
-    trending_movies = fetch_top_trending_movies(limit=3)
-    if not trending_movies:
-        logger.warning("No movies retrieved. Exiting run.")
+    # Fetch 50 trending movies
+    movies = fetch_top_trending_movies(target_count=DAILY_MOVIES_TARGET)
+    if not movies:
+        logger.warning("No movies found to process.")
         return
 
-    processed_count = 0
+    generated_today = 0
 
-    for movie in trending_movies:
+    for idx, movie in enumerate(movies, start=1):
         slug = slugify(movie["title"])
         filename = f"{slug}-streaming.html"
         file_path = os.path.join(MOVIES_DIR, filename)
         canonical_url = f"{SITE_BASE_URL}/{MOVIES_DIR}/{filename}"
 
+        # Skip existing files to save API quota
         if os.path.exists(file_path):
-            logger.info(f"Skipping '{movie['title']}': File '{file_path}' already exists.")
             continue
 
-        article_body = generate_article_content(movie)
+        logger.info(f"[{idx}/{len(movies)}] Processing: {movie['title']}")
+        article_body = generate_article_content(client, movie)
+
         if not article_body:
-            logger.warning(f"Skipping '{movie['title']}' due to AI generation failure.")
+            logger.warning(f"Could not generate article for '{movie['title']}'. Skipping.")
             continue
 
+        # Save HTML file
         full_html = render_full_html_document(movie, article_body, canonical_url)
-        save_html_file(file_path, full_html)
-        update_sitemap(canonical_url, SITEMAP_PATH)
-        processed_count += 1
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(full_html)
 
-    logger.info(f"Execution complete. Generated {processed_count} new movie article(s).")
+        # Update Sitemap
+        update_sitemap(canonical_url, SITEMAP_PATH)
+        generated_today += 1
+        logger.info(f"Successfully published [{generated_today}]: {filename}")
+
+        # Rate-limiting delay to keep Gemini API happy
+        time.sleep(DELAY_BETWEEN_CALLS)
+
+    logger.info(f"Run completed. Successfully published {generated_today} new articles.")
 
 
 if __name__ == "__main__":
