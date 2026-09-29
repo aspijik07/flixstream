@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="sitemap.xsl"?>
+<?xml version='1.0' encoding='utf-8'?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://500get.com/</loc>
@@ -5957,6 +5956,12 @@
     <loc>https://500get.com/watch.html?type=tv&amp;id=256744&amp;slug=flower-and-asura&amp;season=1&amp;episode=1</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://500get.com/movies/digger-streaming.html</loc>
+    <lastmod>2026-09-29</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>
