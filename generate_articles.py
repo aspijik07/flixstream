@@ -3,8 +3,9 @@
 Automated Programmatic SEO (pSEO) Article Generator
 ===================================================
 Fetches daily trending movies from TMDB, generates long-form SEO articles
-using the official Google GenAI SDK (gemini-2.5-flash), embeds Schema.org
+using the official Google GenAI SDK (gemini-3.8-flash), embeds Schema.org
 JSON-LD markup, saves static HTML files, and updates sitemap.xml.
+Includes automatic retries with exponential backoff for 503 high-demand errors.
 """
 
 import html
@@ -13,6 +14,7 @@ import logging
 import os
 import re
 import sys
+import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -115,10 +117,13 @@ def fetch_top_trending_movies(limit: int = 3) -> List[Dict[str, Any]]:
 
 
 # ---------------------------------------------------------
-# Step 2: Content Generation via Official Google GenAI SDK
+# Step 2: Content Generation via Google GenAI (with Auto-Retry)
 # ---------------------------------------------------------
-def generate_article_content(movie: Dict[str, Any]) -> Optional[str]:
-    """Generates 800-1000 word SEO HTML article using Google GenAI SDK."""
+def generate_article_content(movie: Dict[str, Any], max_retries: int = 3) -> Optional[str]:
+    """
+    Generates an 800-1000 word SEO HTML article using Google GenAI SDK.
+    Includes automated retries and backoff for 503 high-demand errors.
+    """
     client = genai.Client(api_key=GEMINI_API_KEY)
 
     prompt = f"""
@@ -149,15 +154,11 @@ CRITICAL REQUIREMENTS:
 6. FORMAT: Output ONLY clean semantic HTML content (do NOT include <!DOCTYPE>, <html>, <head>, <body>, or markdown code fences like ```html).
 """
 
-    # Model candidates to ensure compatibility
-    candidate_models = ["gemini-3.8-flash"]
-    configured_model = os.environ.get("GEMINI_MODEL")
-    if configured_model:
-        candidate_models.insert(0, configured_model)
+    model_name = "gemini-3.8-flash"
 
-    for model_name in candidate_models:
+    for attempt in range(1, max_retries + 1):
         try:
-            logger.info(f"Generating article with Gemini ({model_name}) for: {movie['title']}")
+            logger.info(f"[{attempt}/{max_retries}] Requesting article for: {movie['title']}")
             response = client.models.generate_content(
                 model=model_name,
                 contents=prompt
@@ -178,10 +179,14 @@ CRITICAL REQUIREMENTS:
             return cleaned_html
 
         except Exception as e:
-            logger.warning(f"Model '{model_name}' failed for '{movie['title']}': {e}")
-            continue
+            logger.warning(f"Attempt {attempt} failed for '{movie['title']}': {e}")
+            if attempt < max_retries:
+                wait_time = attempt * 6  # 6s then 12s backoff
+                logger.info(f"Waiting {wait_time}s before retrying due to server load...")
+                time.sleep(wait_time)
+            else:
+                logger.error(f"All {max_retries} attempts failed for '{movie['title']}'.")
 
-    logger.error(f"All candidate models failed for '{movie['title']}'.")
     return None
 
 
