@@ -648,6 +648,9 @@ export async function runDailySeoGeneration() {
     await updateSitemapXml(allArticles);
     updateRssFeed(allArticles);
 
+    // 7. Instant IndexNow & Search Engine Accelerator Ping (Indexes in minutes!)
+    await pingSearchEngines(newlyGenerated);
+
     console.log("=================================================");
     console.log(`🎉 AUTOMATED DAILY SEO GENERATION COMPLETE! (${newlyGenerated.length} new articles created)`);
     console.log("=================================================");
@@ -658,6 +661,43 @@ export async function runDailySeoGeneration() {
         totalArticles: allArticles.length,
         articles: newlyGenerated
     };
+}
+
+// Search Engine Rapid Indexation Ping (IndexNow, Google & Bing)
+async function pingSearchEngines(articles = []) {
+    if (!articles || articles.length === 0) return;
+    console.log("[IndexNow & Rapid Ping] Broadcasting new URLs to Bing, Yandex, DuckDuckGo & Google...");
+
+    const urlList = articles.map(a => `${DOMAIN}/article.html?id=${a.id}&slug=${a.slug}`);
+    
+    // 1. IndexNow Batch Protocol (Bing, Yandex, DuckDuckGo, Seznam, Naver)
+    const indexNowPayload = {
+        host: "500get.com",
+        key: "8f4b23c91a0e4d77b21e6c38a9d0f1b5",
+        keyLocation: `https://500get.com/8f4b23c91a0e4d77b21e6c38a9d0f1b5.txt`,
+        urlList: urlList
+    };
+
+    try {
+        await fetch('https://api.indexnow.org/indexnow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify(indexNowPayload)
+        }).then(r => console.log(`   ✓ IndexNow (api.indexnow.org) status: ${r.status}`)).catch(() => {});
+
+        await fetch('https://www.bing.com/indexnow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify(indexNowPayload)
+        }).then(r => console.log(`   ✓ Bing IndexNow (bing.com) status: ${r.status}`)).catch(() => {});
+    } catch(e) {}
+
+    // 2. Google & Bing Sitemap Ping
+    try {
+        fetch(`https://www.google.com/ping?sitemap=${DOMAIN}/sitemap.xml`).catch(() => {});
+        fetch(`https://www.bing.com/ping?sitemap=${DOMAIN}/sitemap.xml`).catch(() => {});
+        console.log("   ✓ Google & Bing Sitemap Pings dispatched!");
+    } catch(e) {}
 }
 
 // Allow direct CLI execution: node seo-generator.js
