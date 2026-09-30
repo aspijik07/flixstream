@@ -322,6 +322,9 @@ async function openPreviewModal(item, type = 'movie') {
     const mediaSlug = createSlug(name);
     const watchUrl = `watch.html?type=${resolvedType}&id=${item.id}&slug=${mediaSlug}&lang=${currentLang}${resolvedType === 'tv' ? '&season=1&episode=1' : ''}`;
 
+    // Send instant telemetry update for previewed film
+    sendCatalogHeartbeat('view_movie_card', `Viewing: ${name}`, item.id);
+
     document.getElementById("modal-title").innerText = name;
     document.getElementById("modal-overview").innerText = item.overview || "Stream in full 1080p high definition with zero latency.";
     
@@ -657,33 +660,72 @@ async function initApp() {
 
     renderWatchlistGrid();
     renderHistoryGrid();
-
-    // Start Telemetry Radar Heartbeat for Browsing Sessions
-    sendCatalogHeartbeat();
-    setInterval(sendCatalogHeartbeat, 15000);
 }
 
-function sendCatalogHeartbeat() {
+// ==========================================
+// 11. REAL-TIME AUDIENCE TELEMETRY ENGINE
+// ==========================================
+let detectedClientIp = '';
+
+function getFlixVisitorId() {
     try {
-        let sid = sessionStorage.getItem('flix_session_id');
-        if (!sid) {
-            sid = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-            sessionStorage.setItem('flix_session_id', sid);
+        let vid = localStorage.getItem('flix_visitor_id') || sessionStorage.getItem('flix_session_id');
+        if (!vid) {
+            vid = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+            localStorage.setItem('flix_visitor_id', vid);
+            sessionStorage.setItem('flix_session_id', vid);
         }
+        return vid;
+    } catch(e) {
+        return 'usr_' + Date.now();
+    }
+}
+
+// Background public IP detection for 100% accurate radar IP display
+(function detectPublicIp() {
+    fetch('https://api.ipify.org?format=json', { cache: 'no-store' })
+        .then(r => r.json())
+        .then(d => {
+            if (d && d.ip) {
+                detectedClientIp = d.ip;
+                sendCatalogHeartbeat('ip_detected');
+            }
+        })
+        .catch(() => {});
+})();
+
+function sendCatalogHeartbeat(action = 'heartbeat', customTitle = null, customId = null) {
+    try {
+        const vid = getFlixVisitorId();
+        const ua = navigator.userAgent || '';
+        let device = 'Desktop';
+        if (/ipad|tablet/i.test(ua)) device = 'Tablet';
+        else if (/mobile|iphone|android|ipod/i.test(ua)) device = 'Mobile';
+
+        const payload = {
+            sessionId: vid,
+            page: 'home',
+            mediaTitle: customTitle || 'Browsing Catalog',
+            mediaId: customId || null,
+            mediaType: 'movie',
+            status: 'browsing',
+            clientIp: detectedClientIp || '',
+            clientDevice: device,
+            lang: currentLang,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+            action: action
+        };
 
         fetch('/api/telemetry/heartbeat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sessionId: sid,
-                page: 'home',
-                mediaTitle: 'Browsing Catalog',
-                status: 'browsing',
-                lang: currentLang,
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
-            })
+            body: JSON.stringify(payload)
         }).catch(() => {});
     } catch(e) {}
 }
 
-initApp();
+// Fire immediate telemetry right now on load
+sendCatalogHeartbeat('entry');
+setInterval(() => sendCatalogHeartbeat('heartbeat'), 5000);
+
+initApp().catch(err => console.error("Init App Error:", err));

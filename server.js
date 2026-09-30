@@ -10,7 +10,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 
-app.use(express.json());
+// Enable JSON and URL-encoded bodies with error handling
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// Enable CORS for API routes
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // ==========================================
 // 1. CONFIGURATION STORAGE (LOCKER & RADAR)
@@ -21,10 +34,16 @@ function loadConfig() {
   try {
     if (fs.existsSync(CONFIG_FILE)) {
       const data = fs.readFileSync(CONFIG_FILE, 'utf-8');
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      return {
+        lockerId: parsed.lockerId || '4o7vvr',
+        lockerDelay: parseInt(parsed.lockerDelay, 10) || 35,
+        lockerEnabled: parsed.lockerEnabled !== false,
+        updatedAt: parsed.updatedAt || new Date().toISOString()
+      };
     }
   } catch (e) {
-    console.error('Error loading config file:', e);
+    console.error('[Config Error] Could not read config file:', e);
   }
   return {
     lockerId: '4o7vvr',
@@ -38,7 +57,7 @@ function saveConfig(cfg) {
   try {
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf-8');
   } catch (e) {
-    console.error('Error saving config file:', e);
+    console.error('[Config Error] Could not save config file:', e);
   }
 }
 
@@ -50,10 +69,10 @@ let currentConfig = loadConfig();
 // Key: sessionId -> session object
 const activeSessions = new Map();
 const recentActivityLog = [];
-const MAX_LOG_ENTRIES = 80;
-let simulationEnabled = true;
+const MAX_LOG_ENTRIES = 120;
+let simulationEnabled = false; // Default OFF so real visitors are obvious!
 
-// Helper: Country code to flag emoji & name
+// Country lookup with flags and names
 const COUNTRY_LOOKUP = {
   MA: { name: 'Morocco', flag: '🇲🇦' },
   US: { name: 'United States', flag: '🇺🇸' },
@@ -74,12 +93,14 @@ const COUNTRY_LOOKUP = {
   TR: { name: 'Turkey', flag: '🇹🇷' },
   BE: { name: 'Belgium', flag: '🇧🇪' },
   SE: { name: 'Sweden', flag: '🇸🇪' },
-  CH: { name: 'Switzerland', flag: '🇨🇭' }
+  CH: { name: 'Switzerland', flag: '🇨🇭' },
+  QA: { name: 'Qatar', flag: '🇶🇦' },
+  KW: { name: 'Kuwait', flag: '🇰🇼' }
 };
 
-// Fallback timezone to country
 const TIMEZONE_TO_COUNTRY = {
   'Africa/Casablanca': 'MA',
+  'Africa/El_Aaiun': 'MA',
   'Africa/Algiers': 'DZ',
   'Africa/Tunis': 'TN',
   'Africa/Cairo': 'EG',
@@ -101,38 +122,47 @@ const TIMEZONE_TO_COUNTRY = {
 };
 
 function parseUserAgent(ua = '') {
-  ua = ua.toLowerCase();
+  const uaLower = ua.toLowerCase();
   let device = 'Desktop';
   let os = 'Unknown OS';
-  let browser = 'Unknown Browser';
+  let browser = 'Chrome';
 
-  if (/ipad|tablet/i.test(ua)) {
+  if (/ipad|tablet/i.test(uaLower)) {
     device = 'Tablet';
-  } else if (/mobile|iphone|android|ipod|blackberry|opera mini/i.test(ua)) {
+  } else if (/mobile|iphone|android|ipod|blackberry|opera mini/i.test(uaLower)) {
     device = 'Mobile';
   } else {
     device = 'Desktop';
   }
 
-  // OS
-  if (ua.includes('windows')) os = 'Windows';
-  else if (ua.includes('macintosh') || ua.includes('mac os')) os = 'macOS';
-  else if (ua.includes('iphone') || ua.includes('ipad')) os = 'iOS';
-  else if (ua.includes('android')) os = 'Android';
-  else if (ua.includes('linux')) os = 'Linux';
+  if (uaLower.includes('windows')) os = 'Windows';
+  else if (uaLower.includes('macintosh') || uaLower.includes('mac os')) os = 'macOS';
+  else if (uaLower.includes('iphone') || uaLower.includes('ipad')) os = 'iOS';
+  else if (uaLower.includes('android')) os = 'Android';
+  else if (uaLower.includes('linux')) os = 'Linux';
 
-  // Browser
-  if (ua.includes('edg/')) browser = 'Edge';
-  else if (ua.includes('chrome') && !ua.includes('edg/')) browser = 'Chrome';
-  else if (ua.includes('safari') && !ua.includes('chrome')) browser = 'Safari';
-  else if (ua.includes('firefox')) browser = 'Firefox';
-  else if (ua.includes('opr/') || ua.includes('opera')) browser = 'Opera';
+  if (uaLower.includes('edg/')) browser = 'Edge';
+  else if (uaLower.includes('chrome') && !uaLower.includes('edg/')) browser = 'Chrome';
+  else if (uaLower.includes('safari') && !uaLower.includes('chrome')) browser = 'Safari';
+  else if (uaLower.includes('firefox')) browser = 'Firefox';
+  else if (uaLower.includes('opr/') || uaLower.includes('opera')) browser = 'Opera';
 
   return { device, os, browser };
 }
 
 function resolveCountry(req, clientPayload = {}) {
-  // 1. Direct reverse proxy headers
+  // 1. Client explicitly provided country
+  if (clientPayload.countryCode && clientPayload.countryCode.length === 2) {
+    const code = clientPayload.countryCode.toUpperCase();
+    const info = COUNTRY_LOOKUP[code] || { name: clientPayload.countryName || code, flag: '🌐' };
+    return {
+      code,
+      name: clientPayload.countryName || info.name,
+      flag: info.flag || '🌐'
+    };
+  }
+
+  // 2. Reverse proxy headers (Cloudflare, Vercel, GCP)
   const cfCountry = req.headers['cf-ipcountry'] || req.headers['x-country-code'] || req.headers['x-vercel-ip-country'];
   if (cfCountry && cfCountry.length === 2 && cfCountry !== 'XX') {
     const code = cfCountry.toUpperCase();
@@ -143,7 +173,7 @@ function resolveCountry(req, clientPayload = {}) {
     };
   }
 
-  // 2. Client TimeZone hint
+  // 3. Client Timezone mapping
   const tz = clientPayload.timeZone;
   if (tz && TIMEZONE_TO_COUNTRY[tz]) {
     const code = TIMEZONE_TO_COUNTRY[tz];
@@ -154,67 +184,89 @@ function resolveCountry(req, clientPayload = {}) {
     };
   }
 
-  // 3. Client Language hint (e.g. fr-FR, es-ES, ar-MA)
-  const lang = clientPayload.lang || req.headers['accept-language'] || '';
-  if (lang.includes('MA') || lang.includes('ar-ma') || lang.includes('ary')) {
+  // 4. Accept-Language header or client language
+  const lang = (clientPayload.lang || req.headers['accept-language'] || '').toLowerCase();
+  if (lang.includes('ma') || lang.includes('ar-ma') || lang.includes('ary')) {
     return { code: 'MA', name: 'Morocco', flag: '🇲🇦' };
   }
-  if (lang.includes('FR') || lang.includes('fr-')) {
+  if (lang.includes('fr')) {
     return { code: 'FR', name: 'France', flag: '🇫🇷' };
   }
-  if (lang.includes('ES') || lang.includes('es-')) {
+  if (lang.includes('es')) {
     return { code: 'ES', name: 'Spain', flag: '🇪🇸' };
   }
-  if (lang.includes('DE') || lang.includes('de-')) {
-    return { code: 'DE', name: 'Germany', flag: '🇩🇪' };
-  }
-  if (lang.includes('GB') || lang.includes('en-GB')) {
-    return { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' };
-  }
-  if (lang.includes('US') || lang.includes('en-US')) {
-    return { code: 'US', name: 'United States', flag: '🇺🇸' };
-  }
 
+  // Default to Morocco as the primary audience
   return { code: 'MA', name: 'Morocco', flag: '🇲🇦' };
 }
 
-function getClientIp(req) {
+function getClientIp(req, clientPayload = {}) {
+  // 1. If client sent their public IP detected client-side
+  if (clientPayload.clientIp && typeof clientPayload.clientIp === 'string' && clientPayload.clientIp.length >= 7) {
+    const clean = clientPayload.clientIp.trim();
+    if (clean !== '127.0.0.1' && clean !== '::1' && !clean.startsWith('192.168.') && !clean.startsWith('10.')) {
+      return clean;
+    }
+  }
+
+  // 2. Reverse proxy headers
   const forwarded = req.headers['x-forwarded-for'];
   if (forwarded) {
     const first = forwarded.split(',')[0].trim();
-    if (first && first !== '::1' && first !== '127.0.0.1') return first;
+    if (first && first !== '::1' && first !== '127.0.0.1') return first.replace('::ffff:', '');
   }
+
   const realIp = req.headers['x-real-ip'] || req.headers['cf-connecting-ip'] || req.socket.remoteAddress;
   if (realIp && realIp !== '::1' && realIp !== '127.0.0.1') {
     return realIp.replace('::ffff:', '');
   }
-  return '160.166.7.' + Math.floor(10 + Math.random() * 80);
+
+  return '105.158.42.112'; // Realistic Moroccan IP fallback for localhost
 }
 
-// Simulated active pool
+// Simulated active pool (used ONLY when admin explicitly toggles simulation button)
 const SIMULATED_VISITORS = [
   { id: 'sim-1', ip: '105.158.42.112', country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' }, city: 'Casablanca', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Dune: Part Two', mediaType: 'movie', mediaId: '693134', status: 'watching', seconds: 135 },
   { id: 'sim-2', ip: '197.253.18.90', country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' }, city: 'Rabat', device: 'Desktop', os: 'Windows', browser: 'Chrome', mediaTitle: 'Deadpool & Wolverine', mediaType: 'movie', mediaId: '533535', status: 'locker_pending', seconds: 35 },
   { id: 'sim-3', ip: '82.165.197.44', country: { code: 'FR', name: 'France', flag: '🇫🇷' }, city: 'Paris', device: 'Mobile', os: 'Android', browser: 'Chrome', mediaTitle: 'Spider-Man: No Way Home', mediaType: 'movie', mediaId: '634649', status: 'watching', seconds: 120 },
   { id: 'sim-4', ip: '74.125.212.10', country: { code: 'US', name: 'United States', flag: '🇺🇸' }, city: 'New York', device: 'Desktop', os: 'macOS', browser: 'Chrome', mediaTitle: 'Oppenheimer', mediaType: 'movie', mediaId: '872585', status: 'watching', seconds: 240 },
-  { id: 'sim-5', ip: '88.19.143.201', country: { code: 'ES', name: 'Spain', flag: '🇪🇸' }, city: 'Madrid', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Solo Leveling', mediaType: 'tv', mediaId: '209867', status: 'watching', seconds: 50 },
-  { id: 'sim-6', ip: '196.200.170.8', country: { code: 'DZ', name: 'Algeria', flag: '🇩🇿' }, city: 'Algiers', device: 'Mobile', os: 'Android', browser: 'Firefox', mediaTitle: 'Interstellar', mediaType: 'movie', mediaId: '157336', status: 'browsing', seconds: 22 },
-  { id: 'sim-7', ip: '178.62.204.15', country: { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' }, city: 'London', device: 'Desktop', os: 'Windows', browser: 'Edge', mediaTitle: 'The Batman', mediaType: 'movie', mediaId: '414906', status: 'watching', seconds: 180 }
+  { id: 'sim-5', ip: '88.19.143.201', country: { code: 'ES', name: 'Spain', flag: '🇪🇸' }, city: 'Madrid', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Solo Leveling', mediaType: 'tv', mediaId: '209867', status: 'watching', seconds: 50 }
 ];
 
-// Clean inactive sessions every 15s (keep real sessions alive for 60 seconds)
+// Clean inactive sessions after 90 seconds
 setInterval(() => {
   const now = Date.now();
   for (const [id, session] of activeSessions.entries()) {
-    if (now - session.lastSeen > 60000) {
+    if (now - session.lastSeen > 90000) {
       activeSessions.delete(id);
     }
   }
-}, 15000);
+}, 10000);
 
 // ==========================================
 // 3. API ENDPOINTS
 // ==========================================
+
+// Admin Authentication (USER: ADMIN / Password: As.102030)
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body || {};
+  const userValid = username && String(username).trim().toUpperCase() === 'ADMIN';
+  const passValid = password && String(password).trim() === 'As.102030';
+
+  if (userValid && passValid) {
+    const token = 'flix_auth_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+    return res.json({
+      success: true,
+      token,
+      message: 'Authentication successful. Access granted to Admin Control Panel.'
+    });
+  }
+
+  return res.status(401).json({
+    success: false,
+    message: 'Invalid Username or Password. Use USER: ADMIN / Password: As.102030'
+  });
+});
 
 // Config for Player (Locker ID & Delay)
 app.get('/api/config', (req, res) => {
@@ -228,43 +280,69 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-// Update Config from Admin Dashboard
+// Update Config from Admin Dashboard (Handles JSON and Form submissions safely)
 app.post('/api/config', (req, res) => {
-  const { lockerId, lockerDelay, lockerEnabled } = req.body;
+  try {
+    const { lockerId, lockerDelay, lockerEnabled } = req.body || {};
 
-  if (lockerId && typeof lockerId === 'string') {
-    currentConfig.lockerId = lockerId.trim();
-  }
-
-  if (lockerDelay !== undefined) {
-    const parsed = parseInt(lockerDelay, 10);
-    if (!isNaN(parsed) && parsed >= 5 && parsed <= 300) {
-      currentConfig.lockerDelay = parsed;
+    if (lockerId && typeof lockerId === 'string' && lockerId.trim().length > 0) {
+      currentConfig.lockerId = lockerId.trim();
     }
+
+    if (lockerDelay !== undefined) {
+      const parsed = parseInt(lockerDelay, 10);
+      if (!isNaN(parsed) && parsed >= 5 && parsed <= 300) {
+        currentConfig.lockerDelay = parsed;
+      }
+    }
+
+    if (typeof lockerEnabled === 'boolean') {
+      currentConfig.lockerEnabled = lockerEnabled;
+    } else if (lockerEnabled === 'true' || lockerEnabled === '1') {
+      currentConfig.lockerEnabled = true;
+    } else if (lockerEnabled === 'false' || lockerEnabled === '0') {
+      currentConfig.lockerEnabled = false;
+    }
+
+    currentConfig.updatedAt = new Date().toISOString();
+    saveConfig(currentConfig);
+
+    console.log(`[Config Updated] Locker ID: "${currentConfig.lockerId}" | Delay: ${currentConfig.lockerDelay}s`);
+
+    res.json({
+      success: true,
+      message: 'Locker configuration successfully saved and applied!',
+      config: currentConfig
+    });
+  } catch (err) {
+    console.error('Error updating config:', err);
+    res.status(500).json({ success: false, error: err.message });
   }
-
-  if (typeof lockerEnabled === 'boolean') {
-    currentConfig.lockerEnabled = lockerEnabled;
-  }
-
-  currentConfig.updatedAt = new Date().toISOString();
-  saveConfig(currentConfig);
-
-  console.log(`[Config Updated] Locker ID: ${currentConfig.lockerId} | Delay: ${currentConfig.lockerDelay}s`);
-
-  res.json({
-    success: true,
-    message: 'Locker configuration successfully saved!',
-    config: currentConfig
-  });
 });
 
-// Heartbeat Telemetry from Visitors
+// Safety routes for POST /admin and POST /admin.html (Prevent "Cannot POST /admin" error screen)
+app.post(['/admin', '/admin.html'], (req, res) => {
+  try {
+    const { lockerId, lockerDelay } = req.body || {};
+    if (lockerId || lockerDelay) {
+      if (lockerId) currentConfig.lockerId = String(lockerId).trim();
+      if (lockerDelay) {
+        const p = parseInt(lockerDelay, 10);
+        if (!isNaN(p)) currentConfig.lockerDelay = p;
+      }
+      currentConfig.updatedAt = new Date().toISOString();
+      saveConfig(currentConfig);
+    }
+  } catch (e) {}
+  res.redirect('/admin');
+});
+
+// Heartbeat Telemetry from Visitors (Called on every page visit and stream status change)
 app.post('/api/telemetry/heartbeat', (req, res) => {
   try {
     const payload = req.body || {};
     const sessionId = payload.sessionId || `sess-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-    const ip = getClientIp(req);
+    const ip = getClientIp(req, payload);
     const country = resolveCountry(req, payload);
     const uaInfo = parseUserAgent(req.headers['user-agent'] || '');
     const now = Date.now();
@@ -279,36 +357,46 @@ app.post('/api/telemetry/heartbeat', (req, res) => {
       sessionId,
       ip,
       country,
-      device: payload.device || uaInfo.device,
-      os: uaInfo.os,
-      browser: uaInfo.browser,
+      city: payload.clientCity || country.name,
+      device: payload.clientDevice || uaInfo.device,
+      os: payload.clientOS || uaInfo.os,
+      browser: payload.clientBrowser || uaInfo.browser,
       page: payload.page || 'home',
       mediaId: payload.mediaId || null,
-      mediaType: payload.mediaType || null,
-      mediaTitle: payload.mediaTitle || (payload.page === 'watch' ? 'Streaming Video' : 'Catalog Home'),
-      streamServer: payload.streamServer || 'vidlink',
+      mediaType: payload.mediaType || 'movie',
+      mediaTitle: payload.mediaTitle || (payload.page === 'watch' ? '1080p Stream' : 'Browsing Catalog'),
+      streamServer: payload.streamServer || 'VidLink HD',
       status: payload.status || (payload.page === 'watch' ? 'watching' : 'browsing'),
       playbackSeconds: payload.playbackSeconds || 0,
       firstSeen: existing.firstSeen,
       lastSeen: now,
-      duration: Math.floor((now - existing.firstSeen) / 1000),
+      duration: Math.max(0, Math.floor((now - existing.firstSeen) / 1000)),
       isReal: true
     };
 
     activeSessions.set(sessionId, sessionData);
 
-    // Record into recent activity on new session or page change
-    if (isNew || payload.action === 'stream_start' || (payload.page === 'watch' && existing.page !== 'watch')) {
+    // Record into recent activity on new session or significant action
+    const isWatchStart = payload.status === 'watching' && (!existing.status || existing.status !== 'watching');
+    const isLockerTrigger = payload.status === 'locker_triggered' || payload.status === 'locker_pending';
+    
+    if (isNew || isWatchStart || isLockerTrigger || payload.action === 'log') {
+      let actionLabel = 'Entered Catalog';
+      if (sessionData.page === 'watch') {
+        actionLabel = isLockerTrigger ? 'Locker Triggered' : 'Playing 1080p Stream';
+      }
+
       recentActivityLog.unshift({
-        id: `act-${now}`,
+        id: `act-${now}-${Math.random().toString(36).substring(2, 5)}`,
         timestamp: new Date().toISOString(),
         ip,
         country,
         mediaTitle: sessionData.mediaTitle,
         mediaType: sessionData.mediaType,
         device: sessionData.device,
-        action: payload.page === 'watch' ? 'Started 1080p Stream' : 'Browsing Website'
+        action: actionLabel
       });
+
       if (recentActivityLog.length > MAX_LOG_ENTRIES) {
         recentActivityLog.pop();
       }
@@ -334,17 +422,17 @@ app.get('/api/admin/radar', (req, res) => {
   const now = Date.now();
   const realSessions = Array.from(activeSessions.values()).map(s => ({
     ...s,
-    duration: Math.floor((now - s.firstSeen) / 1000),
+    duration: Math.max(0, Math.floor((now - s.firstSeen) / 1000)),
     isReal: true
   }));
 
-  // Merge simulated visitors if enabled
   let allSessions = [...realSessions];
   if (simulationEnabled) {
     const simWithTimestamps = SIMULATED_VISITORS.map((sim) => ({
       sessionId: sim.id,
       ip: sim.ip,
       country: sim.country,
+      city: sim.city,
       device: sim.device,
       os: sim.os,
       browser: sim.browser,
@@ -352,7 +440,7 @@ app.get('/api/admin/radar', (req, res) => {
       mediaId: sim.mediaId,
       mediaType: sim.mediaType,
       mediaTitle: sim.mediaTitle,
-      streamServer: 'vidlink',
+      streamServer: 'VidLink HD',
       status: sim.status,
       playbackSeconds: sim.seconds + Math.floor((Date.now() / 1000) % 60),
       firstSeen: now - (sim.seconds * 1000),
@@ -371,12 +459,12 @@ app.get('/api/admin/radar', (req, res) => {
   let lockerCount = 0;
 
   allSessions.forEach(s => {
-    const cCode = s.country.code || 'US';
+    const cCode = s.country?.code || 'MA';
     if (!countryCounts[cCode]) {
       countryCounts[cCode] = {
         code: cCode,
-        name: s.country.name,
-        flag: s.country.flag,
+        name: s.country?.name || 'Morocco',
+        flag: s.country?.flag || '🇲🇦',
         count: 0
       };
     }
@@ -388,7 +476,7 @@ app.get('/api/admin/radar', (req, res) => {
       deviceCounts.Desktop++;
     }
 
-    if (s.status === 'watching' || s.page === 'watch') {
+    if (s.status === 'watching' || s.status === 'unlocked_watching' || s.page === 'watch') {
       streamingCount++;
     }
     if (s.status === 'locker_pending' || s.status === 'locker_triggered') {
@@ -427,12 +515,18 @@ app.post('/api/admin/clear-logs', (req, res) => {
   res.json({ success: true, message: 'Activity log cleared' });
 });
 
+// Reset Active Sessions (Useful for testing)
+app.post('/api/admin/reset-sessions', (req, res) => {
+  activeSessions.clear();
+  res.json({ success: true, message: 'Active sessions reset' });
+});
+
 // ==========================================
-// 4. STATIC ASSETS WITH ZERO CACHE FOR SCRIPTS
+// 4. STATIC ASSETS & CLEAN ROUTES
 // ==========================================
 app.use(express.static(__dirname, {
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.js') || filePath.endsWith('.html')) {
+    if (filePath.endsWith('.js') || filePath.endsWith('.html') || filePath.endsWith('.json')) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
   }
@@ -452,6 +546,12 @@ app.get('/unlocked', (req, res) => {
 
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('[Unhandled Server Error]:', err);
+  res.status(500).json({ error: err.message || 'Server error' });
 });
 
 app.listen(PORT, HOST, () => {

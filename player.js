@@ -7,32 +7,82 @@ let OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
 let LOCKER_DELAY_SECONDS = 35;
 let LOCKER_ENABLED = true;
 
+// Parse URL Parameters
+const urlParams = new URLSearchParams(window.location.search);
+const mediaType = urlParams.get("type") || "movie";
+const mediaId = urlParams.get("id");
+const mediaSlug = urlParams.get("slug") || "media";
+let currentSeason = parseInt(urlParams.get("season")) || 1;
+let currentEpisode = parseInt(urlParams.get("episode")) || 1;
+const isUnlockedParam = urlParams.get("unlocked") === "true";
+
+// Immediate initial title from slug if present
+let currentMediaTitle = mediaSlug !== "media" 
+    ? mediaSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    : (mediaType === 'tv' ? 'TV Series Stream' : 'Movie Stream');
+
+// Public IP detection for accurate radar
+let playerDetectedIp = '';
+(function detectPlayerIp() {
+    fetch('https://api.ipify.org?format=json', { cache: 'no-store' })
+        .then(r => r.json())
+        .then(d => {
+            if (d && d.ip) {
+                playerDetectedIp = d.ip;
+                sendStreamHeartbeat();
+            }
+        })
+        .catch(() => {});
+})();
+
 // Session ID for Live Telemetry Radar
 function getFlixSessionId() {
-    let sid = sessionStorage.getItem('flix_session_id');
-    if (!sid) {
-        sid = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
-        sessionStorage.setItem('flix_session_id', sid);
+    try {
+        let sid = localStorage.getItem('flix_visitor_id') || sessionStorage.getItem('flix_session_id');
+        if (!sid) {
+            sid = 'usr_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
+            localStorage.setItem('flix_visitor_id', sid);
+            sessionStorage.setItem('flix_session_id', sid);
+        }
+        return sid;
+    } catch(e) {
+        return 'usr_' + Date.now();
     }
-    return sid;
 }
 
-// Fetch dynamic locker config from server
+// Fetch dynamic locker config from server & localStorage
 async function fetchServerConfig() {
     try {
-        const res = await fetch('/api/config');
-        if (res.ok) {
-            const data = await res.json();
-            if (data.lockerId) {
-                OGADS_LOCKER_ID = data.lockerId;
+        const localCached = localStorage.getItem('flix_locker_config');
+        if (localCached) {
+            const parsed = JSON.parse(localCached);
+            if (parsed.lockerId) {
+                OGADS_LOCKER_ID = parsed.lockerId;
                 OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
             }
-            if (data.lockerDelay !== undefined) {
-                LOCKER_DELAY_SECONDS = parseInt(data.lockerDelay, 10) || 35;
+            if (parsed.lockerDelay !== undefined) {
+                LOCKER_DELAY_SECONDS = parseInt(parsed.lockerDelay, 10) || 35;
             }
-            if (data.lockerEnabled !== undefined) {
-                LOCKER_ENABLED = data.lockerEnabled;
-            }
+        }
+
+        const res = await fetch('/api/config?t=' + Date.now(), {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+            const rawText = await res.text();
+            try {
+                const data = JSON.parse(rawText);
+                if (data && data.lockerId) {
+                    OGADS_LOCKER_ID = data.lockerId;
+                    OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
+                }
+                if (data && data.lockerDelay !== undefined) {
+                    LOCKER_DELAY_SECONDS = parseInt(data.lockerDelay, 10) || 35;
+                }
+                if (data && data.lockerEnabled !== undefined) {
+                    LOCKER_ENABLED = data.lockerEnabled;
+                }
+            } catch(jsonErr) {}
             updateLockerTracking();
         }
     } catch (e) {
@@ -43,8 +93,13 @@ async function fetchServerConfig() {
 // Broadcast live stream heartbeat for Admin Radar
 function sendStreamHeartbeat(forcedStatus = null) {
     try {
-        let st = isUnlocked ? 'unlocked_watching' : (timerStarted ? 'watching' : 'idle');
+        let st = isUnlocked ? 'unlocked_watching' : (timerStarted ? 'watching' : 'browsing');
         if (forcedStatus) st = forcedStatus;
+
+        const ua = navigator.userAgent || '';
+        let device = 'Desktop';
+        if (/ipad|tablet/i.test(ua)) device = 'Tablet';
+        else if (/mobile|iphone|android|ipod/i.test(ua)) device = 'Mobile';
 
         fetch('/api/telemetry/heartbeat', {
             method: 'POST',
@@ -56,11 +111,14 @@ function sendStreamHeartbeat(forcedStatus = null) {
                 mediaType: mediaType,
                 mediaSlug: mediaSlug,
                 mediaTitle: currentMediaTitle,
-                streamServer: activeServer,
+                streamServer: activeServer === 'vidlink' ? 'VidLink HD' : (activeServer === 'autoembed' ? 'AutoEmbed' : 'VidSrc CC'),
                 playbackSeconds: playbackSeconds,
                 status: st,
+                clientIp: playerDetectedIp || '',
+                clientDevice: device,
                 lang: currentLang,
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+                action: forcedStatus === 'watching' ? 'stream_start' : 'heartbeat'
             })
         }).then(r => r.json()).then(data => {
             if (data && data.config) {
@@ -80,14 +138,18 @@ function sendStreamHeartbeat(forcedStatus = null) {
     } catch (err) {}
 }
 
-// Parse URL Parameters
-const urlParams = new URLSearchParams(window.location.search);
-const mediaType = urlParams.get("type") || "movie";
-const mediaId = urlParams.get("id");
-const mediaSlug = urlParams.get("slug") || "media";
-let currentSeason = parseInt(urlParams.get("season")) || 1;
-let currentEpisode = parseInt(urlParams.get("episode")) || 1;
-const isUnlockedParam = urlParams.get("unlocked") === "true";
+let timerStarted = false;
+let activeStreamUrl = "";
+let playbackSeconds = 0;
+let historyTrackerInterval = null;
+
+// Storage Key & Unlocked status
+const unlockStorageKey = `unlocked_${mediaType}_${mediaId}`;
+if (isUnlockedParam) {
+    try { localStorage.setItem(unlockStorageKey, "true"); } catch(e) {}
+}
+let isUnlocked = false;
+try { isUnlocked = localStorage.getItem(unlockStorageKey) === "true"; } catch(e) {}
 
 // Language State
 let currentLang = urlParams.get("lang") || localStorage.getItem("flix_lang") || "en";
@@ -98,24 +160,6 @@ const tmdbLangMap = {
     de: "de-DE"
 };
 
-if (!mediaId) {
-    window.location.href = "index.html";
-}
-
-// Storage Key
-const unlockStorageKey = `unlocked_${mediaType}_${mediaId}`;
-if (isUnlockedParam) {
-    localStorage.setItem(unlockStorageKey, "true");
-}
-
-let timerStarted = false;
-let isUnlocked = localStorage.getItem(unlockStorageKey) === "true";
-let activeStreamUrl = "";
-let currentMediaTitle = "Media";
-let activeServer = "vidlink";
-
-let playbackSeconds = 0;
-let historyTrackerInterval = null;
 
 // i18n Dictionary for Watch Page
 const watchI18nDict = {
@@ -683,13 +727,16 @@ setInterval(() => {
     if (el) el.innerText = baseViewerCount.toLocaleString();
 }, 4000);
 
-// Initialiser l-page & Live Telemetry
-fetchServerConfig().then(() => {
-    loadMediaDetails();
-    setTimeout(() => sendStreamHeartbeat(), 1200);
-});
+// Fire instant telemetry upon landing on watch page
+sendStreamHeartbeat('page_landing');
 
-// Periodic heartbeat to keep session alive on Admin Radar
+// Fetch server configuration & load media details
+fetchServerConfig();
+loadMediaDetails().then(() => {
+    sendStreamHeartbeat('media_loaded');
+}).catch(() => {});
+
+// Periodic heartbeat every 4s to maintain live status on radar
 setInterval(() => {
     sendStreamHeartbeat();
-}, 12000);
+}, 4000);
