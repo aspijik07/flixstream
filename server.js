@@ -233,11 +233,11 @@ const SIMULATED_VISITORS = [
   { id: 'sim-5', ip: '88.19.143.201', country: { code: 'ES', name: 'Spain', flag: '🇪🇸' }, city: 'Madrid', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Solo Leveling', mediaType: 'tv', mediaId: '209867', status: 'watching', seconds: 50 }
 ];
 
-// Clean inactive sessions after 90 seconds
+// Clean inactive sessions after 180 seconds (3 minutes)
 setInterval(() => {
   const now = Date.now();
   for (const [id, session] of activeSessions.entries()) {
-    if (now - session.lastSeen > 90000) {
+    if (now - session.lastSeen > 180000) {
       activeSessions.delete(id);
     }
   }
