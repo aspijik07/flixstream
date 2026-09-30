@@ -136,10 +136,14 @@ function sendStreamHeartbeat(forcedStatus = null) {
 
         // 3. Real-Time Cloud Relay (Enables Phone <-> PC live tracking on GitHub Pages 500get.com!)
         try {
+            const payloadStr = JSON.stringify(visitorPayload);
+            if (navigator.sendBeacon) {
+                try { navigator.sendBeacon('https://ntfy.sh/flix_telemetry_500get', payloadStr); } catch(be) {}
+            }
             fetch('https://ntfy.sh/flix_telemetry_500get', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(visitorPayload)
+                headers: { 'Content-Type': 'text/plain' },
+                body: payloadStr
             }).catch(() => {});
         } catch(e) {}
 
@@ -363,7 +367,6 @@ function loadStreamServer(serverName) {
     const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
     if (iframe) {
-        iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock");
         activeStreamUrl = servers[serverName] || servers.vidlink;
         iframe.src = activeStreamUrl;
     }

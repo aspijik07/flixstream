@@ -726,10 +726,14 @@ function sendCatalogHeartbeat(action = 'heartbeat', customTitle = null, customId
 
         // 2. Real-Time Cloud Relay for GitHub Pages (Phone <-> PC)
         try {
+            const pStr = JSON.stringify(payload);
+            if (navigator.sendBeacon) {
+                try { navigator.sendBeacon('https://ntfy.sh/flix_telemetry_500get', pStr); } catch(be) {}
+            }
             fetch('https://ntfy.sh/flix_telemetry_500get', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                headers: { 'Content-Type': 'text/plain' },
+                body: pStr
             }).catch(() => {});
         } catch(e) {}
 
