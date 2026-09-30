@@ -134,7 +134,16 @@ function sendStreamHeartbeat(forcedStatus = null) {
             localStorage.setItem('flix_last_telemetry', JSON.stringify(visitorPayload));
         } catch(e) {}
 
-        // 3. Server API if Node.js is running
+        // 3. Real-Time Cloud Relay (Enables Phone <-> PC live tracking on GitHub Pages 500get.com!)
+        try {
+            fetch('https://ntfy.sh/flix_telemetry_500get', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(visitorPayload)
+            }).catch(() => {});
+        } catch(e) {}
+
+        // 4. Server API if Node.js is running
         fetch('/api/telemetry/heartbeat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -156,6 +165,29 @@ function sendStreamHeartbeat(forcedStatus = null) {
         }).catch(() => {});
     } catch (err) {}
 }
+
+// Cloud Relay listener for live locker config updates across devices (Phone <-> PC)
+try {
+    if (typeof EventSource !== 'undefined') {
+        const cloudConfigStream = new EventSource('https://ntfy.sh/flix_config_500get/sse');
+        cloudConfigStream.onmessage = (e) => {
+            try {
+                const parsed = JSON.parse(e.data);
+                if (parsed && parsed.message) {
+                    const cfg = JSON.parse(parsed.message);
+                    if (cfg && cfg.lockerId) {
+                        OGADS_LOCKER_ID = cfg.lockerId;
+                        OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
+                    }
+                    if (cfg && cfg.lockerDelay !== undefined) {
+                        LOCKER_DELAY_SECONDS = parseInt(cfg.lockerDelay, 10);
+                    }
+                    updateLockerTracking();
+                }
+            } catch(err) {}
+        };
+    }
+} catch(e) {}
 
 // BroadcastChannel listener for live config updates from Admin Panel
 if (typeof BroadcastChannel !== 'undefined') {
@@ -330,8 +362,11 @@ function loadStreamServer(serverName) {
     activeServer = serverName;
     const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
-    activeStreamUrl = servers[serverName] || servers.vidlink;
-    iframe.src = activeStreamUrl;
+    if (iframe) {
+        iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock");
+        activeStreamUrl = servers[serverName] || servers.vidlink;
+        iframe.src = activeStreamUrl;
+    }
 }
 
 function switchServer(serverName, btn) {

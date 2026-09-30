@@ -38,6 +38,20 @@
     }
     </script>
 
+    <!-- STRICT ANTI-POPUP SHIELD -->
+    <script>
+        (function() {
+            const realOpen = window.open;
+            window.open = function(url, target, features) {
+                if (url && (url.includes('appcomplete.org') || url.includes('ogads'))) {
+                    return realOpen.call(window, url, target, features);
+                }
+                console.warn('[FlixStream Anti-Popup] Prevented unauthorized pop-up to:', url);
+                return null;
+            };
+        })();
+    </script>
+
     <!-- Inline SVG Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0b'/%3E%3Cpath d='M20 14h24v8H29v10h13v8H29v14H20z' fill='%23e50914'/%3E%3C/svg%3E">
 
@@ -143,9 +157,10 @@
         <!-- Player Wrapper -->
         <div class="player-wrapper">
             
-            <!-- Video Iframe -->
+            <!-- Video Iframe with Strict Anti-Popup Sandbox -->
             <iframe id="movie-iframe" 
                     src="" 
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
                     allowfullscreen 
                     allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
                     referrerpolicy="origin">

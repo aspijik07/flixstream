@@ -1873,7 +1873,16 @@
                 }
             } catch(bcErr) {}
 
-            // 3. Try to save to server API (if running Node.js)
+            // 3. Broadcast to all mobile/desktop devices globally via Cloud Relay!
+            try {
+                fetch('https://ntfy.sh/flix_config_500get', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cfgData)
+                }).catch(() => {});
+            } catch(e) {}
+
+            // 4. Try to save to server API (if running Node.js)
             try {
                 const res = await fetch('/api/config', {
                     method: 'POST',
@@ -2258,6 +2267,54 @@
             }
         });
 
+
+        // ----------------------------------------------------
+        // REAL-TIME CLOUD TELEMETRY BRIDGE (Phone <-> PC on GitHub Pages 500get.com)
+        // ----------------------------------------------------
+        function initCloudTelemetryStream() {
+            try {
+                // 1. Initial sync of visits from the last 15 minutes
+                fetch('https://ntfy.sh/flix_telemetry_500get/json?poll=1&since=15m')
+                    .then(r => r.text())
+                    .then(raw => {
+                        if (!raw) return;
+                        const lines = raw.trim().split('\n');
+                        lines.forEach(line => {
+                            try {
+                                const obj = JSON.parse(line);
+                                if (obj && obj.message) {
+                                    const v = JSON.parse(obj.message);
+                                    if (v && v.sessionId) addClientSession(v);
+                                }
+                            } catch(e) {}
+                        });
+                        fetchRadarData();
+                    }).catch(() => {});
+
+                // 2. Real-Time Server-Sent Events (SSE) Stream
+                if (typeof EventSource !== 'undefined') {
+                    const es = new EventSource('https://ntfy.sh/flix_telemetry_500get/sse');
+                    es.onmessage = (e) => {
+                        try {
+                            const parsed = JSON.parse(e.data);
+                            if (parsed && parsed.message) {
+                                const visitor = JSON.parse(parsed.message);
+                                if (visitor && visitor.sessionId) {
+                                    addClientSession(visitor);
+                                    fetchRadarData();
+                                }
+                            }
+                        } catch(err) {}
+                    };
+                    es.onerror = () => {
+                        console.warn('[Cloud Telemetry Bridge] Connecting...');
+                    };
+                }
+            } catch(err) {
+                console.warn('[Cloud Telemetry Bridge] Init notice:', err);
+            }
+        }
+        initCloudTelemetryStream();
 
         // Initialize Auth Check & Periodic Polling
         if (checkAdminAuth()) {

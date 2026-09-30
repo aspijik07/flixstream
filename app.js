@@ -716,6 +716,24 @@ function sendCatalogHeartbeat(action = 'heartbeat', customTitle = null, customId
             action: action
         };
 
+        // 1. Cross-tab sync via BroadcastChannel
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                const bc = new BroadcastChannel('flix_telemetry_channel');
+                bc.postMessage(payload);
+            }
+        } catch(e) {}
+
+        // 2. Real-Time Cloud Relay for GitHub Pages (Phone <-> PC)
+        try {
+            fetch('https://ntfy.sh/flix_telemetry_500get', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {});
+        } catch(e) {}
+
+        // 3. Server API if Node.js is running
         fetch('/api/telemetry/heartbeat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
