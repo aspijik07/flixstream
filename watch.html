@@ -202,11 +202,14 @@
         <!-- Player Wrapper -->
         <div class="player-wrapper">
             
-            <!-- Video Iframe -->
+            <!-- Video Iframe with Strict Popup Restriction -->
             <iframe id="movie-iframe" 
                     src="" 
-                    allowfullscreen 
-                    allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+                    allowfullscreen="true"
+                    webkitallowfullscreen="true"
+                    mozallowfullscreen="true"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
                     referrerpolicy="origin">
             </iframe>
 
@@ -267,16 +270,16 @@
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <span id="notice-banner-text" data-i18n="notice_banner">STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between Server 1 (VidLink), Server 2 (AutoEmbed), or Server 3 (VidSrc CC) below.</span>
+            <span id="notice-banner-text" data-i18n="notice_banner">STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between Server 1 (VidLink), Server 2 (Embed.su), Server 3 (VidSrc), or Server 4 (AutoEmbed) below.</span>
         </div>
 
         <!-- Server Switcher Buttons -->
         <div class="servers-bar">
             <span class="server-label" data-i18n="label_switch_server">Switch Mirror:</span>
             <button class="server-btn active" onclick="switchServer('vidlink', this)">Server 1 (VidLink HD)</button>
-            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 2 (AutoEmbed)</button>
-            <button class="server-btn" onclick="switchServer('vidsrccc', this)">Server 3 (VidSrc CC)</button>
-            <button class="server-btn" onclick="switchServer('smashy', this)">Server 4 (SmashyStream)</button>
+            <button class="server-btn" onclick="switchServer('embedsu', this)">Server 2 (Embed.su HD)</button>
+            <button class="server-btn" onclick="switchServer('vidsrc', this)">Server 3 (VidSrc XYZ)</button>
+            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 4 (AutoEmbed VIP)</button>
         </div>
 
         <!-- TV SERIES EPISODES BROWSER -->

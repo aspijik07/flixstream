@@ -348,26 +348,26 @@ function getStreamServers(season = 1, episode = 1) {
     const isTv = mediaType === "tv";
     return {
         vidlink: isTv 
-            ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}` 
-            : `https://vidlink.pro/movie/${mediaId}`,
+            ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}?primaryColor=e50914&autoplay=false` 
+            : `https://vidlink.pro/movie/${mediaId}?primaryColor=e50914&autoplay=false`,
+        embedsu: isTv 
+            ? `https://embed.su/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://embed.su/embed/movie/${mediaId}`,
+        vidsrc: isTv 
+            ? `https://vidsrc.xyz/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://vidsrc.xyz/embed/movie/${mediaId}`,
         autoembed: isTv 
-            ? `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}` 
-            : `https://player.autoembed.cc/embed/movie/${mediaId}`,
-        vidsrccc: isTv 
-            ? `https://vidsrc.cc/v2/embed/tv/${mediaId}/${season}/${episode}` 
-            : `https://vidsrc.cc/v2/embed/movie/${mediaId}`,
-        smashy: isTv 
-            ? `https://embed.smashystream.com/playere.php?tmdb=${mediaId}&season=${season}&episode=${episode}` 
-            : `https://embed.smashystream.com/playere.php?tmdb=${mediaId}`
+            ? `https://autoembed.co/tv/tmdb/${mediaId}/${season}/${episode}` 
+            : `https://autoembed.co/movie/tmdb/${mediaId}`
     };
 }
 
 function loadStreamServer(serverName) {
-    activeServer = serverName;
+    activeServer = serverName || 'vidlink';
     const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
     if (iframe) {
-        activeStreamUrl = servers[serverName] || servers.vidlink;
+        activeStreamUrl = servers[activeServer] || servers.vidlink;
         iframe.src = activeStreamUrl;
     }
 }
