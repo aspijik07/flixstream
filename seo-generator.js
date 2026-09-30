@@ -31,37 +31,63 @@ async function fetchJson(url) {
     }
 }
 
-// Fetch Top 10 Daily Trending Movies, Series, and Anime
-async function getDailyTrendingTargets() {
-    console.log("[SEO Bot] Fetching daily trending movies & shows from TMDB...");
+// Fetch Top 10 Daily Trending Movies, Series, and Anime (Smart Deduplication & Multi-Page Scanning)
+async function getDailyTrendingTargets(existingKeys = new Set()) {
+    console.log("[SEO Bot] Fetching daily trending movies & shows from TMDB (checking duplicates)...");
     
-    const [trendingAll, animeTrends, topMovies] = await Promise.all([
-        fetchJson(`${BASE_URL}/trending/all/day?api_key=${TMDB_API_KEY}`),
+    // Scan pages 1, 2, and 3 across Movies, TV Series, and Anime
+    const [
+        trendingDayP1, trendingDayP2, trendingDayP3,
+        animeTrendsP1, animeTrendsP2,
+        topMoviesP1, topMoviesP2
+    ] = await Promise.all([
+        fetchJson(`${BASE_URL}/trending/all/day?api_key=${TMDB_API_KEY}&page=1`),
+        fetchJson(`${BASE_URL}/trending/all/day?api_key=${TMDB_API_KEY}&page=2`),
+        fetchJson(`${BASE_URL}/trending/all/day?api_key=${TMDB_API_KEY}&page=3`),
         fetchJson(`${BASE_URL}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=1`),
-        fetchJson(`${BASE_URL}/trending/movie/day?api_key=${TMDB_API_KEY}`)
+        fetchJson(`${BASE_URL}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&page=2`),
+        fetchJson(`${BASE_URL}/trending/movie/day?api_key=${TMDB_API_KEY}&page=1`),
+        fetchJson(`${BASE_URL}/trending/movie/day?api_key=${TMDB_API_KEY}&page=2`)
     ]);
 
     const results = [];
-    const seenIds = new Set();
+    const seenInThisBatch = new Set();
 
-    // Prioritize high-demand movies and anime
+    // Prioritized candidate pool
     const pool = [
-        ...(trendingAll?.results || []).slice(0, 6),
-        ...(animeTrends?.results || []).slice(0, 2),
-        ...(topMovies?.results || []).slice(0, 4)
+        ...(trendingDayP1?.results || []),
+        ...(animeTrendsP1?.results || []),
+        ...(topMoviesP1?.results || []),
+        ...(trendingDayP2?.results || []),
+        ...(animeTrendsP2?.results || []),
+        ...(topMoviesP2?.results || []),
+        ...(trendingDayP3?.results || [])
     ];
 
     for (const item of pool) {
         if (!item || !item.id) continue;
-        const key = `${item.media_type || (item.title ? 'movie' : 'tv')}_${item.id}`;
-        if (!seenIds.has(key)) {
-            seenIds.add(key);
-            results.push({
-                id: item.id,
-                mediaType: item.media_type || (item.title ? 'movie' : 'tv'),
-                title: item.title || item.name || 'Trending Title'
-            });
+        const mediaType = item.media_type || (item.title ? 'movie' : 'tv');
+        const key = `${mediaType}_${item.id}`;
+        const title = item.title || item.name || 'Trending Title';
+
+        // 1. Check if already written in previous days
+        if (existingKeys.has(key)) {
+            console.log(`   ⏩ [Skip Duplicate] "${title}" already has an article from previous day. Skipping to next trend...`);
+            continue;
         }
+
+        // 2. Check if already selected in current batch
+        if (seenInThisBatch.has(key)) {
+            continue;
+        }
+
+        seenInThisBatch.add(key);
+        results.push({
+            id: item.id,
+            mediaType: mediaType,
+            title: title
+        });
+
         if (results.length >= 10) break;
     }
 
@@ -622,12 +648,16 @@ export async function runDailySeoGeneration() {
         }
     }
 
-    // 2. Fetch today's 10 trending targets
-    const targets = await getDailyTrendingTargets();
-    console.log(`[SEO Bot] Identified ${targets.length} top trending targets:`);
+    // 2. Build Set of already-written media IDs
+    const existingKeys = new Set(existingArticles.map(a => `${a.mediaType || 'movie'}_${a.id}`));
+    console.log(`[SEO Bot] Found ${existingKeys.size} articles already published in database.`);
+
+    // 3. Fetch today's 10 fresh trending targets (skipping any previously written)
+    const targets = await getDailyTrendingTargets(existingKeys);
+    console.log(`[SEO Bot] Identified ${targets.length} NEW unique trending targets for today:`);
     targets.forEach((t, i) => console.log(`   ${i + 1}. [${t.mediaType.toUpperCase()}] ${t.title} (ID: ${t.id})`));
 
-    // 3. Generate article data for each target
+    // 4. Generate article data for each target
     const newlyGenerated = [];
 
     for (const target of targets) {
