@@ -1,5 +1,6 @@
 // ==========================================
 // FLIXSTREAM pSEO HIGH-SCALE SITEMAP GENERATOR
+// Scales catalog to 2,500+ Functional Movie & TV Links
 // Includes XSL Stylesheet for Human-Readable Luxury UI
 // ==========================================
 import fs from 'fs';
@@ -24,12 +25,11 @@ async function fetchFromTMDB(endpoint) {
         const data = await res.json();
         return data.results || [];
     } catch (e) {
-        console.error(`Error fetching ${endpoint}:`, e.message);
         return [];
     }
 }
 
-async function fetchMultiPages(endpoint, pagesCount = 8) {
+async function fetchMultiPages(endpoint, pagesCount = 10) {
     const promises = [];
     for (let p = 1; p <= pagesCount; p++) {
         const sep = endpoint.includes('?') ? '&' : '?';
@@ -40,23 +40,39 @@ async function fetchMultiPages(endpoint, pagesCount = 8) {
 }
 
 async function generateSitemap() {
-    console.log("[pSEO ENGINE] Scaling catalog to 1,000+ titles from TMDB...");
+    console.log("[pSEO ENGINE] Scaling catalog across multiple years and genres to 2,500+ titles from TMDB...");
 
-    const [
-        trendingMovies,
-        popularMovies,
-        topRatedMovies,
-        trendingTV,
-        popularTV,
-        animeSeries
-    ] = await Promise.all([
-        fetchMultiPages('/trending/movie/week', 10),
-        fetchMultiPages('/movie/popular', 10),
-        fetchMultiPages('/movie/top_rated', 10),
-        fetchMultiPages('/trending/tv/week', 10),
-        fetchMultiPages('/tv/popular', 10),
-        fetchMultiPages('/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc', 10)
-    ]);
+    const tasks = [];
+
+    // 1. Trending & Popular Core
+    tasks.push(fetchMultiPages('/trending/movie/week', 25));
+    tasks.push(fetchMultiPages('/trending/tv/week', 25));
+    tasks.push(fetchMultiPages('/movie/top_rated', 25));
+    tasks.push(fetchMultiPages('/tv/top_rated', 25));
+
+    // 2. Discover Movies by Year (2026 down to 2015)
+    const movieYears = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015];
+    movieYears.forEach(yr => {
+        tasks.push(fetchMultiPages(`/discover/movie?primary_release_year=${yr}&sort_by=popularity.desc&vote_count.gte=50`, 8));
+    });
+
+    // 3. Discover TV by Year
+    const tvYears = [2026, 2025, 2024, 2023, 2022, 2021, 2020];
+    tvYears.forEach(yr => {
+        tasks.push(fetchMultiPages(`/discover/tv?first_air_date_year=${yr}&sort_by=popularity.desc&vote_count.gte=30`, 8));
+    });
+
+    // 4. Anime & Animation Special Focus
+    tasks.push(fetchMultiPages('/discover/tv?with_genres=16&with_original_language=ja&sort_by=popularity.desc', 25));
+    tasks.push(fetchMultiPages('/discover/movie?with_genres=16&sort_by=popularity.desc', 20));
+
+    // 5. Popular Genres
+    tasks.push(fetchMultiPages('/discover/movie?with_genres=28&sort_by=popularity.desc', 15)); // Action
+    tasks.push(fetchMultiPages('/discover/movie?with_genres=878&sort_by=popularity.desc', 15)); // Sci-Fi
+    tasks.push(fetchMultiPages('/discover/movie?with_genres=27&sort_by=popularity.desc', 15)); // Horror
+    tasks.push(fetchMultiPages('/discover/movie?with_genres=53&sort_by=popularity.desc', 15)); // Thriller
+
+    const results = await Promise.all(tasks);
 
     const urlsMap = new Map();
 
@@ -64,25 +80,41 @@ async function generateSitemap() {
     urlsMap.set(`${DOMAIN}/`, { priority: '1.0', changefreq: 'daily' });
     urlsMap.set(`${DOMAIN}/index.html`, { priority: '0.9', changefreq: 'daily' });
 
-    // 2. Process All Movies
-    const allMovies = [...trendingMovies, ...popularMovies, ...topRatedMovies];
-    allMovies.forEach(m => {
-        if (!m.id) return;
-        const slug = createSlug(m.title);
-        const url = `${DOMAIN}/watch.html?type=movie&amp;id=${m.id}&amp;slug=${slug}`;
-        if (!urlsMap.has(url)) {
-            urlsMap.set(url, { priority: '0.8', changefreq: 'weekly' });
+    // 2. Add Existing Articles from articles.json
+    try {
+        const articlesPath = path.join(process.cwd(), 'articles.json');
+        if (fs.existsSync(articlesPath)) {
+            const articles = JSON.parse(fs.readFileSync(articlesPath, 'utf8'));
+            if (Array.isArray(articles)) {
+                articles.forEach(art => {
+                    if (art.id && art.slug) {
+                        const artUrl = `${DOMAIN}/article.html?id=${art.id}&amp;slug=${art.slug}`;
+                        urlsMap.set(artUrl, { priority: '0.9', changefreq: 'daily' });
+                    }
+                });
+            }
         }
-    });
+    } catch (e) {}
 
-    // 3. Process All TV Shows & Anime
-    const allTV = [...trendingTV, ...popularTV, ...animeSeries];
-    allTV.forEach(t => {
-        if (!t.id) return;
-        const slug = createSlug(t.name);
-        const url = `${DOMAIN}/watch.html?type=tv&amp;id=${t.id}&amp;slug=${slug}&amp;season=1&amp;episode=1`;
-        if (!urlsMap.has(url)) {
-            urlsMap.set(url, { priority: '0.8', changefreq: 'weekly' });
+    // 3. Process all media results
+    results.flat().forEach(item => {
+        if (!item || !item.id) return;
+        
+        // If it's a Movie
+        if (item.title) {
+            const slug = createSlug(item.title);
+            const url = `${DOMAIN}/watch.html?type=movie&amp;id=${item.id}&amp;slug=${slug}`;
+            if (!urlsMap.has(url)) {
+                urlsMap.set(url, { priority: '0.8', changefreq: 'weekly' });
+            }
+        } 
+        // If it's a TV Show / Anime
+        else if (item.name) {
+            const slug = createSlug(item.name);
+            const url = `${DOMAIN}/watch.html?type=tv&amp;id=${item.id}&amp;slug=${slug}&amp;season=1&amp;episode=1`;
+            if (!urlsMap.has(url)) {
+                urlsMap.set(url, { priority: '0.8', changefreq: 'weekly' });
+            }
         }
     });
 

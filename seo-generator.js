@@ -517,19 +517,34 @@ function generateArticleHtmlString(article) {
 </html>`;
 }
 
-// Generate & Update Sitemap XML with Articles & Movies
+// Generate & Update Sitemap XML with Articles & Movies (Preserving all Catalog Links)
 async function updateSitemapXml(articles) {
-    console.log("[SEO Bot] Updating sitemap.xml with new daily articles...");
+    console.log("[SEO Bot] Updating sitemap.xml with new daily articles (preserving catalog)...");
     const TODAY = new Date().toISOString().split('T')[0];
 
-    // Read or fetch existing sitemap base URLs
     let urlsMap = new Map();
 
-    // 1. Core platform URLs
+    // 1. Read existing sitemap.xml to preserve all 2,000+ movie & TV catalog URLs
+    if (fs.existsSync(SITEMAP_FILE)) {
+        try {
+            const existingXml = fs.readFileSync(SITEMAP_FILE, 'utf8');
+            const locMatches = existingXml.matchAll(/<url>[\s\S]*?<loc>(.*?)<\/loc>[\s\S]*?(?:<priority>(.*?)<\/priority>)?[\s\S]*?(?:<changefreq>(.*?)<\/changefreq>)?[\s\S]*?<\/url>/g);
+            for (const match of locMatches) {
+                const loc = match[1];
+                const priority = match[2] || '0.8';
+                const changefreq = match[3] || 'weekly';
+                if (loc) {
+                    urlsMap.set(loc, { priority, changefreq });
+                }
+            }
+        } catch (e) {}
+    }
+
+    // 2. Core platform URLs
     urlsMap.set(`${DOMAIN}/`, { priority: '1.0', changefreq: 'daily' });
     urlsMap.set(`${DOMAIN}/index.html`, { priority: '0.9', changefreq: 'daily' });
 
-    // 2. High priority daily SEO articles
+    // 3. High priority daily SEO articles
     articles.forEach(art => {
         const articleUrl = `${DOMAIN}/article.html?id=${art.id}&amp;slug=${art.slug}`;
         urlsMap.set(articleUrl, { priority: '0.95', changefreq: 'daily' });
@@ -539,7 +554,7 @@ async function updateSitemapXml(articles) {
         urlsMap.set(watchUrl, { priority: '0.85', changefreq: 'weekly' });
     });
 
-    // 3. Build XML
+    // 4. Build XML
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     xml += `<?xml-stylesheet type="text/xsl" href="sitemap.xsl"?>\n`;
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
@@ -553,10 +568,10 @@ async function updateSitemapXml(articles) {
         xml += `  </url>\n`;
     }
 
-    xml += `</urlset>`;
+    xml += `</urlset>\n`;
 
     fs.writeFileSync(SITEMAP_FILE, xml, 'utf8');
-    console.log(`[SEO Bot] ✓ sitemap.xml updated with ${urlsMap.size} priority URLs!`);
+    console.log(`[SEO Bot] ✓ sitemap.xml updated with ${urlsMap.size} URLs!`);
 }
 
 // Generate RSS Feed for Instant Google News & Bing Indexing
