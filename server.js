@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { runDailySeoGeneration } from './seo-generator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -522,10 +523,38 @@ app.post('/api/admin/reset-sessions', (req, res) => {
 });
 
 // ==========================================
-// 4. STATIC ASSETS & CLEAN ROUTES
+// 4. AUTOMATED PROGRAMMATIC SEO (pSEO) APIS
+// ==========================================
+app.get('/api/articles', (req, res) => {
+  const articlesFile = path.join(__dirname, 'articles.json');
+  if (fs.existsSync(articlesFile)) {
+    try {
+      const data = JSON.parse(fs.readFileSync(articlesFile, 'utf8'));
+      return res.json({ success: true, count: data.length, articles: data });
+    } catch (e) {}
+  }
+  res.json({ success: true, count: 0, articles: [] });
+});
+
+app.post('/api/admin/generate-daily-seo', async (req, res) => {
+  try {
+    console.log('[API] Triggering manual daily SEO generation...');
+    const result = await runDailySeoGeneration();
+    res.json(result);
+  } catch (err) {
+    console.error('[API] SEO Generation Error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ==========================================
+// 5. STATIC ASSETS & CLEAN ROUTES
 // ==========================================
 app.use(express.static(__dirname, {
   setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.xml')) {
+      res.setHeader('Content-Type', 'application/xml');
+    }
     if (filePath.endsWith('.js') || filePath.endsWith('.html') || filePath.endsWith('.json')) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
@@ -540,6 +569,14 @@ app.get('/watch', (req, res) => {
   res.sendFile(path.join(__dirname, 'watch.html'));
 });
 
+app.get('/article', (req, res) => {
+  res.sendFile(path.join(__dirname, 'article.html'));
+});
+
+app.get('/articles', (req, res) => {
+  res.sendFile(path.join(__dirname, 'article.html'));
+});
+
 app.get('/unlocked', (req, res) => {
   res.sendFile(path.join(__dirname, 'unlocked.html'));
 });
@@ -547,6 +584,22 @@ app.get('/unlocked', (req, res) => {
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
+
+// Automated Daily Cron: Generates 10 new trending articles every 24 hours
+const DAILY_INTERVAL_MS = 24 * 60 * 60 * 1000;
+setInterval(() => {
+  console.log('[Automated Cron] Running scheduled 24h daily SEO generation...');
+  runDailySeoGeneration().catch(e => console.error('[Cron Error]:', e));
+}, DAILY_INTERVAL_MS);
+
+// Run initial SEO check 10 seconds after boot
+setTimeout(() => {
+  const articlesFile = path.join(__dirname, 'articles.json');
+  if (!fs.existsSync(articlesFile)) {
+    console.log('[Boot SEO Check] Initializing daily trending SEO articles...');
+    runDailySeoGeneration().catch(e => console.error('[Boot SEO Error]:', e));
+  }
+}, 10000);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
