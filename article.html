@@ -31,6 +31,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Environment & Fetch Compatibility Guard -->
+    <script>
+        (function() {
+            try {
+                if (typeof window !== 'undefined') {
+                    var _f = window.fetch;
+                    Object.defineProperty(window, 'fetch', {
+                        get: function() { return _f; },
+                        set: function(v) { _f = v; },
+                        configurable: true,
+                        enumerable: true
+                    });
+                }
+            } catch(e) {}
+        })();
+    </script>
+
     <!-- Core Style -->
     <link rel="stylesheet" href="style.css">
 

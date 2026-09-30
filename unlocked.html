@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream Unlocked! - FlixStream</title>
+    <!-- Environment & Fetch Compatibility Guard -->
+    <script>
+        (function() {
+            try {
+                if (typeof window !== 'undefined') {
+                    var _f = window.fetch;
+                    Object.defineProperty(window, 'fetch', {
+                        get: function() { return _f; },
+                        set: function(v) { _f = v; },
+                        configurable: true,
+                        enumerable: true
+                    });
+                }
+            } catch(e) {}
+        })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&display=swap" rel="stylesheet">
     <style>
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }

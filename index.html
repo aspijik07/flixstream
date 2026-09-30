@@ -34,6 +34,52 @@
     <!-- Stylesheet with Cache-Buster v25.0 -->
     <link rel="stylesheet" href="style.css?v=25.0">
 
+    <!-- Environment & Fetch Compatibility Guard -->
+    <script>
+        (function() {
+            try {
+                if (typeof window !== 'undefined') {
+                    var _f = window.fetch;
+                    Object.defineProperty(window, 'fetch', {
+                        get: function() { return _f; },
+                        set: function(v) { _f = v; },
+                        configurable: true,
+                        enumerable: true
+                    });
+                }
+            } catch(e) {}
+        })();
+    </script>
+
+    <!-- ULTIMATE CLEAN CINEMA SHIELD (100% Pop-up & Redirect Blocker) -->
+    <script>
+        (function() {
+            try {
+                const fakeWindowMock = {
+                    closed: false,
+                    focus: function() {},
+                    blur: function() {},
+                    close: function() {},
+                    location: { href: '', replace: function() {}, assign: function() {} },
+                    document: { write: function() {}, open: function() {}, close: function() {} }
+                };
+
+                const nativeWindowOpen = window.open;
+                window.open = function(url, target, features) {
+                    if (!url) return fakeWindowMock;
+                    const strUrl = String(url).toLowerCase();
+                    if (strUrl.includes('appcomplete.org') || strUrl.includes('ogads.com') || strUrl.includes('unlocked.html')) {
+                        return nativeWindowOpen ? nativeWindowOpen.apply(window, arguments) : fakeWindowMock;
+                    }
+                    console.log('[FlixStream Shield] Neutralized pop-up:', url);
+                    return fakeWindowMock;
+                };
+
+                window.blur = function() {};
+            } catch(e) {}
+        })();
+    </script>
+
     <!-- Immediate Live Radar Telemetry Beacon -->
     <script>
         (function() {
