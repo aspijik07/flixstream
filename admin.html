@@ -1572,8 +1572,125 @@
         }
 
         // ==========================================
-        // 3. FETCH RADAR TELEMETRY WITH BULLETPROOF RESILIENCE
+        // 3. FETCH RADAR TELEMETRY WITH HYBRID FALLBACK
         // ==========================================
+        let clientSimulatedEnabled = false;
+        const clientTrackedSessions = new Map();
+        let clientActivityLogs = [];
+
+        function addClientSession(session) {
+            if (!session || !session.sessionId) return;
+            const now = Date.now();
+            const existing = clientTrackedSessions.get(session.sessionId);
+            const firstSeen = existing ? existing.firstSeen : now;
+            
+            const enriched = {
+                ...session,
+                firstSeen,
+                lastSeen: now,
+                duration: Math.max(0, Math.floor((now - firstSeen) / 1000)),
+                isReal: session.isReal !== false
+            };
+            clientTrackedSessions.set(session.sessionId, enriched);
+
+            // Add to activity log
+            if (!existing || session.status === 'watching') {
+                clientActivityLogs.unshift({
+                    id: 'act-' + now + '-' + Math.random().toString(36).substring(2, 5),
+                    timestamp: new Date().toISOString(),
+                    ip: session.ip || '105.158.42.112',
+                    country: session.country || { code: 'MA', name: 'Morocco', flag: '🇲🇦' },
+                    mediaTitle: session.mediaTitle || 'Playing 1080p Stream',
+                    mediaType: session.mediaType || 'movie',
+                    device: session.device || 'Mobile',
+                    action: session.status === 'watching' ? 'Playing 1080p Stream' : 'Entered Catalog'
+                });
+                if (clientActivityLogs.length > 50) clientActivityLogs.pop();
+            }
+        }
+
+        // Clean stale client sessions after 3 minutes
+        setInterval(() => {
+            const now = Date.now();
+            for (const [id, s] of clientTrackedSessions.entries()) {
+                if (now - s.lastSeen > 180000) {
+                    clientTrackedSessions.delete(id);
+                }
+            }
+        }, 10000);
+
+        function getStoredLockerConfig() {
+            try {
+                const stored = localStorage.getItem('flix_locker_config');
+                if (stored) return JSON.parse(stored);
+            } catch(e) {}
+            return { lockerId: '4o7vvr', lockerDelay: 35, lockerEnabled: true };
+        }
+
+        function buildClientFallbackRadarData() {
+            const now = Date.now();
+            const cfg = getStoredLockerConfig();
+            
+            // Clean real sessions
+            const realSessions = Array.from(clientTrackedSessions.values()).map(s => ({
+                ...s,
+                duration: Math.max(0, Math.floor((now - s.firstSeen) / 1000))
+            }));
+
+            let allSessions = [...realSessions];
+
+            if (clientSimulatedEnabled) {
+                const simList = [
+                    { sessionId: 'sim-1', ip: '105.158.42.112', country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' }, city: 'Casablanca', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Dune: Part Two', mediaType: 'movie', mediaId: '693134', status: 'watching', duration: 135, isReal: false },
+                    { sessionId: 'sim-2', ip: '197.253.18.90', country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' }, city: 'Rabat', device: 'Desktop', os: 'Windows', browser: 'Chrome', mediaTitle: 'Deadpool & Wolverine', mediaType: 'movie', mediaId: '533535', status: 'locker_pending', duration: 35, isReal: false },
+                    { sessionId: 'sim-3', ip: '82.165.197.44', country: { code: 'FR', name: 'France', flag: '🇫🇷' }, city: 'Paris', device: 'Mobile', os: 'Android', browser: 'Chrome', mediaTitle: 'Spider-Man: No Way Home', mediaType: 'movie', mediaId: '634649', status: 'watching', duration: 120, isReal: false },
+                    { sessionId: 'sim-4', ip: '74.125.212.10', country: { code: 'US', name: 'United States', flag: '🇺🇸' }, city: 'New York', device: 'Desktop', os: 'macOS', browser: 'Chrome', mediaTitle: 'Oppenheimer', mediaType: 'movie', mediaId: '872585', status: 'watching', duration: 240, isReal: false },
+                    { sessionId: 'sim-5', ip: '88.19.143.201', country: { code: 'ES', name: 'Spain', flag: '🇪🇸' }, city: 'Madrid', device: 'Mobile', os: 'iOS', browser: 'Safari', mediaTitle: 'Solo Leveling', mediaType: 'tv', mediaId: '209867', status: 'watching', duration: 50, isReal: false }
+                ];
+                allSessions = [...realSessions, ...simList];
+            }
+
+            const countryCounts = {};
+            const deviceCounts = { Desktop: 0, Mobile: 0, Tablet: 0 };
+            let streamingCount = 0;
+            let lockerCount = 0;
+
+            allSessions.forEach(s => {
+                const cCode = s.country?.code || 'MA';
+                if (!countryCounts[cCode]) {
+                    countryCounts[cCode] = {
+                        code: cCode,
+                        name: s.country?.name || 'Morocco',
+                        flag: s.country?.flag || '🇲🇦',
+                        count: 0
+                    };
+                }
+                countryCounts[cCode].count++;
+                if (deviceCounts[s.device] !== undefined) deviceCounts[s.device]++;
+                else deviceCounts.Desktop++;
+
+                if (s.status === 'watching' || s.status === 'unlocked_watching' || s.page === 'watch') streamingCount++;
+                if (s.status === 'locker_pending' || s.status === 'locker_triggered') lockerCount++;
+            });
+
+            return {
+                success: true,
+                totalOnline: allSessions.length,
+                realCount: realSessions.length,
+                simCount: clientSimulatedEnabled ? 5 : 0,
+                simulationEnabled: clientSimulatedEnabled,
+                streamingCount,
+                lockerCount,
+                browsingCount: Math.max(0, allSessions.length - streamingCount),
+                config: cfg,
+                countries: Object.values(countryCounts).sort((a, b) => b.count - a.count),
+                devices: deviceCounts,
+                sessions: allSessions,
+                recentActivity: clientActivityLogs,
+                isClientFallback: true
+            };
+        }
+
         async function fetchRadarData(manual = false) {
             if (!sessionStorage.getItem('flix_admin_token') && !localStorage.getItem('flix_admin_token')) {
                 return;
@@ -1581,49 +1698,46 @@
 
             const beaconText = document.getElementById('beacon-text');
             const beaconDot = document.querySelector('.pulse-dot');
+            let data = null;
+            let isNodeBackend = false;
 
             try {
                 const res = await fetch('/api/admin/radar?t=' + Date.now(), {
                     headers: { 'Accept': 'application/json' }
                 });
 
-                if (!res.ok) {
-                    throw new Error('HTTP ' + res.status);
+                if (res.ok) {
+                    const rawText = await res.text();
+                    try {
+                        data = JSON.parse(rawText);
+                        isNodeBackend = true;
+                    } catch(e) {}
                 }
+            } catch (netErr) {}
 
-                const rawText = await res.text();
-                let data = null;
-                try {
-                    data = JSON.parse(rawText);
-                } catch(e) {
-                    console.warn('[Radar Warning] Server response is not JSON yet:', rawText.substring(0, 100));
-                    if (beaconText) beaconText.innerText = 'SYNCING...';
-                    return;
-                }
+            // If Node API is not available (e.g. 404/405 on static server 500get.com), use Client Sync!
+            if (!data || !data.success) {
+                data = buildClientFallbackRadarData();
+            }
 
-                cachedRadarData = data;
-                if (beaconText) beaconText.innerText = 'RADAR CONNECTED';
-                if (beaconDot) {
-                    beaconDot.style.background = '#10b981';
-                    beaconDot.style.boxShadow = '0 0 10px #10b981';
-                }
+            cachedRadarData = data;
 
-                try { renderKPIs(data); } catch(errKPI) { console.error('KPI error:', errKPI); }
-                try { renderLockerControls(data.config); } catch(errLocker) { console.error('Locker render error:', errLocker); }
-                try { renderCountryBreakdown(data.countries, data.devices, data.totalOnline); } catch(errCountry) { console.error('Country render error:', errCountry); }
-                try { renderRadarTable(data.sessions); } catch(errTable) { console.error('Table render error:', errTable); }
-                try { renderActivityLog(data.recentActivity); } catch(errLog) { console.error('Log render error:', errLog); }
+            if (beaconText) {
+                beaconText.innerText = isNodeBackend ? 'RADAR CONNECTED (NODE)' : 'RADAR LIVE (CLIENT SYNC)';
+            }
+            if (beaconDot) {
+                beaconDot.style.background = '#10b981';
+                beaconDot.style.boxShadow = '0 0 10px #10b981';
+            }
 
-                if (manual) {
-                    showToast('Radar data refreshed successfully!');
-                }
-            } catch (err) {
-                console.warn('Radar poll notice (re-checking in 2s):', err.message);
-                if (beaconText) beaconText.innerText = 'RECONNECTING...';
-                if (beaconDot) {
-                    beaconDot.style.background = '#f59e0b';
-                    beaconDot.style.boxShadow = '0 0 10px #f59e0b';
-                }
+            try { renderKPIs(data); } catch(errKPI) { console.error('KPI error:', errKPI); }
+            try { renderLockerControls(data.config); } catch(errLocker) { console.error('Locker render error:', errLocker); }
+            try { renderCountryBreakdown(data.countries, data.devices, data.totalOnline); } catch(errCountry) { console.error('Country render error:', errCountry); }
+            try { renderRadarTable(data.sessions); } catch(errTable) { console.error('Table render error:', errTable); }
+            try { renderActivityLog(data.recentActivity); } catch(errLog) { console.error('Log render error:', errLog); }
+
+            if (manual) {
+                showToast('Radar data refreshed successfully!');
             }
         }
 
@@ -1694,6 +1808,110 @@
             const el = document.getElementById('embed-url-preview');
             if (el) el.innerText = `https://appcomplete.org/cl/i/${encodeURIComponent(id || '4o7vvr')}`;
         }
+
+        function onSliderMove(val) {
+            const display = document.getElementById('slider-display-text');
+            if (display) display.innerText = val;
+            highlightPresetPill(val);
+        }
+
+        function setPresetDelay(val) {
+            const slider = document.getElementById('input-delay-slider');
+            const display = document.getElementById('slider-display-text');
+            if (slider) slider.value = val;
+            if (display) display.innerText = val;
+            highlightPresetPill(val);
+        }
+
+        function highlightPresetPill(val) {
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                const btnVal = parseInt(btn.innerText, 10);
+                btn.classList.toggle('active', btnVal === parseInt(val, 10));
+            });
+        }
+
+        function testLockerPreview() {
+            const lid = (document.getElementById('input-locker-id')?.value || '4o7vvr').trim();
+            window.open(`https://appcomplete.org/cl/i/${encodeURIComponent(lid)}`, '_blank');
+        }
+
+        async function saveLockerConfig(e) {
+            if (e && e.preventDefault) e.preventDefault();
+
+            const btn = document.querySelector('.btn-save-locker');
+            const statusBadge = document.getElementById('config-status-badge');
+            if (btn) {
+                btn.style.opacity = '0.7';
+                const label = btn.querySelector('span');
+                if (label) label.innerText = 'Saving Configuration...';
+            }
+            if (statusBadge) {
+                statusBadge.innerText = 'SAVING...';
+                statusBadge.style.color = '#f59e0b';
+            }
+
+            const lockerId = (document.getElementById('input-locker-id')?.value || '4o7vvr').trim();
+            const lockerDelay = parseInt(document.getElementById('input-delay-slider')?.value || '35', 10);
+
+            const cfgData = {
+                lockerId,
+                lockerDelay,
+                lockerEnabled: true,
+                updatedAt: new Date().toISOString()
+            };
+
+            // 1. Save immediately to LocalStorage (works on ANY server, static host or Node!)
+            try {
+                localStorage.setItem('flix_locker_config', JSON.stringify(cfgData));
+            } catch(err) {}
+
+            // 2. Broadcast via BroadcastChannel so any open watch.html tab immediately updates without reload!
+            try {
+                if (typeof BroadcastChannel !== 'undefined') {
+                    const bc = new BroadcastChannel('flix_config_channel');
+                    bc.postMessage(cfgData);
+                }
+            } catch(bcErr) {}
+
+            // 3. Try to save to server API (if running Node.js)
+            try {
+                const res = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(cfgData)
+                });
+
+                if (res.ok) {
+                    showToast(`✓ Config Saved & Applied! Locker ID: "${lockerId}" | Delay: ${lockerDelay}s`);
+                } else {
+                    showToast(`✓ Saved to Local Storage! Locker: "${lockerId}" | Delay: ${lockerDelay}s`);
+                }
+            } catch (err) {
+                showToast(`✓ Saved to Local Storage! Locker: "${lockerId}" | Delay: ${lockerDelay}s`);
+            } finally {
+                if (statusBadge) {
+                    statusBadge.innerText = 'SAVED & SYNCED';
+                    statusBadge.style.color = 'var(--accent-green)';
+                }
+                const kpiDelay = document.getElementById('kpi-delay-display');
+                const kpiLid = document.getElementById('kpi-lid-display');
+                const tabBadge = document.getElementById('tab-badge-delay');
+                if (kpiDelay) kpiDelay.innerText = `${lockerDelay}s`;
+                if (kpiLid) kpiLid.innerText = lockerId;
+                if (tabBadge) tabBadge.innerText = `${lockerDelay}s`;
+
+                if (btn) {
+                    btn.style.opacity = '1';
+                    const label = btn.querySelector('span');
+                    if (label) label.innerText = 'Save & Apply Live to All Viewers';
+                }
+                fetchRadarData();
+            }
+        }
+
 
         // ==========================================
         // 6. RENDER COUNTRIES BREAKDOWN
@@ -1943,41 +2161,61 @@
         }
 
         async function toggleSimulation() {
+            clientSimulatedEnabled = !clientSimulatedEnabled;
+            const simLabel = document.getElementById('sim-label');
+            if (simLabel) {
+                simLabel.innerText = clientSimulatedEnabled ? 'Simulated Visitors: ON' : 'Simulated Visitors: OFF';
+            }
+            showToast(clientSimulatedEnabled ? '⚡ Simulated audience enabled! Radar populated.' : 'Simulated audience disabled. Real users only.');
+            fetchRadarData(true);
+
             try {
-                const res = await fetch('/api/admin/toggle-sim', { method: 'POST' });
-                const d = await res.json();
-                showToast(d.simulationEnabled ? '⚡ Simulated audience enabled! Radar populated.' : 'Simulated audience disabled. Real users only.');
-                fetchRadarData(true);
+                await fetch('/api/admin/toggle-sim', { method: 'POST' });
             } catch (e) {}
         }
 
         async function sendTestVisitorPulse() {
+            const visitor = {
+                sessionId: 'visitor_ma_' + Math.random().toString(36).substring(2, 7),
+                page: 'watch',
+                mediaId: '693134',
+                mediaType: 'movie',
+                mediaTitle: 'Dune: Part Two (1080p Stream)',
+                streamServer: 'VidLink HD',
+                status: 'watching',
+                clientIp: '105.158.42.112',
+                ip: '105.158.42.112',
+                country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' },
+                city: 'Casablanca',
+                device: 'Mobile',
+                os: 'Android',
+                browser: 'Chrome',
+                firstSeen: Date.now(),
+                lastSeen: Date.now(),
+                duration: 2,
+                isReal: true
+            };
+
+            addClientSession(visitor);
+            showToast('🚀 Pinged Live Moroccan Visitor! Watch table updated.');
+            fetchRadarData(true);
+
+            // Also broadcast cross-tab
             try {
-                showToast('🚀 Sending test visitor pulse from Casablanca...');
+                if (typeof BroadcastChannel !== 'undefined') {
+                    const bc = new BroadcastChannel('flix_telemetry_channel');
+                    bc.postMessage(visitor);
+                }
+            } catch(e) {}
+
+            try {
                 await fetch('/api/telemetry/heartbeat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        sessionId: 'visitor_ma_' + Math.random().toString(36).substring(2, 7),
-                        page: 'watch',
-                        mediaId: '693134',
-                        mediaType: 'movie',
-                        mediaTitle: 'Dune: Part Two (1080p Stream)',
-                        streamServer: 'VidLink HD',
-                        status: 'watching',
-                        clientIp: '105.158.42.112',
-                        clientCountryName: 'Morocco',
-                        countryCode: 'MA',
-                        timeZone: 'Africa/Casablanca',
-                        clientDevice: 'Mobile'
-                    })
+                    body: JSON.stringify(visitor)
                 });
-                fetchRadarData(true);
-            } catch(e) {
-                console.error("Test pulse error:", e);
-            }
+            } catch(e) {}
         }
-
 
         // Utilities
         function copyText(str) {
@@ -1993,12 +2231,33 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        // BroadcastChannel for instant cross-tab sync (works on static hosting 500get.com without Node backend)
+        if (typeof BroadcastChannel !== 'undefined') {
+            try {
+                const teleBC = new BroadcastChannel('flix_telemetry_channel');
+                teleBC.onmessage = (e) => {
+                    if (e && e.data) {
+                        addClientSession(e.data);
+                        fetchRadarData();
+                    }
+                };
+            } catch(e) {}
+        }
+
         // Cross-tab real-time storage listener
         window.addEventListener('storage', (e) => {
-            if (e.key === 'flix_last_visit' || e.key === 'flix_session_id') {
+            if (e.key === 'flix_last_telemetry') {
+                try {
+                    const visitor = JSON.parse(e.newValue);
+                    if (visitor) addClientSession(visitor);
+                } catch(err) {}
+                fetchRadarData();
+            }
+            if (e.key === 'flix_locker_config') {
                 fetchRadarData();
             }
         });
+
 
         // Initialize Auth Check & Periodic Polling
         if (checkAdminAuth()) {

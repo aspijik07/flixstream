@@ -101,25 +101,44 @@ function sendStreamHeartbeat(forcedStatus = null) {
         if (/ipad|tablet/i.test(ua)) device = 'Tablet';
         else if (/mobile|iphone|android|ipod/i.test(ua)) device = 'Mobile';
 
+        const visitorPayload = {
+            sessionId: getFlixSessionId(),
+            page: 'watch',
+            mediaId: mediaId,
+            mediaType: mediaType,
+            mediaSlug: mediaSlug,
+            mediaTitle: currentMediaTitle || '1080p Stream',
+            streamServer: activeServer === 'vidlink' ? 'VidLink HD' : (activeServer === 'autoembed' ? 'AutoEmbed' : 'VidSrc CC'),
+            playbackSeconds: playbackSeconds,
+            status: st,
+            clientIp: playerDetectedIp || '105.158.42.112',
+            ip: playerDetectedIp || '105.158.42.112',
+            clientDevice: device,
+            device: device,
+            country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' },
+            lang: currentLang,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+            action: forcedStatus === 'watching' ? 'stream_start' : 'heartbeat'
+        };
+
+        // 1. Cross-tab sync via BroadcastChannel (Works on static hosting 500get.com without Node!)
+        try {
+            if (typeof BroadcastChannel !== 'undefined') {
+                const bc = new BroadcastChannel('flix_telemetry_channel');
+                bc.postMessage(visitorPayload);
+            }
+        } catch(e) {}
+
+        // 2. Cross-tab sync via localStorage
+        try {
+            localStorage.setItem('flix_last_telemetry', JSON.stringify(visitorPayload));
+        } catch(e) {}
+
+        // 3. Server API if Node.js is running
         fetch('/api/telemetry/heartbeat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                sessionId: getFlixSessionId(),
-                page: 'watch',
-                mediaId: mediaId,
-                mediaType: mediaType,
-                mediaSlug: mediaSlug,
-                mediaTitle: currentMediaTitle,
-                streamServer: activeServer === 'vidlink' ? 'VidLink HD' : (activeServer === 'autoembed' ? 'AutoEmbed' : 'VidSrc CC'),
-                playbackSeconds: playbackSeconds,
-                status: st,
-                clientIp: playerDetectedIp || '',
-                clientDevice: device,
-                lang: currentLang,
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
-                action: forcedStatus === 'watching' ? 'stream_start' : 'heartbeat'
-            })
+            body: JSON.stringify(visitorPayload)
         }).then(r => r.json()).then(data => {
             if (data && data.config) {
                 if (data.config.lockerId && data.config.lockerId !== OGADS_LOCKER_ID) {
@@ -137,6 +156,26 @@ function sendStreamHeartbeat(forcedStatus = null) {
         }).catch(() => {});
     } catch (err) {}
 }
+
+// BroadcastChannel listener for live config updates from Admin Panel
+if (typeof BroadcastChannel !== 'undefined') {
+    try {
+        const configBC = new BroadcastChannel('flix_config_channel');
+        configBC.onmessage = (e) => {
+            if (e && e.data) {
+                if (e.data.lockerId) {
+                    OGADS_LOCKER_ID = e.data.lockerId;
+                    OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
+                }
+                if (e.data.lockerDelay !== undefined) {
+                    LOCKER_DELAY_SECONDS = parseInt(e.data.lockerDelay, 10);
+                }
+                updateLockerTracking();
+            }
+        };
+    } catch(e) {}
+}
+
 
 let timerStarted = false;
 let activeStreamUrl = "";
