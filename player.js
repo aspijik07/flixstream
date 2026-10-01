@@ -653,9 +653,14 @@ async function loadSeasonEpisodes(seasonNum) {
 
     try {
         const tmdbLang = tmdbLangMap[currentLang] || "en-US";
-        const res = await fetch(`https://api.themoviedb.org/3/tv/${mediaId}/season/${seasonNum}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
-        const seasonData = await res.json();
-        const episodes = seasonData.episodes || [];
+        let episodes = [];
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${mediaId}/season/${seasonNum}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
+            if (res.ok) {
+                const seasonData = await res.json();
+                episodes = seasonData.episodes || [];
+            }
+        } catch(netErr) {}
 
         container.innerHTML = "";
         episodes.forEach(ep => {
