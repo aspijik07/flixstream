@@ -387,31 +387,46 @@ async function loadMediaDetails() {
         
         const tmdbLang = tmdbLangMap[currentLang] || "en-US";
         const endpoint = mediaType === "tv" ? `/tv/${mediaId}` : `/movie/${mediaId}`;
-        const res = await fetch(`https://api.themoviedb.org/3${endpoint}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
-        const data = await res.json();
+        let data = {};
+        
+        try {
+            const res = await fetch(`https://api.themoviedb.org/3${endpoint}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
+            if (res.ok) {
+                data = await res.json();
+            }
+        } catch(netErr) {
+            console.warn("[FlixStream] TMDB offline or blocked, using slug fallback:", netErr);
+        }
 
-        currentMediaTitle = data.title || data.name || "Media";
+        currentMediaTitle = data.title || data.name || (mediaSlug !== "media" ? mediaSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "Cinema Stream");
         const mediaEpTag = mediaType === 'tv' ? `(S${currentSeason} E${currentEpisode})` : '';
         const pageTitle = `Watch ${currentMediaTitle} ${mediaEpTag} (1080p Full HD) - FlixStream`;
 
         // Details Cards
         document.title = pageTitle;
-        document.getElementById("movie-detail-title").innerText = currentMediaTitle;
-        document.getElementById("movie-detail-overview").innerText = data.overview || "Stream in full high definition with zero latency.";
+        const detailTitle = document.getElementById("movie-detail-title");
+        if (detailTitle) detailTitle.innerText = currentMediaTitle;
+        const detailOverview = document.getElementById("movie-detail-overview");
+        if (detailOverview) detailOverview.innerText = data.overview || "Stream in full high definition with zero latency.";
         
         const dateStr = data.release_date || data.first_air_date || "";
-        document.getElementById("movie-detail-year").innerText = dateStr.split("-")[0] || "2026";
-        document.getElementById("movie-detail-rating").innerText = `SCORE ${data.vote_average ? Number(data.vote_average).toFixed(1) : "N/A"}`;
+        const detailYear = document.getElementById("movie-detail-year");
+        if (detailYear) detailYear.innerText = dateStr.split("-")[0] || "2026";
+        const detailRating = document.getElementById("movie-detail-rating");
+        if (detailRating) detailRating.innerText = `SCORE ${data.vote_average ? Number(data.vote_average).toFixed(1) : "8.4"}`;
         
-        const runtime = data.runtime || (data.episode_run_time && data.episode_run_time[0]) || 45;
-        document.getElementById("movie-detail-runtime").innerText = `${runtime} min`;
-        document.getElementById("media-type-badge").innerText = mediaType === 'tv' ? 'TV SERIES' : '1080P FULL HD';
+        const runtime = data.runtime || (data.episode_run_time && data.episode_run_time[0]) || 115;
+        const detailRuntime = document.getElementById("movie-detail-runtime");
+        if (detailRuntime) detailRuntime.innerText = `${runtime} min`;
+        const mediaTypeBadge = document.getElementById("media-type-badge");
+        if (mediaTypeBadge) mediaTypeBadge.innerText = mediaType === 'tv' ? 'TV SERIES' : '1080P FULL HD';
 
         const posterUrl = data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '';
         const backdropUrl = data.backdrop_path ? `https://image.tmdb.org/t/p/original${data.backdrop_path}` : posterUrl;
 
-        if (posterUrl) {
-            document.getElementById("movie-detail-poster").src = posterUrl;
+        const detailPoster = document.getElementById("movie-detail-poster");
+        if (posterUrl && detailPoster) {
+            detailPoster.src = posterUrl;
         }
 
         // OpenGraph Updates
@@ -427,13 +442,15 @@ async function loadMediaDetails() {
 
         // Genres
         const genresContainer = document.getElementById("movie-detail-genres");
-        genresContainer.innerHTML = "";
-        (data.genres || []).forEach(g => {
-            const span = document.createElement("span");
-            span.className = "genre-badge";
-            span.innerText = g.name;
-            genresContainer.appendChild(span);
-        });
+        if (genresContainer) {
+            genresContainer.innerHTML = "";
+            (data.genres || [{ name: 'Cinema' }, { name: 'Full HD' }]).forEach(g => {
+                const span = document.createElement("span");
+                span.className = "genre-badge";
+                span.innerText = g.name;
+                genresContainer.appendChild(span);
+            });
+        }
 
         // Set Dynamic SubID Tracking
         updateLockerTracking();
@@ -446,8 +463,10 @@ async function loadMediaDetails() {
 
         // TV Show Panel Check
         if (mediaType === "tv") {
-            document.getElementById("tv-panel").style.display = "block";
-            document.getElementById("tv-show-name").innerText = `${currentMediaTitle} Episodes`;
+            const tvPanel = document.getElementById("tv-panel");
+            if (tvPanel) tvPanel.style.display = "block";
+            const tvShowName = document.getElementById("tv-show-name");
+            if (tvShowName) tvShowName.innerText = `${currentMediaTitle} Episodes`;
             renderSeasonDropdown(data.seasons || []);
             loadSeasonEpisodes(currentSeason);
         }
