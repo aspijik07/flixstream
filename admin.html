@@ -2157,34 +2157,69 @@
         // ==========================================
         // 5. LOCKER CONTROLS, NETWORKS & ON/OFF TOGGLE
         // ==========================================
+        // ==========================================
+        // 5. LOCKER CONTROLS, NETWORKS & ON/OFF TOGGLE
+        // ==========================================
         let currentLockerNetwork = 'ogads';
         let currentLockerEnabled = true;
-        let currentLockerId = '4o7vvr';
-        let currentLockerCustomUrl = '';
+        let ogadsLockerId = '4o7vvr';
+        let adblueLockerId = '4654850';
+        let customLockerUrl = '';
+        let hasUserEditedLocker = false;
 
-        function computeAdminLockerUrl(network, id, customUrl) {
-            const cleanId = String(id || '').trim();
-            const cleanCustom = String(customUrl || '').trim();
-
-            if (network === 'custom' || cleanCustom.startsWith('http')) {
-                return cleanCustom || cleanId || 'https://appcomplete.org/cl/i/4o7vvr';
+        function parseAdBlueInput(rawInput) {
+            if (!rawInput) return { id: '4654850', url: 'https://adbluemedia.com/cl.php?id=4654850' };
+            const str = String(rawInput).trim();
+            
+            // 1. Check if full JS script tag or object from AdBlueMedia (as shown in user video)
+            const itMatch = str.match(/["']?it["']?\s*:\s*([0-9]+)/i);
+            const keyMatch = str.match(/["']?key["']?\s*:\s*["']([a-zA-Z0-9_-]+)["']/i);
+            if (itMatch) {
+                return {
+                    id: itMatch[1],
+                    key: keyMatch ? keyMatch[1] : 'ea554',
+                    url: `https://adbluemedia.com/cl.php?id=${itMatch[1]}`
+                };
             }
 
-            if (network === 'adbluemedia') {
-                if (cleanId.startsWith('http')) return cleanId;
-                if (/^[0-9]+$/.test(cleanId)) {
-                    return `https://adbluemedia.com/cl.php?id=${encodeURIComponent(cleanId || '123456')}`;
-                }
-                return `https://d12m39r9m90s76.cloudfront.net/?public_key=${encodeURIComponent(cleanId || 'demo_key')}`;
+            // 2. Direct URL
+            if (str.startsWith('http://') || str.startsWith('https://')) {
+                return { id: str, url: str };
+            }
+
+            // 3. Simple ID (e.g. 4654850)
+            if (/^[0-9]+$/.test(str)) {
+                return { id: str, url: `https://adbluemedia.com/cl.php?id=${str}` };
+            }
+
+            // 4. Shortlink or alphanumeric key (e.g. BfbNGe / ea554)
+            return {
+                id: str,
+                url: str.length <= 10 ? `https://adbluemedia.com/cl.php?id=${str}` : `https://d12m39r9m90s76.cloudfront.net/?public_key=${str}`
+            };
+        }
+
+        function computeAdminLockerUrl(network, rawVal) {
+            const net = String(network || 'ogads').toLowerCase();
+            const clean = String(rawVal || '').trim();
+
+            if (net === 'custom') {
+                return clean || 'https://appcomplete.org/cl/i/4o7vvr';
+            }
+
+            if (net === 'adbluemedia') {
+                const parsed = parseAdBlueInput(clean || adblueLockerId);
+                return parsed.url;
             }
 
             // Default: OGAds
-            if (cleanId.startsWith('http')) return cleanId;
-            return `https://appcomplete.org/cl/i/${encodeURIComponent(cleanId || '4o7vvr')}`;
+            if (clean.startsWith('http')) return clean;
+            return `https://appcomplete.org/cl/i/${encodeURIComponent(clean || ogadsLockerId || '4o7vvr')}`;
         }
 
         function toggleMasterLocker() {
             currentLockerEnabled = !currentLockerEnabled;
+            hasUserEditedLocker = true;
             updateMasterToggleUI();
             saveLockerConfig();
         }
@@ -2197,13 +2232,15 @@
             const desc = document.getElementById('toggle-desc-text');
             const kpiStatus = document.getElementById('kpi-lid-display');
 
+            const activeId = currentLockerNetwork === 'ogads' ? ogadsLockerId : (currentLockerNetwork === 'adbluemedia' ? adblueLockerId : customLockerUrl);
+
             if (currentLockerEnabled) {
                 if (card) card.classList.remove('disabled');
                 if (btn) btn.classList.remove('off');
                 if (icon) icon.innerText = '🔒';
                 if (title) title.innerText = 'Content Locker is ACTIVE (ON)';
                 if (desc) desc.innerText = 'Locker will trigger after timer delay for streaming viewers';
-                if (kpiStatus) kpiStatus.innerText = `${currentLockerNetwork.toUpperCase()} (${currentLockerId})`;
+                if (kpiStatus) kpiStatus.innerText = `${currentLockerNetwork.toUpperCase()} (${activeId})`;
             } else {
                 if (card) card.classList.add('disabled');
                 if (btn) btn.classList.add('off');
@@ -2215,6 +2252,7 @@
         }
 
         function selectNetwork(network) {
+            hasUserEditedLocker = true;
             currentLockerNetwork = network;
             
             document.querySelectorAll('.network-card').forEach(c => c.classList.remove('active'));
@@ -2228,43 +2266,59 @@
             if (network === 'ogads') {
                 if (labelTitle) labelTitle.innerText = 'OGAds Locker ID';
                 if (labelHint) labelHint.innerText = 'e.g. 4o7vvr';
-                if (idInput) idInput.placeholder = 'e.g. 4o7vvr';
+                if (idInput) {
+                    idInput.value = ogadsLockerId;
+                    idInput.placeholder = 'e.g. 4o7vvr';
+                }
             } else if (network === 'adbluemedia') {
-                if (labelTitle) labelTitle.innerText = 'AdBlueMedia Locker ID / Key';
-                if (labelHint) labelHint.innerText = 'e.g. 123456 or Public Key / Direct Link';
-                if (idInput) idInput.placeholder = 'e.g. 123456 or Public Key';
+                if (labelTitle) labelTitle.innerText = 'AdBlueMedia Locker ID / Key / Script / Link';
+                if (labelHint) labelHint.innerText = 'Kteb l-ID (e.g. 4654850) aw paste script / link direct';
+                if (idInput) {
+                    idInput.value = adblueLockerId;
+                    idInput.placeholder = 'e.g. 4654850 aw ea554 aw script snippet';
+                }
             } else if (network === 'custom') {
                 if (labelTitle) labelTitle.innerText = 'Custom Direct Locker URL';
                 if (labelHint) labelHint.innerText = 'https://...';
-                if (idInput) idInput.placeholder = 'https://...';
+                if (idInput) {
+                    idInput.value = customLockerUrl;
+                    idInput.placeholder = 'https://...';
+                }
             }
 
             updateLockerUrlPreview();
+            updateMasterToggleUI();
         }
 
         function onLockerIdChange(val) {
-            if (currentLockerNetwork === 'custom') {
-                currentLockerCustomUrl = val;
-                currentLockerId = val;
-            } else {
-                currentLockerId = val;
+            hasUserEditedLocker = true;
+            const clean = val.trim();
+            if (currentLockerNetwork === 'ogads') {
+                ogadsLockerId = clean;
+            } else if (currentLockerNetwork === 'adbluemedia') {
+                adblueLockerId = clean;
+            } else if (currentLockerNetwork === 'custom') {
+                customLockerUrl = clean;
             }
             updateLockerUrlPreview();
         }
 
         function updateLockerUrlPreview() {
             const el = document.getElementById('embed-url-preview');
-            const target = computeAdminLockerUrl(currentLockerNetwork, currentLockerId, currentLockerCustomUrl);
+            const activeVal = currentLockerNetwork === 'ogads' ? ogadsLockerId : (currentLockerNetwork === 'adbluemedia' ? adblueLockerId : customLockerUrl);
+            const target = computeAdminLockerUrl(currentLockerNetwork, activeVal);
             if (el) el.innerText = target;
         }
 
         function onSliderMove(val) {
+            hasUserEditedLocker = true;
             const display = document.getElementById('slider-display-text');
             if (display) display.innerText = val;
             highlightPresetPill(val);
         }
 
         function setPresetDelay(val) {
+            hasUserEditedLocker = true;
             const slider = document.getElementById('input-delay-slider');
             const display = document.getElementById('slider-display-text');
             if (slider) slider.value = val;
@@ -2280,43 +2334,47 @@
         }
 
         function testLockerPreview() {
-            const targetUrl = computeAdminLockerUrl(currentLockerNetwork, currentLockerId, currentLockerCustomUrl);
+            const activeVal = currentLockerNetwork === 'ogads' ? ogadsLockerId : (currentLockerNetwork === 'adbluemedia' ? adblueLockerId : customLockerUrl);
+            const targetUrl = computeAdminLockerUrl(currentLockerNetwork, activeVal);
             window.open(targetUrl, '_blank');
         }
 
         function renderLockerControls(cfg) {
             if (!cfg) return;
 
-            if (cfg.lockerEnabled !== undefined) {
+            if (cfg.ogadsLockerId) ogadsLockerId = cfg.ogadsLockerId;
+            if (cfg.adblueLockerId) adblueLockerId = cfg.adblueLockerId;
+            if (cfg.customLockerUrl) customLockerUrl = cfg.customLockerUrl;
+
+            if (cfg.lockerEnabled !== undefined && !hasUserEditedLocker) {
                 currentLockerEnabled = cfg.lockerEnabled !== false;
                 updateMasterToggleUI();
             }
 
-            if (cfg.lockerNetwork) {
-                currentLockerNetwork = cfg.lockerNetwork;
-                selectNetwork(cfg.lockerNetwork);
-            }
-
-            if (cfg.lockerId) {
-                currentLockerId = cfg.lockerId;
-                const lidInput = document.getElementById('input-locker-id');
-                if (lidInput && document.activeElement !== lidInput) {
-                    lidInput.value = cfg.lockerId;
+            // Only overwrite network UI if user is not actively editing
+            if (!hasUserEditedLocker) {
+                if (cfg.lockerNetwork) {
+                    currentLockerNetwork = cfg.lockerNetwork;
+                    selectNetwork(cfg.lockerNetwork);
+                    hasUserEditedLocker = false; // keep clean
                 }
-            }
 
-            if (cfg.lockerCustomUrl) {
-                currentLockerCustomUrl = cfg.lockerCustomUrl;
-            }
+                const idInput = document.getElementById('input-locker-id');
+                if (idInput && document.activeElement !== idInput) {
+                    if (currentLockerNetwork === 'ogads') idInput.value = ogadsLockerId;
+                    else if (currentLockerNetwork === 'adbluemedia') idInput.value = adblueLockerId;
+                    else if (currentLockerNetwork === 'custom') idInput.value = customLockerUrl;
+                }
 
-            updateLockerUrlPreview();
+                updateLockerUrlPreview();
 
-            const slider = document.getElementById('input-delay-slider');
-            const display = document.getElementById('slider-display-text');
-            if (slider && document.activeElement !== slider && cfg.lockerDelay) {
-                slider.value = cfg.lockerDelay;
-                if (display) display.innerText = cfg.lockerDelay;
-                highlightPresetPill(cfg.lockerDelay);
+                const slider = document.getElementById('input-delay-slider');
+                const display = document.getElementById('slider-display-text');
+                if (slider && document.activeElement !== slider && cfg.lockerDelay) {
+                    slider.value = cfg.lockerDelay;
+                    if (display) display.innerText = cfg.lockerDelay;
+                    highlightPresetPill(cfg.lockerDelay);
+                }
             }
         }
 
@@ -2335,25 +2393,28 @@
                 statusBadge.style.color = '#f59e0b';
             }
 
-            const rawId = (document.getElementById('input-locker-id')?.value || '4o7vvr').trim();
+            const rawVal = (document.getElementById('input-locker-id')?.value || '').trim();
             const lockerDelay = parseInt(document.getElementById('input-delay-slider')?.value || '35', 10);
 
-            if (currentLockerNetwork === 'custom') {
-                currentLockerCustomUrl = rawId;
-                currentLockerId = rawId;
-            } else {
-                currentLockerId = rawId;
-            }
+            if (currentLockerNetwork === 'ogads') ogadsLockerId = rawVal || '4o7vvr';
+            else if (currentLockerNetwork === 'adbluemedia') adblueLockerId = rawVal || '4654850';
+            else if (currentLockerNetwork === 'custom') customLockerUrl = rawVal;
+
+            const activeId = currentLockerNetwork === 'ogads' ? ogadsLockerId : (currentLockerNetwork === 'adbluemedia' ? adblueLockerId : customLockerUrl);
 
             const cfgData = {
                 lockerNetwork: currentLockerNetwork,
-                lockerId: currentLockerId,
-                lockerCustomUrl: currentLockerCustomUrl,
+                lockerId: activeId,
+                ogadsLockerId: ogadsLockerId,
+                adblueLockerId: adblueLockerId,
+                customLockerUrl: customLockerUrl,
                 lockerDelay: lockerDelay,
                 lockerEnabled: currentLockerEnabled,
-                lockerUrl: computeAdminLockerUrl(currentLockerNetwork, currentLockerId, currentLockerCustomUrl),
+                lockerUrl: computeAdminLockerUrl(currentLockerNetwork, activeId),
                 updatedAt: new Date().toISOString()
             };
+
+            hasUserEditedLocker = false; // user saved explicitly
 
             // 1. Save immediately to LocalStorage (works on ANY server, static host 500get.com or Node!)
             try {
@@ -2404,7 +2465,7 @@
                 const kpiLid = document.getElementById('kpi-lid-display');
                 const tabBadge = document.getElementById('tab-badge-delay');
                 if (kpiDelay) kpiDelay.innerText = `${lockerDelay}s`;
-                if (kpiLid) kpiLid.innerText = currentLockerEnabled ? `${currentLockerNetwork.toUpperCase()} (${currentLockerId})` : 'OFF';
+                if (kpiLid) kpiLid.innerText = currentLockerEnabled ? `${currentLockerNetwork.toUpperCase()} (${activeId})` : 'OFF';
                 if (tabBadge) tabBadge.innerText = currentLockerEnabled ? `${lockerDelay}s` : 'OFF';
 
                 if (btn) {

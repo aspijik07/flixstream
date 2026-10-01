@@ -20,6 +20,13 @@ function computePlayerLockerUrl(network, id, customUrl, subTracking, mId) {
     }
 
     if (network === 'adbluemedia') {
+        // Smart parse AdBlueMedia input
+        const itMatch = cleanId.match(/["']?it["']?\s*:\s*([0-9]+)/i);
+        const keyMatch = cleanId.match(/["']?key["']?\s*:\s*["']([a-zA-Z0-9_-]+)["']/i);
+        if (itMatch) {
+            const finalId = itMatch[1];
+            return `https://adbluemedia.com/cl.php?id=${encodeURIComponent(finalId)}&s1=${encodeURIComponent(subTracking)}&s2=${encodeURIComponent(mId || '')}`;
+        }
         if (cleanId.startsWith('http')) {
             const sep = cleanId.includes('?') ? '&' : '?';
             return `${cleanId}${sep}s1=${encodeURIComponent(subTracking)}&s2=${encodeURIComponent(mId || '')}`;

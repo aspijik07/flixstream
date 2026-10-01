@@ -31,26 +31,75 @@ app.use((req, res, next) => {
 // ==========================================
 const CONFIG_FILE = path.join(__dirname, 'locker-config.json');
 
-function computeLockerUrl(network = 'ogads', id = '4o7vvr', customUrl = '') {
-  const cleanId = String(id || '').trim();
-  const cleanCustom = String(customUrl || '').trim();
+function parseAdBlueMedia(rawInput) {
+  if (!rawInput) return { id: '4654850', key: 'ea554', url: 'https://adbluemedia.com/cl.php?id=4654850' };
+  const str = String(rawInput).trim();
+  
+  // 1. Check if full script tag or json object (as shown in user video)
+  const itMatch = str.match(/["']?it["']?\s*:\s*([0-9]+)/i);
+  const keyMatch = str.match(/["']?key["']?\s*:\s*["']([a-zA-Z0-9_-]+)["']/i);
+  const scriptMatch = str.match(/src=["'](https?:\/\/[^"']+\.cloudfront\.net\/[^"']+\.js)["']/i);
 
-  if (network === 'custom' || cleanCustom.startsWith('http')) {
-    return cleanCustom || cleanId || 'https://appcomplete.org/cl/i/4o7vvr';
+  if (itMatch) {
+    const id = itMatch[1];
+    const key = keyMatch ? keyMatch[1] : 'ea554';
+    const scriptSrc = scriptMatch ? scriptMatch[1] : '';
+    return {
+      id: id,
+      key: key,
+      scriptSrc: scriptSrc,
+      url: `https://adbluemedia.com/cl.php?id=${id}`
+    };
   }
 
-  if (network === 'adbluemedia') {
-    if (cleanId.startsWith('http')) return cleanId;
-    // Standard AdBlueMedia / CPABuild formats
-    if (/^[0-9]+$/.test(cleanId)) {
-      return `https://adbluemedia.com/cl.php?id=${encodeURIComponent(cleanId)}`;
-    }
-    return `https://d12m39r9m90s76.cloudfront.net/?public_key=${encodeURIComponent(cleanId)}`;
+  // 2. Direct URL
+  if (str.startsWith('http://') || str.startsWith('https://')) {
+    const urlIdMatch = str.match(/[?&]id=([0-9]+)/i);
+    return {
+      id: urlIdMatch ? urlIdMatch[1] : str,
+      key: '',
+      scriptSrc: '',
+      url: str
+    };
+  }
+
+  // 3. Simple ID (digits)
+  if (/^[0-9]+$/.test(str)) {
+    return {
+      id: str,
+      key: '',
+      scriptSrc: '',
+      url: `https://adbluemedia.com/cl.php?id=${str}`
+    };
+  }
+
+  // 4. Shortlink or alphanumeric key (e.g. BfbNGe / ea554)
+  return {
+    id: str,
+    key: str,
+    scriptSrc: '',
+    url: str.length <= 10 ? `https://adbluemedia.com/cl.php?id=${str}` : `https://d12m39r9m90s76.cloudfront.net/?public_key=${str}`
+  };
+}
+
+function computeLockerUrl(network = 'ogads', cfg = {}) {
+  const net = String(network || 'ogads').toLowerCase();
+
+  if (net === 'custom') {
+    const custom = String(cfg.customLockerUrl || cfg.lockerCustomUrl || cfg.lockerId || '').trim();
+    return custom || 'https://appcomplete.org/cl/i/4o7vvr';
+  }
+
+  if (net === 'adbluemedia') {
+    const adblueRaw = cfg.adblueLockerId || cfg.lockerId || '4654850';
+    const parsed = parseAdBlueMedia(adblueRaw);
+    return parsed.url;
   }
 
   // Default: OGAds
-  if (cleanId.startsWith('http')) return cleanId;
-  return `https://appcomplete.org/cl/i/${encodeURIComponent(cleanId || '4o7vvr')}`;
+  const ogadsId = String(cfg.ogadsLockerId || cfg.lockerId || '4o7vvr').trim();
+  if (ogadsId.startsWith('http')) return ogadsId;
+  return `https://appcomplete.org/cl/i/${encodeURIComponent(ogadsId || '4o7vvr')}`;
 }
 
 function loadConfig() {
@@ -59,17 +108,24 @@ function loadConfig() {
       const data = fs.readFileSync(CONFIG_FILE, 'utf-8');
       const parsed = JSON.parse(data);
       const network = parsed.lockerNetwork || 'ogads';
-      const id = parsed.lockerId || '4o7vvr';
-      const customUrl = parsed.lockerCustomUrl || '';
-      return {
+      const ogadsId = parsed.ogadsLockerId || (network === 'ogads' ? parsed.lockerId : '4o7vvr') || '4o7vvr';
+      const adblueRaw = parsed.adblueLockerId || (network === 'adbluemedia' ? parsed.lockerId : '4654850') || '4654850';
+      const customUrl = parsed.customLockerUrl || parsed.lockerCustomUrl || (network === 'custom' ? parsed.lockerId : '') || '';
+
+      const activeId = network === 'ogads' ? ogadsId : (network === 'adbluemedia' ? adblueRaw : customUrl);
+
+      const cfgObj = {
         lockerNetwork: network,
-        lockerId: id,
-        lockerCustomUrl: customUrl,
+        lockerId: activeId,
+        ogadsLockerId: ogadsId,
+        adblueLockerId: adblueRaw,
+        customLockerUrl: customUrl,
         lockerDelay: parseInt(parsed.lockerDelay, 10) || 35,
         lockerEnabled: parsed.lockerEnabled !== false,
-        lockerUrl: computeLockerUrl(network, id, customUrl),
         updatedAt: parsed.updatedAt || new Date().toISOString()
       };
+      cfgObj.lockerUrl = computeLockerUrl(network, cfgObj);
+      return cfgObj;
     }
   } catch (e) {
     console.error('[Config Error] Could not read config file:', e);
@@ -77,7 +133,9 @@ function loadConfig() {
   return {
     lockerNetwork: 'ogads',
     lockerId: '4o7vvr',
-    lockerCustomUrl: '',
+    ogadsLockerId: '4o7vvr',
+    adblueLockerId: '4654850',
+    customLockerUrl: '',
     lockerDelay: 35,
     lockerEnabled: true,
     lockerUrl: 'https://appcomplete.org/cl/i/4o7vvr',
@@ -87,7 +145,7 @@ function loadConfig() {
 
 function saveConfig(cfg) {
   try {
-    cfg.lockerUrl = computeLockerUrl(cfg.lockerNetwork, cfg.lockerId, cfg.lockerCustomUrl);
+    cfg.lockerUrl = computeLockerUrl(cfg.lockerNetwork, cfg);
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf-8');
   } catch (e) {
     console.error('[Config Error] Could not save config file:', e);
@@ -341,10 +399,12 @@ app.get('/api/config', (req, res) => {
     success: true,
     lockerNetwork: currentConfig.lockerNetwork || 'ogads',
     lockerId: currentConfig.lockerId || '4o7vvr',
-    lockerCustomUrl: currentConfig.lockerCustomUrl || '',
+    ogadsLockerId: currentConfig.ogadsLockerId || '4o7vvr',
+    adblueLockerId: currentConfig.adblueLockerId || '4654850',
+    customLockerUrl: currentConfig.customLockerUrl || '',
     lockerDelay: parseInt(currentConfig.lockerDelay, 10) || 35,
     lockerEnabled: currentConfig.lockerEnabled !== false,
-    lockerUrl: currentConfig.lockerUrl || computeLockerUrl(currentConfig.lockerNetwork, currentConfig.lockerId, currentConfig.lockerCustomUrl),
+    lockerUrl: currentConfig.lockerUrl || computeLockerUrl(currentConfig.lockerNetwork, currentConfig),
     updatedAt: currentConfig.updatedAt
   });
 });
@@ -352,18 +412,40 @@ app.get('/api/config', (req, res) => {
 // Update Config from Admin Dashboard (Handles JSON and Form submissions safely)
 app.post('/api/config', (req, res) => {
   try {
-    const { lockerNetwork, lockerId, lockerCustomUrl, lockerDelay, lockerEnabled } = req.body || {};
+    const { 
+      lockerNetwork, 
+      lockerId, 
+      ogadsLockerId, 
+      adblueLockerId, 
+      customLockerUrl, 
+      lockerCustomUrl, 
+      lockerDelay, 
+      lockerEnabled 
+    } = req.body || {};
 
     if (lockerNetwork && typeof lockerNetwork === 'string') {
       currentConfig.lockerNetwork = lockerNetwork.trim().toLowerCase();
     }
 
-    if (lockerId !== undefined && typeof lockerId === 'string' && lockerId.trim().length > 0) {
-      currentConfig.lockerId = lockerId.trim();
+    if (ogadsLockerId !== undefined && typeof ogadsLockerId === 'string') {
+      currentConfig.ogadsLockerId = ogadsLockerId.trim();
+    }
+    if (adblueLockerId !== undefined && typeof adblueLockerId === 'string') {
+      currentConfig.adblueLockerId = adblueLockerId.trim();
+    }
+    if (customLockerUrl !== undefined || lockerCustomUrl !== undefined) {
+      currentConfig.customLockerUrl = String(customLockerUrl || lockerCustomUrl || '').trim();
     }
 
-    if (lockerCustomUrl !== undefined) {
-      currentConfig.lockerCustomUrl = String(lockerCustomUrl).trim();
+    if (lockerId !== undefined && typeof lockerId === 'string' && lockerId.trim().length > 0) {
+      currentConfig.lockerId = lockerId.trim();
+      if (currentConfig.lockerNetwork === 'ogads') currentConfig.ogadsLockerId = lockerId.trim();
+      if (currentConfig.lockerNetwork === 'adbluemedia') currentConfig.adblueLockerId = lockerId.trim();
+      if (currentConfig.lockerNetwork === 'custom') currentConfig.customLockerUrl = lockerId.trim();
+    } else {
+      if (currentConfig.lockerNetwork === 'ogads') currentConfig.lockerId = currentConfig.ogadsLockerId || '4o7vvr';
+      if (currentConfig.lockerNetwork === 'adbluemedia') currentConfig.lockerId = currentConfig.adblueLockerId || '4654850';
+      if (currentConfig.lockerNetwork === 'custom') currentConfig.lockerId = currentConfig.customLockerUrl || '';
     }
 
     if (lockerDelay !== undefined) {
