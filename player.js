@@ -342,39 +342,42 @@ function changeLanguage(newLang) {
 }
 
 // ==========================================
-// 2. STREAM SERVERS (CLEAN MIRRORS)
+// 2. STREAM SERVERS (CLEAN HIGH-SPEED MIRRORS)
 // ==========================================
 function getStreamServers(season = 1, episode = 1) {
     const isTv = mediaType === "tv";
     return {
+        autoembed: isTv 
+            ? `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://player.autoembed.cc/embed/movie/${mediaId}`,
         vidlink: isTv 
-            ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}?primaryColor=e50914&autoplay=false` 
-            : `https://vidlink.pro/movie/${mediaId}?primaryColor=e50914&autoplay=false`,
+            ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=false` 
+            : `https://vidlink.pro/movie/${mediaId}?primaryColor=e50914&secondaryColor=111111&autoplay=false`,
         embedsu: isTv 
             ? `https://embed.su/embed/tv/${mediaId}/${season}/${episode}` 
             : `https://embed.su/embed/movie/${mediaId}`,
         vidsrc: isTv 
-            ? `https://vidsrc.xyz/embed/tv/${mediaId}/${season}/${episode}` 
-            : `https://vidsrc.xyz/embed/movie/${mediaId}`,
-        autoembed: isTv 
-            ? `https://autoembed.co/tv/tmdb/${mediaId}/${season}/${episode}` 
-            : `https://autoembed.co/movie/tmdb/${mediaId}`
+            ? `https://vidsrc.cc/v2/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://vidsrc.cc/v2/embed/movie/${mediaId}`,
+        multiembed: isTv 
+            ? `https://multiembed.mov/?video_id=${mediaId}&tmdb=1&s=${season}&e=${episode}` 
+            : `https://multiembed.mov/?video_id=${mediaId}&tmdb=1`
     };
 }
 
 function loadStreamServer(serverName) {
-    activeServer = serverName || 'vidlink';
+    activeServer = serverName || 'autoembed';
     const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
     if (iframe) {
-        activeStreamUrl = servers[activeServer] || servers.vidlink;
+        activeStreamUrl = servers[activeServer] || servers.autoembed;
         iframe.src = activeStreamUrl;
     }
 }
 
 function switchServer(serverName, btn) {
     document.querySelectorAll(".server-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+    if (btn) btn.classList.add("active");
     loadStreamServer(serverName);
 }
 
@@ -455,8 +458,8 @@ async function loadMediaDetails() {
         // Set Dynamic SubID Tracking
         updateLockerTracking();
 
-        // Auto-load Server 1 Default (VidLink)
-        loadStreamServer("vidlink");
+        // Auto-load Server 1 Default (AutoEmbed VIP)
+        loadStreamServer("autoembed");
 
         // Save session entry to History
         saveToWatchHistory(data);

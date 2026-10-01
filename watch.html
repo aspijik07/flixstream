@@ -64,7 +64,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- BULLETPROOF ANTI-AD, ANTI-POPUP, AND ANTI-REDIRECT SHIELD -->
+    <!-- BULLETPROOF ZERO-SANDBOX ANTI-AD, ANTI-POPUP, AND ANTI-REDIRECT SHIELD -->
     <script>
         (function() {
             try {
@@ -95,15 +95,17 @@
                     return fakeWindowMock;
                 };
 
-                // 3. Reclaim window focus if an iframe ad tries to blur parent
+                // 3. Reclaim window focus if an iframe ad tries to blur parent or pop-under
                 const handleBlur = function() {
                     setTimeout(function() {
-                        window.focus();
-                    }, 25);
+                        try { window.focus(); } catch(e) {}
+                    }, 20);
                 };
 
-                // 4. Prevent iframe from hijacking parent window URL
+                // 4. Prevent rogue scripts from hijacking parent window navigation
                 const handleBeforeUnload = function(e) {
+                    // Do not block internal navigation
+                    if (document.activeElement && document.activeElement.tagName === 'A') return;
                     e.preventDefault();
                 };
 
@@ -210,7 +212,7 @@
         <!-- Player Wrapper -->
         <div class="player-wrapper">
             
-            <!-- Video Iframe with Strict Popup Restriction -->
+            <!-- Video Iframe with Zero-Sandbox Native Playback & Parent Ad Shield -->
             <iframe id="movie-iframe" 
                     src="" 
                     title="Stream Player"
@@ -219,7 +221,6 @@
                     allowfullscreen="true"
                     webkitallowfullscreen="true"
                     mozallowfullscreen="true"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
                     referrerpolicy="no-referrer"
                     loading="eager">
             </iframe>
@@ -281,16 +282,17 @@
                 <line x1="12" y1="8" x2="12" y2="12"></line>
                 <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <span id="notice-banner-text" data-i18n="notice_banner">STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between Server 1 (VidLink), Server 2 (Embed.su), Server 3 (VidSrc), or Server 4 (AutoEmbed) below.</span>
+            <span id="notice-banner-text" data-i18n="notice_banner">STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between Server 1 (AutoEmbed), Server 2 (VidLink), Server 3 (Embed.su), or Server 4 (VidSrc) below.</span>
         </div>
 
         <!-- Server Switcher Buttons -->
         <div class="servers-bar">
             <span class="server-label" data-i18n="label_switch_server">Switch Mirror:</span>
-            <button class="server-btn active" onclick="switchServer('vidlink', this)">Server 1 (VidLink HD)</button>
-            <button class="server-btn" onclick="switchServer('embedsu', this)">Server 2 (Embed.su HD)</button>
-            <button class="server-btn" onclick="switchServer('vidsrc', this)">Server 3 (VidSrc XYZ)</button>
-            <button class="server-btn" onclick="switchServer('autoembed', this)">Server 4 (AutoEmbed VIP)</button>
+            <button class="server-btn active" onclick="switchServer('autoembed', this)">Server 1 (AutoEmbed VIP)</button>
+            <button class="server-btn" onclick="switchServer('vidlink', this)">Server 2 (VidLink HD)</button>
+            <button class="server-btn" onclick="switchServer('embedsu', this)">Server 3 (Embed.su HD)</button>
+            <button class="server-btn" onclick="switchServer('vidsrc', this)">Server 4 (VidSrc CC)</button>
+            <button class="server-btn" onclick="switchServer('multiembed', this)">Server 5 (SuperEmbed Multi)</button>
         </div>
 
         <!-- TV SERIES EPISODES BROWSER -->
