@@ -681,18 +681,79 @@ function getFlixVisitorId() {
     }
 }
 
-// Background public IP detection for 100% accurate radar IP display
-(function detectPublicIp() {
-    fetch('https://api.ipify.org?format=json', { cache: 'no-store' })
-        .then(r => r.json())
-        .then(d => {
-            if (d && d.ip) {
-                detectedClientIp = d.ip;
+// Client Geo & IP Storage
+let detectedClientIp = '';
+let detectedCountryCode = '';
+let detectedCountryName = '';
+let detectedCity = '';
+
+// Universal ISO-3166 Emoji Flag Generator
+function getCountryFlagEmoji(code) {
+    if (!code || typeof code !== 'string' || code.length !== 2) return '🌐';
+    try {
+        return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt(0)));
+    } catch(e) {
+        return '🌐';
+    }
+}
+
+// Multi-Source Hyper-Accurate GeoIP Resolution
+async function detectPublicGeo() {
+    try {
+        const r1 = await fetch('https://api.country.is/', { cache: 'no-store' });
+        if (r1.ok) {
+            const d1 = await r1.json();
+            if (d1 && d1.country) {
+                detectedCountryCode = d1.country;
+                detectedClientIp = d1.ip || '';
+                sendCatalogHeartbeat('geo_detected');
+                return;
+            }
+        }
+    } catch(e) {}
+
+    try {
+        const r2 = await fetch('https://ipwho.is/', { cache: 'no-store' });
+        if (r2.ok) {
+            const d2 = await r2.json();
+            if (d2 && d2.country_code) {
+                detectedCountryCode = d2.country_code;
+                detectedCountryName = d2.country;
+                detectedCity = d2.city;
+                detectedClientIp = d2.ip || '';
+                sendCatalogHeartbeat('geo_detected');
+                return;
+            }
+        }
+    } catch(e) {}
+
+    try {
+        const r3 = await fetch('https://freeipapi.com/api/json/', { cache: 'no-store' });
+        if (r3.ok) {
+            const d3 = await r3.json();
+            if (d3 && d3.countryCode) {
+                detectedCountryCode = d3.countryCode;
+                detectedCountryName = d3.countryName;
+                detectedCity = d3.cityName;
+                detectedClientIp = d3.ipAddress || '';
+                sendCatalogHeartbeat('geo_detected');
+                return;
+            }
+        }
+    } catch(e) {}
+
+    try {
+        const r4 = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+        if (r4.ok) {
+            const d4 = await r4.json();
+            if (d4 && d4.ip) {
+                detectedClientIp = d4.ip;
                 sendCatalogHeartbeat('ip_detected');
             }
-        })
-        .catch(() => {});
-})();
+        }
+    } catch(e) {}
+}
+detectPublicGeo();
 
 function sendCatalogHeartbeat(action = 'heartbeat', customTitle = null, customId = null) {
     try {
@@ -710,6 +771,9 @@ function sendCatalogHeartbeat(action = 'heartbeat', customTitle = null, customId
             mediaType: 'movie',
             status: 'browsing',
             clientIp: detectedClientIp || '',
+            countryCode: detectedCountryCode || '',
+            countryName: detectedCountryName || '',
+            clientCity: detectedCity || '',
             clientDevice: device,
             lang: currentLang,
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',

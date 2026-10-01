@@ -1671,14 +1671,31 @@
         const clientTrackedSessions = new Map();
         let clientActivityLogs = [];
 
+        function getCountryFlagEmoji(code) {
+            if (!code || typeof code !== 'string' || code.length !== 2) return '🌐';
+            try {
+                return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt(0)));
+            } catch(e) {
+                return '🌐';
+            }
+        }
+
         function addClientSession(session) {
             if (!session || !session.sessionId) return;
             const now = Date.now();
             const existing = clientTrackedSessions.get(session.sessionId);
             const firstSeen = existing ? existing.firstSeen : now;
             
+            let countryObj = session.country;
+            if (!countryObj || !countryObj.flag) {
+                const cCode = session.countryCode || (countryObj && countryObj.code) || 'MA';
+                const cName = session.countryName || (countryObj && countryObj.name) || cCode;
+                countryObj = { code: cCode, name: cName, flag: getCountryFlagEmoji(cCode) };
+            }
+
             const enriched = {
                 ...session,
+                country: countryObj,
                 firstSeen,
                 lastSeen: now,
                 duration: Math.max(0, Math.floor((now - firstSeen) / 1000)),
@@ -1691,8 +1708,8 @@
                 clientActivityLogs.unshift({
                     id: 'act-' + now + '-' + Math.random().toString(36).substring(2, 5),
                     timestamp: new Date().toISOString(),
-                    ip: session.ip || '105.158.42.112',
-                    country: session.country || { code: 'MA', name: 'Morocco', flag: '🇲🇦' },
+                    ip: session.ip || session.clientIp || '105.158.42.112',
+                    country: countryObj,
                     mediaTitle: session.mediaTitle || 'Playing 1080p Stream',
                     mediaType: session.mediaType || 'movie',
                     device: session.device || 'Mobile',
@@ -2390,11 +2407,38 @@
 
         function initCloudTelemetryStream() {
             try {
-                // 1. Initial & Continuous Polling (Works 100% on Brave, Chrome, Safari, Mobile)
-                pollCloudTelemetryMessages();
-                setInterval(pollCloudTelemetryMessages, 2500);
+                // 1. Local Node.js SSE Stream for instantaneous live radar updates
+                if (typeof EventSource !== 'undefined') {
+                    try {
+                        const nodeEs = new EventSource('/api/admin/radar/stream');
+                        nodeEs.onmessage = (e) => {
+                            try {
+                                const data = JSON.parse(e.data);
+                                if (data && data.success) {
+                                    cachedRadarData = data;
+                                    const beaconText = document.getElementById('beacon-text');
+                                    const beaconDot = document.querySelector('.pulse-dot');
+                                    if (beaconText) beaconText.innerText = 'RADAR LIVE (REAL-TIME SSE)';
+                                    if (beaconDot) {
+                                        beaconDot.style.background = '#10b981';
+                                        beaconDot.style.boxShadow = '0 0 10px #10b981';
+                                    }
+                                    try { renderKPIs(data); } catch(errKPI) {}
+                                    try { renderLockerControls(data.config); } catch(errLocker) {}
+                                    try { renderCountryBreakdown(data.countries, data.devices, data.totalOnline); } catch(errCountry) {}
+                                    try { renderRadarTable(data.sessions); } catch(errTable) {}
+                                    try { renderActivityLog(data.recentActivity); } catch(errLog) {}
+                                }
+                            } catch(err) {}
+                        };
+                    } catch(e) {}
+                }
 
-                // 2. Real-Time Server-Sent Events (SSE) Stream
+                // 2. Initial & Continuous Polling (Works on Brave, Chrome, Safari, Mobile)
+                pollCloudTelemetryMessages();
+                setInterval(pollCloudTelemetryMessages, 2000);
+
+                // 3. Real-Time Server-Sent Events (SSE) Stream for Cloud Bridge
                 if (typeof EventSource !== 'undefined') {
                     try {
                         const es = new EventSource('https://ntfy.sh/flix_telemetry_500get/sse');
@@ -2541,7 +2585,7 @@
 
         autoSyncTimer = setInterval(() => {
             fetchRadarData(false);
-        }, 2000);
+        }, 1000);
     </script>
 </body>
 </html>

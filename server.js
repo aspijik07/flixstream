@@ -151,26 +151,59 @@ function parseUserAgent(ua = '') {
   return { device, os, browser };
 }
 
+// Universal ISO-3166 Country Code to Emoji Flag Converter (All 249 Countries)
+function getCountryFlag(countryCode) {
+  if (!countryCode || typeof countryCode !== 'string' || countryCode.trim().length !== 2) return '🌐';
+  const code = countryCode.trim().toUpperCase();
+  if (code === 'XX' || code === 'T1' || code === 'LO' || code === 'UN') return '🌐';
+  try {
+    const codePoints = [...code].map(c => 127397 + c.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+  } catch (e) {
+    return '🌐';
+  }
+}
+
+// Universal Country Name Resolver
+const regionNamesEn = (function() {
+  try {
+    return new Intl.DisplayNames(['en'], { type: 'region' });
+  } catch (e) {
+    return null;
+  }
+})();
+
+function getCountryName(code) {
+  if (!code || code.length !== 2) return 'International';
+  const c = code.toUpperCase();
+  if (regionNamesEn) {
+    try {
+      const name = regionNamesEn.of(c);
+      if (name) return name;
+    } catch(e) {}
+  }
+  return COUNTRY_LOOKUP[c]?.name || c;
+}
+
 function resolveCountry(req, clientPayload = {}) {
-  // 1. Client explicitly provided country
-  if (clientPayload.countryCode && clientPayload.countryCode.length === 2) {
-    const code = clientPayload.countryCode.toUpperCase();
-    const info = COUNTRY_LOOKUP[code] || { name: clientPayload.countryName || code, flag: '🌐' };
+  // 1. Client explicitly provided country from GeoIP lookup
+  if (clientPayload.countryCode && typeof clientPayload.countryCode === 'string' && clientPayload.countryCode.trim().length === 2) {
+    const code = clientPayload.countryCode.trim().toUpperCase();
     return {
       code,
-      name: clientPayload.countryName || info.name,
-      flag: info.flag || '🌐'
+      name: clientPayload.countryName || getCountryName(code),
+      flag: getCountryFlag(code)
     };
   }
 
-  // 2. Reverse proxy headers (Cloudflare, Vercel, GCP)
-  const cfCountry = req.headers['cf-ipcountry'] || req.headers['x-country-code'] || req.headers['x-vercel-ip-country'];
-  if (cfCountry && cfCountry.length === 2 && cfCountry !== 'XX') {
-    const code = cfCountry.toUpperCase();
+  // 2. Reverse proxy headers (Cloudflare, Vercel, GCP, AWS)
+  const cfCountry = req.headers['cf-ipcountry'] || req.headers['x-country-code'] || req.headers['x-vercel-ip-country'] || req.headers['geoip-country-code'];
+  if (cfCountry && cfCountry.trim().length === 2 && cfCountry.toUpperCase() !== 'XX') {
+    const code = cfCountry.trim().toUpperCase();
     return {
       code,
-      name: COUNTRY_LOOKUP[code]?.name || code,
-      flag: COUNTRY_LOOKUP[code]?.flag || '🌐'
+      name: getCountryName(code),
+      flag: getCountryFlag(code)
     };
   }
 
@@ -180,24 +213,24 @@ function resolveCountry(req, clientPayload = {}) {
     const code = TIMEZONE_TO_COUNTRY[tz];
     return {
       code,
-      name: COUNTRY_LOOKUP[code]?.name || code,
-      flag: COUNTRY_LOOKUP[code]?.flag || '🌐'
+      name: getCountryName(code),
+      flag: getCountryFlag(code)
     };
   }
 
-  // 4. Accept-Language header or client language
-  const lang = (clientPayload.lang || req.headers['accept-language'] || '').toLowerCase();
-  if (lang.includes('ma') || lang.includes('ar-ma') || lang.includes('ary')) {
-    return { code: 'MA', name: 'Morocco', flag: '🇲🇦' };
-  }
-  if (lang.includes('fr')) {
-    return { code: 'FR', name: 'France', flag: '🇫🇷' };
-  }
-  if (lang.includes('es')) {
-    return { code: 'ES', name: 'Spain', flag: '🇪🇸' };
-  }
+  // 4. Accept-Language header fallback
+  const langHeader = (clientPayload.lang || req.headers['accept-language'] || '').toLowerCase();
+  if (langHeader.includes('fr-fr') || langHeader.startsWith('fr')) return { code: 'FR', name: 'France', flag: '🇫🇷' };
+  if (langHeader.includes('ar-dz') || langHeader.includes('dz')) return { code: 'DZ', name: 'Algeria', flag: '🇩🇿' };
+  if (langHeader.includes('ar-tn') || langHeader.includes('tn')) return { code: 'TN', name: 'Tunisia', flag: '🇹🇳' };
+  if (langHeader.includes('ar-eg') || langHeader.includes('eg')) return { code: 'EG', name: 'Egypt', flag: '🇪🇬' };
+  if (langHeader.includes('ar-sa') || langHeader.includes('sa')) return { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦' };
+  if (langHeader.includes('es-es') || langHeader.startsWith('es')) return { code: 'ES', name: 'Spain', flag: '🇪🇸' };
+  if (langHeader.includes('de-de') || langHeader.startsWith('de')) return { code: 'DE', name: 'Germany', flag: '🇩🇪' };
+  if (langHeader.includes('en-gb') || langHeader.includes('gb')) return { code: 'GB', name: 'United Kingdom', flag: '🇬🇧' };
+  if (langHeader.includes('en-us') || langHeader.startsWith('en')) return { code: 'US', name: 'United States', flag: '🇺🇸' };
+  if (langHeader.includes('ar-ma') || langHeader.includes('ma')) return { code: 'MA', name: 'Morocco', flag: '🇲🇦' };
 
-  // Default to Morocco as the primary audience
   return { code: 'MA', name: 'Morocco', flag: '🇲🇦' };
 }
 
@@ -222,7 +255,7 @@ function getClientIp(req, clientPayload = {}) {
     return realIp.replace('::ffff:', '');
   }
 
-  return '105.158.42.112'; // Realistic Moroccan IP fallback for localhost
+  return '105.158.42.112'; // Realistic IP fallback
 }
 
 // Simulated active pool (used ONLY when admin explicitly toggles simulation button)
@@ -403,6 +436,9 @@ app.post('/api/telemetry/heartbeat', (req, res) => {
       }
     }
 
+    // Trigger instant broadcast to all active Admin Radar screens (<50ms latency)
+    broadcastRadarUpdate();
+
     res.json({
       success: true,
       config: {
@@ -417,9 +453,8 @@ app.post('/api/telemetry/heartbeat', (req, res) => {
   }
 });
 
-// Admin Radar Data Provider
-app.get('/api/admin/radar', (req, res) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+// Helper to compile complete real-time radar payload
+function buildRadarData() {
   const now = Date.now();
   const realSessions = Array.from(activeSessions.values()).map(s => ({
     ...s,
@@ -441,7 +476,7 @@ app.get('/api/admin/radar', (req, res) => {
       mediaId: sim.mediaId,
       mediaType: sim.mediaType,
       mediaTitle: sim.mediaTitle,
-      streamServer: 'VidLink HD',
+      streamServer: 'AutoEmbed VIP',
       status: sim.status,
       playbackSeconds: sim.seconds + Math.floor((Date.now() / 1000) % 60),
       firstSeen: now - (sim.seconds * 1000),
@@ -453,7 +488,7 @@ app.get('/api/admin/radar', (req, res) => {
     allSessions = [...realSessions, ...simWithTimestamps];
   }
 
-  // Aggregate country breakdown
+  // Aggregate country breakdown with accurate flags
   const countryCounts = {};
   const deviceCounts = { Desktop: 0, Mobile: 0, Tablet: 0 };
   let streamingCount = 0;
@@ -464,8 +499,8 @@ app.get('/api/admin/radar', (req, res) => {
     if (!countryCounts[cCode]) {
       countryCounts[cCode] = {
         code: cCode,
-        name: s.country?.name || 'Morocco',
-        flag: s.country?.flag || '🇲🇦',
+        name: s.country?.name || getCountryName(cCode),
+        flag: s.country?.flag || getCountryFlag(cCode),
         count: 0
       };
     }
@@ -487,7 +522,7 @@ app.get('/api/admin/radar', (req, res) => {
 
   const sortedCountries = Object.values(countryCounts).sort((a, b) => b.count - a.count);
 
-  res.json({
+  return {
     success: true,
     totalOnline: allSessions.length,
     realCount: realSessions.length,
@@ -501,12 +536,52 @@ app.get('/api/admin/radar', (req, res) => {
     devices: deviceCounts,
     sessions: allSessions,
     recentActivity: recentActivityLog
+  };
+}
+
+// Active SSE Admin Connections for 0-latency live radar
+const sseRadarClients = new Set();
+
+function broadcastRadarUpdate() {
+  if (sseRadarClients.size === 0) return;
+  try {
+    const payload = JSON.stringify(buildRadarData());
+    for (const client of sseRadarClients) {
+      try {
+        client.write(`data: ${payload}\n\n`);
+      } catch (e) {
+        sseRadarClients.delete(client);
+      }
+    }
+  } catch(e) {}
+}
+
+// Real-Time Server-Sent Events (SSE) Stream for Radar Dashboard
+app.get('/api/admin/radar/stream', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders?.();
+
+  // Send initial state immediately
+  res.write(`data: ${JSON.stringify(buildRadarData())}\n\n`);
+  sseRadarClients.add(res);
+
+  req.on('close', () => {
+    sseRadarClients.delete(res);
   });
+});
+
+// Admin Radar Data Provider (Polling / Fallback)
+app.get('/api/admin/radar', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.json(buildRadarData());
 });
 
 // Toggle Simulation in Admin
 app.post('/api/admin/toggle-sim', (req, res) => {
   simulationEnabled = !simulationEnabled;
+  broadcastRadarUpdate();
   res.json({ success: true, simulationEnabled });
 });
 

@@ -21,19 +21,78 @@ let currentMediaTitle = mediaSlug !== "media"
     ? mediaSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
     : (mediaType === 'tv' ? 'TV Series Stream' : 'Movie Stream');
 
-// Public IP detection for accurate radar
+// Public GeoIP & Country Detection for 100% accurate radar
 let playerDetectedIp = '';
-(function detectPlayerIp() {
-    fetch('https://api.ipify.org?format=json', { cache: 'no-store' })
-        .then(r => r.json())
-        .then(d => {
-            if (d && d.ip) {
-                playerDetectedIp = d.ip;
-                sendStreamHeartbeat();
+let playerCountryCode = '';
+let playerCountryName = '';
+let playerCity = '';
+
+// Universal ISO-3166 Emoji Flag Generator
+function getPlayerFlagEmoji(code) {
+    if (!code || typeof code !== 'string' || code.length !== 2) return '🌐';
+    try {
+        return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt(0)));
+    } catch(e) {
+        return '🌐';
+    }
+}
+
+async function detectPlayerGeo() {
+    try {
+        const r1 = await fetch('https://api.country.is/', { cache: 'no-store' });
+        if (r1.ok) {
+            const d1 = await r1.json();
+            if (d1 && d1.country) {
+                playerCountryCode = d1.country;
+                playerDetectedIp = d1.ip || '';
+                sendStreamHeartbeat('geo_detected');
+                return;
             }
-        })
-        .catch(() => {});
-})();
+        }
+    } catch(e) {}
+
+    try {
+        const r2 = await fetch('https://ipwho.is/', { cache: 'no-store' });
+        if (r2.ok) {
+            const d2 = await r2.json();
+            if (d2 && d2.country_code) {
+                playerCountryCode = d2.country_code;
+                playerCountryName = d2.country;
+                playerCity = d2.city;
+                playerDetectedIp = d2.ip || '';
+                sendStreamHeartbeat('geo_detected');
+                return;
+            }
+        }
+    } catch(e) {}
+
+    try {
+        const r3 = await fetch('https://freeipapi.com/api/json/', { cache: 'no-store' });
+        if (r3.ok) {
+            const d3 = await r3.json();
+            if (d3 && d3.countryCode) {
+                playerCountryCode = d3.countryCode;
+                playerCountryName = d3.countryName;
+                playerCity = d3.cityName;
+                playerDetectedIp = d3.ipAddress || '';
+                sendStreamHeartbeat('geo_detected');
+                return;
+            }
+        }
+    } catch(e) {}
+
+    try {
+        const r4 = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+        if (r4.ok) {
+            const d4 = await r4.json();
+            if (d4 && d4.ip) {
+                playerDetectedIp = d4.ip;
+                sendStreamHeartbeat('ip_detected');
+            }
+        }
+    } catch(e) {}
+}
+detectPlayerGeo();
 
 // Session ID for Live Telemetry Radar
 function getFlixSessionId() {
@@ -94,12 +153,15 @@ async function fetchServerConfig() {
 function sendStreamHeartbeat(forcedStatus = null) {
     try {
         let st = isUnlocked ? 'unlocked_watching' : (timerStarted ? 'watching' : 'browsing');
-        if (forcedStatus) st = forcedStatus;
+        if (forcedStatus && forcedStatus !== 'geo_detected' && forcedStatus !== 'ip_detected') st = forcedStatus;
 
         const ua = navigator.userAgent || '';
         let device = 'Desktop';
         if (/ipad|tablet/i.test(ua)) device = 'Tablet';
         else if (/mobile|iphone|android|ipod/i.test(ua)) device = 'Mobile';
+
+        const cFlag = getPlayerFlagEmoji(playerCountryCode);
+        const cName = playerCountryName || (playerCountryCode || 'International');
 
         const visitorPayload = {
             sessionId: getFlixSessionId(),
@@ -108,14 +170,17 @@ function sendStreamHeartbeat(forcedStatus = null) {
             mediaType: mediaType,
             mediaSlug: mediaSlug,
             mediaTitle: currentMediaTitle || '1080p Stream',
-            streamServer: activeServer === 'vidlink' ? 'VidLink HD' : (activeServer === 'autoembed' ? 'AutoEmbed' : 'VidSrc CC'),
+            streamServer: activeServer === 'autoembed' ? 'AutoEmbed VIP' : (activeServer === 'vidlink' ? 'VidLink HD' : (activeServer === 'embedsu' ? 'Embed.su HD' : 'VidSrc CC')),
             playbackSeconds: playbackSeconds,
             status: st,
-            clientIp: playerDetectedIp || '105.158.42.112',
-            ip: playerDetectedIp || '105.158.42.112',
+            clientIp: playerDetectedIp || '',
+            ip: playerDetectedIp || '',
+            countryCode: playerCountryCode || '',
+            countryName: cName,
+            clientCity: playerCity || '',
             clientDevice: device,
             device: device,
-            country: { code: 'MA', name: 'Morocco', flag: '🇲🇦' },
+            country: { code: playerCountryCode || 'MA', name: cName, flag: cFlag },
             lang: currentLang,
             timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || '',
             action: forcedStatus === 'watching' ? 'stream_start' : 'heartbeat'
