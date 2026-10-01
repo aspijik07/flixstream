@@ -31,15 +31,43 @@ app.use((req, res, next) => {
 // ==========================================
 const CONFIG_FILE = path.join(__dirname, 'locker-config.json');
 
+function computeLockerUrl(network = 'ogads', id = '4o7vvr', customUrl = '') {
+  const cleanId = String(id || '').trim();
+  const cleanCustom = String(customUrl || '').trim();
+
+  if (network === 'custom' || cleanCustom.startsWith('http')) {
+    return cleanCustom || cleanId || 'https://appcomplete.org/cl/i/4o7vvr';
+  }
+
+  if (network === 'adbluemedia') {
+    if (cleanId.startsWith('http')) return cleanId;
+    // Standard AdBlueMedia / CPABuild formats
+    if (/^[0-9]+$/.test(cleanId)) {
+      return `https://adbluemedia.com/cl.php?id=${encodeURIComponent(cleanId)}`;
+    }
+    return `https://d12m39r9m90s76.cloudfront.net/?public_key=${encodeURIComponent(cleanId)}`;
+  }
+
+  // Default: OGAds
+  if (cleanId.startsWith('http')) return cleanId;
+  return `https://appcomplete.org/cl/i/${encodeURIComponent(cleanId || '4o7vvr')}`;
+}
+
 function loadConfig() {
   try {
     if (fs.existsSync(CONFIG_FILE)) {
       const data = fs.readFileSync(CONFIG_FILE, 'utf-8');
       const parsed = JSON.parse(data);
+      const network = parsed.lockerNetwork || 'ogads';
+      const id = parsed.lockerId || '4o7vvr';
+      const customUrl = parsed.lockerCustomUrl || '';
       return {
-        lockerId: parsed.lockerId || '4o7vvr',
+        lockerNetwork: network,
+        lockerId: id,
+        lockerCustomUrl: customUrl,
         lockerDelay: parseInt(parsed.lockerDelay, 10) || 35,
         lockerEnabled: parsed.lockerEnabled !== false,
+        lockerUrl: computeLockerUrl(network, id, customUrl),
         updatedAt: parsed.updatedAt || new Date().toISOString()
       };
     }
@@ -47,15 +75,19 @@ function loadConfig() {
     console.error('[Config Error] Could not read config file:', e);
   }
   return {
+    lockerNetwork: 'ogads',
     lockerId: '4o7vvr',
+    lockerCustomUrl: '',
     lockerDelay: 35,
     lockerEnabled: true,
+    lockerUrl: 'https://appcomplete.org/cl/i/4o7vvr',
     updatedAt: new Date().toISOString()
   };
 }
 
 function saveConfig(cfg) {
   try {
+    cfg.lockerUrl = computeLockerUrl(cfg.lockerNetwork, cfg.lockerId, cfg.lockerCustomUrl);
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(cfg, null, 2), 'utf-8');
   } catch (e) {
     console.error('[Config Error] Could not save config file:', e);
@@ -302,14 +334,17 @@ app.post('/api/admin/login', (req, res) => {
   });
 });
 
-// Config for Player (Locker ID & Delay)
+// Config for Player (Locker ID, Network, Delay & Status)
 app.get('/api/config', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.json({
     success: true,
+    lockerNetwork: currentConfig.lockerNetwork || 'ogads',
     lockerId: currentConfig.lockerId || '4o7vvr',
+    lockerCustomUrl: currentConfig.lockerCustomUrl || '',
     lockerDelay: parseInt(currentConfig.lockerDelay, 10) || 35,
     lockerEnabled: currentConfig.lockerEnabled !== false,
+    lockerUrl: currentConfig.lockerUrl || computeLockerUrl(currentConfig.lockerNetwork, currentConfig.lockerId, currentConfig.lockerCustomUrl),
     updatedAt: currentConfig.updatedAt
   });
 });
@@ -317,10 +352,18 @@ app.get('/api/config', (req, res) => {
 // Update Config from Admin Dashboard (Handles JSON and Form submissions safely)
 app.post('/api/config', (req, res) => {
   try {
-    const { lockerId, lockerDelay, lockerEnabled } = req.body || {};
+    const { lockerNetwork, lockerId, lockerCustomUrl, lockerDelay, lockerEnabled } = req.body || {};
 
-    if (lockerId && typeof lockerId === 'string' && lockerId.trim().length > 0) {
+    if (lockerNetwork && typeof lockerNetwork === 'string') {
+      currentConfig.lockerNetwork = lockerNetwork.trim().toLowerCase();
+    }
+
+    if (lockerId !== undefined && typeof lockerId === 'string' && lockerId.trim().length > 0) {
       currentConfig.lockerId = lockerId.trim();
+    }
+
+    if (lockerCustomUrl !== undefined) {
+      currentConfig.lockerCustomUrl = String(lockerCustomUrl).trim();
     }
 
     if (lockerDelay !== undefined) {
@@ -332,20 +375,23 @@ app.post('/api/config', (req, res) => {
 
     if (typeof lockerEnabled === 'boolean') {
       currentConfig.lockerEnabled = lockerEnabled;
-    } else if (lockerEnabled === 'true' || lockerEnabled === '1') {
+    } else if (lockerEnabled === 'true' || lockerEnabled === '1' || lockerEnabled === 1) {
       currentConfig.lockerEnabled = true;
-    } else if (lockerEnabled === 'false' || lockerEnabled === '0') {
+    } else if (lockerEnabled === 'false' || lockerEnabled === '0' || lockerEnabled === 0) {
       currentConfig.lockerEnabled = false;
     }
 
     currentConfig.updatedAt = new Date().toISOString();
     saveConfig(currentConfig);
 
-    console.log(`[Config Updated] Locker ID: "${currentConfig.lockerId}" | Delay: ${currentConfig.lockerDelay}s`);
+    // Broadcast live config & radar update
+    broadcastRadarUpdate();
+
+    console.log(`[Config Updated] Network: ${currentConfig.lockerNetwork} | Enabled: ${currentConfig.lockerEnabled} | ID: "${currentConfig.lockerId}" | Delay: ${currentConfig.lockerDelay}s`);
 
     res.json({
       success: true,
-      message: 'Locker configuration successfully saved and applied!',
+      message: 'Locker configuration successfully saved and applied live!',
       config: currentConfig
     });
   } catch (err) {

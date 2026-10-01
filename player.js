@@ -2,10 +2,41 @@
 // 1. CONFIGURATION & I18N
 // ==========================================
 const TMDB_API_KEY = "abdde991ce2a56652d4c0ca156db7836";
-let OGADS_LOCKER_ID = "4o7vvr"; 
-let OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
+let LOCKER_NETWORK = "ogads"; // "ogads" | "adbluemedia" | "custom"
+let LOCKER_ID = "4o7vvr"; 
+let LOCKER_CUSTOM_URL = "";
 let LOCKER_DELAY_SECONDS = 35;
 let LOCKER_ENABLED = true;
+
+// Helper to compute locker URL based on network & ID
+function computePlayerLockerUrl(network, id, customUrl, subTracking, mId) {
+    const cleanId = String(id || '').trim();
+    const cleanCustom = String(customUrl || '').trim();
+
+    if (network === 'custom' || cleanCustom.startsWith('http')) {
+        const target = cleanCustom || cleanId || 'https://appcomplete.org/cl/i/4o7vvr';
+        const sep = target.includes('?') ? '&' : '?';
+        return `${target}${sep}sub1=${encodeURIComponent(subTracking)}&sub2=${encodeURIComponent(mId || '')}`;
+    }
+
+    if (network === 'adbluemedia') {
+        if (cleanId.startsWith('http')) {
+            const sep = cleanId.includes('?') ? '&' : '?';
+            return `${cleanId}${sep}s1=${encodeURIComponent(subTracking)}&s2=${encodeURIComponent(mId || '')}`;
+        }
+        if (/^[0-9]+$/.test(cleanId)) {
+            return `https://adbluemedia.com/cl.php?id=${encodeURIComponent(cleanId)}&s1=${encodeURIComponent(subTracking)}&s2=${encodeURIComponent(mId || '')}`;
+        }
+        return `https://d12m39r9m90s76.cloudfront.net/?public_key=${encodeURIComponent(cleanId)}&s1=${encodeURIComponent(subTracking)}&s2=${encodeURIComponent(mId || '')}`;
+    }
+
+    // Default: OGAds
+    if (cleanId.startsWith('http')) {
+        const sep = cleanId.includes('?') ? '&' : '?';
+        return `${cleanId}${sep}aff_sub=${encodeURIComponent(subTracking)}&aff_sub2=${encodeURIComponent(mId || '')}`;
+    }
+    return `https://appcomplete.org/cl/i/${encodeURIComponent(cleanId || '4o7vvr')}?aff_sub=${encodeURIComponent(subTracking)}&aff_sub2=${encodeURIComponent(mId || '')}`;
+}
 
 // Parse URL Parameters
 const urlParams = new URLSearchParams(window.location.search);
@@ -115,13 +146,11 @@ async function fetchServerConfig() {
         const localCached = localStorage.getItem('flix_locker_config');
         if (localCached) {
             const parsed = JSON.parse(localCached);
-            if (parsed.lockerId) {
-                OGADS_LOCKER_ID = parsed.lockerId;
-                OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
-            }
-            if (parsed.lockerDelay !== undefined) {
-                LOCKER_DELAY_SECONDS = parseInt(parsed.lockerDelay, 10) || 35;
-            }
+            if (parsed.lockerNetwork) LOCKER_NETWORK = parsed.lockerNetwork;
+            if (parsed.lockerId) LOCKER_ID = parsed.lockerId;
+            if (parsed.lockerCustomUrl) LOCKER_CUSTOM_URL = parsed.lockerCustomUrl;
+            if (parsed.lockerDelay !== undefined) LOCKER_DELAY_SECONDS = parseInt(parsed.lockerDelay, 10) || 35;
+            if (parsed.lockerEnabled !== undefined) LOCKER_ENABLED = parsed.lockerEnabled !== false;
         }
 
         const res = await fetch('/api/config?t=' + Date.now(), {
@@ -131,16 +160,11 @@ async function fetchServerConfig() {
             const rawText = await res.text();
             try {
                 const data = JSON.parse(rawText);
-                if (data && data.lockerId) {
-                    OGADS_LOCKER_ID = data.lockerId;
-                    OGADS_BASE_URL = `https://appcomplete.org/cl/i/${OGADS_LOCKER_ID}`;
-                }
-                if (data && data.lockerDelay !== undefined) {
-                    LOCKER_DELAY_SECONDS = parseInt(data.lockerDelay, 10) || 35;
-                }
-                if (data && data.lockerEnabled !== undefined) {
-                    LOCKER_ENABLED = data.lockerEnabled;
-                }
+                if (data && data.lockerNetwork) LOCKER_NETWORK = data.lockerNetwork;
+                if (data && data.lockerId) LOCKER_ID = data.lockerId;
+                if (data && data.lockerCustomUrl !== undefined) LOCKER_CUSTOM_URL = data.lockerCustomUrl;
+                if (data && data.lockerDelay !== undefined) LOCKER_DELAY_SECONDS = parseInt(data.lockerDelay, 10) || 35;
+                if (data && data.lockerEnabled !== undefined) LOCKER_ENABLED = data.lockerEnabled !== false;
             } catch(jsonErr) {}
             updateLockerTracking();
         }
@@ -618,10 +642,14 @@ function updateLockerTracking() {
         ? `${mediaSlug}-s${currentSeason}e${currentEpisode}-${currentLang}` 
         : `${mediaSlug}-${currentLang}`;
     
-    const dynamicUrl = `${OGADS_BASE_URL}?aff_sub=${encodeURIComponent(subTracking)}&aff_sub2=${encodeURIComponent(mediaId)}`;
+    const dynamicUrl = computePlayerLockerUrl(LOCKER_NETWORK, LOCKER_ID, LOCKER_CUSTOM_URL, subTracking, mediaId);
     const embedFrame = document.getElementById("ogads-embed-frame");
     if (embedFrame) {
         embedFrame.src = dynamicUrl;
+    }
+    const directBtn = document.getElementById("ogads-direct-btn");
+    if (directBtn) {
+        directBtn.href = dynamicUrl;
     }
 }
 

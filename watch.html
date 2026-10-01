@@ -187,7 +187,11 @@
     <!-- Stylesheet with Cache-Buster v25.0 -->
     <link rel="stylesheet" href="style.css?v=25.0">
 
-    <!-- Immediate Stream Radar Beacon -->
+    <!-- 100% Privacy-Friendly Real-Time Analytics by SimpleAnalytics -->
+    <script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+    <noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade" /></noscript>
+
+    <!-- Immediate Stream Radar Beacon & SimpleAnalytics Stream Event -->
     <script>
         (function() {
             try {
@@ -199,6 +203,7 @@
                 const p = new URLSearchParams(window.location.search);
                 const mid = p.get('id');
                 const mslug = p.get('slug') || 'Movie';
+                const mTitle = mslug.replace(/-/g, ' ').replace(/\b\w/g, function(l){ return l.toUpperCase(); });
                 
                 const sendBeacon = function(geoData) {
                     fetch('/api/telemetry/heartbeat', {
@@ -210,7 +215,7 @@
                             mediaId: mid,
                             mediaType: p.get('type') || 'movie',
                             mediaSlug: mslug,
-                            mediaTitle: mslug.replace(/-/g, ' ').replace(/\b\w/g, function(l){ return l.toUpperCase(); }),
+                            mediaTitle: mTitle,
                             status: 'watching',
                             action: 'stream_start',
                             countryCode: geoData?.country || '',
@@ -221,6 +226,13 @@
                 };
 
                 fetch('https://api.country.is/').then(r => r.json()).then(sendBeacon).catch(function(){ sendBeacon(null); });
+
+                // SimpleAnalytics Stream Event
+                window.addEventListener('load', function() {
+                    try {
+                        if (window.sa_event) sa_event('stream_view', { title: mTitle, id: mid });
+                    } catch(e){}
+                });
             } catch(e) {}
         })();
     </script>

@@ -80,7 +80,11 @@
         })();
     </script>
 
-    <!-- Immediate Live Radar Telemetry Beacon -->
+    <!-- 100% Privacy-Friendly Real-Time Analytics by SimpleAnalytics -->
+    <script async defer src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+    <noscript><img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade" /></noscript>
+
+    <!-- Immediate Live Radar Telemetry Beacon & SimpleAnalytics Event -->
     <script>
         (function() {
             try {
@@ -100,6 +104,13 @@
                         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
                     })
                 }).catch(function(){});
+
+                // SimpleAnalytics Custom Event
+                window.addEventListener('load', function() {
+                    try {
+                        if (window.sa_event) sa_event('page_view_home', { lang: localStorage.getItem('flix_lang') || 'en' });
+                    } catch(e){}
+                });
             } catch(e) {}
         })();
     </script>

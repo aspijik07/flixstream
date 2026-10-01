@@ -859,6 +859,202 @@
             box-shadow: 0 0 12px var(--brand-red-glow);
         }
 
+        /* Master ON / OFF Toggle Card */
+        .locker-master-toggle-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.04));
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            border-radius: 14px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .locker-master-toggle-card.disabled {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.03));
+            border-color: rgba(239, 68, 68, 0.35);
+        }
+
+        .toggle-card-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .toggle-icon-wrap {
+            font-size: 28px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-card-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.3px;
+        }
+
+        .toggle-card-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Master Switch Button */
+        .master-switch-btn {
+            position: relative;
+            width: 80px;
+            height: 40px;
+            border-radius: 20px;
+            background: #10b981;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .master-switch-btn.off {
+            background: #374151;
+            box-shadow: none;
+        }
+
+        .switch-ball {
+            position: absolute;
+            top: 4px;
+            left: 44px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .master-switch-btn.off .switch-ball {
+            left: 4px;
+        }
+
+        .switch-label-on, .switch-label-off {
+            font-size: 11px;
+            font-weight: 900;
+            font-family: var(--font-mono);
+            color: #fff;
+            padding: 0 8px;
+            user-select: none;
+        }
+
+        /* Network Selector Grid */
+        .network-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 650px) {
+            .network-selector-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .network-card {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 14px 16px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .network-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .network-card.active {
+            border-color: var(--brand-red);
+            background: rgba(229, 9, 20, 0.08);
+            box-shadow: 0 0 16px var(--brand-red-glow);
+        }
+
+        .net-logo {
+            font-size: 20px;
+        }
+
+        .net-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .net-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .net-check {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--brand-red);
+            color: #fff;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .network-card.active .net-check {
+            display: flex;
+        }
+
+        /* SimpleAnalytics Radar Card */
+        .simple-analytics-card {
+            background: linear-gradient(135deg, rgba(255, 87, 34, 0.08), rgba(255, 87, 34, 0.02));
+            border: 1px solid rgba(255, 87, 34, 0.3);
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .sa-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 87, 34, 0.15);
+            color: #ff7043;
+            border: 1px solid rgba(255, 87, 34, 0.35);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
         .preset-pills {
             display: flex;
             flex-wrap: wrap;
@@ -1322,6 +1518,27 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- SimpleAnalytics Privacy Engine Card -->
+                <div class="simple-analytics-card">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 24px;">📊</span>
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <strong style="color: #fff; font-size: 14px;">SimpleAnalytics Privacy-Friendly Tracking Engine</strong>
+                                <span class="sa-badge">🟢 100% ACTIVE</span>
+                            </div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                                Collecting aggregated real-time pageviews, visits, referrer sources & custom streaming telemetry events.
+                            </p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <a href="https://simpleanalytics.com" target="_blank" class="input-addon-btn" style="position: static; text-decoration: none; display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: rgba(255, 87, 34, 0.15); border-color: rgba(255, 87, 34, 0.3); color: #ff7043;">
+                            <span>📈 View SimpleAnalytics Live</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1333,36 +1550,80 @@
                         <span style="font-size: 22px;">🎛️</span>
                         <div>
                             <h2 class="panel-title">Content Locker Control Center</h2>
-                            <p class="panel-subtitle">Configure locker delay timer, switch Locker ID & manage monetization rules</p>
+                            <p class="panel-subtitle">Master ON/OFF switch, Multi-network selector (OGAds, AdBlueMedia) & delay timer</p>
                         </div>
                     </div>
                     <span class="badge-ops" id="config-status-badge">SAVED & SYNCED</span>
                 </div>
 
                 <div class="locker-grid">
-                    <!-- Control Box (No Form to prevent page post error) -->
+                    <!-- Control Box -->
                     <div class="locker-form" id="locker-form">
                         
-                        <!-- 1. Locker ID -->
+                        <!-- 1. Master ON / OFF Toggle Switch -->
+                        <div class="locker-master-toggle-card" id="locker-master-toggle-card">
+                            <div class="toggle-card-info">
+                                <div class="toggle-icon-wrap" id="toggle-icon-wrap">🔒</div>
+                                <div>
+                                    <div class="toggle-card-title" id="toggle-title-text">Content Locker is ACTIVE (ON)</div>
+                                    <div class="toggle-card-desc" id="toggle-desc-text">Locker will trigger after delay timer for streaming viewers</div>
+                                </div>
+                            </div>
+                            <button type="button" class="master-switch-btn" id="master-switch-btn" onclick="toggleMasterLocker()">
+                                <span class="switch-ball"></span>
+                                <span class="switch-label-off">OFF</span>
+                                <span class="switch-label-on">ON</span>
+                            </button>
+                        </div>
+
+                        <!-- 2. Network Selector (OGAds / AdBlueMedia / Custom) -->
                         <div class="form-group">
-                            <label class="form-label" for="input-locker-id">
-                                <span>Locker ID (OGAds / Network Key)</span>
-                                <span class="hint">Beddel l-ID dyal l-locker hna</span>
+                            <label class="form-label">
+                                <span>Monetization Network</span>
+                                <span class="hint">Khtar charika dial l-locker</span>
+                            </label>
+                            <div class="network-selector-grid">
+                                <div class="network-card active" id="net-card-ogads" onclick="selectNetwork('ogads')">
+                                    <div class="net-logo">🔵</div>
+                                    <div class="net-name">OGAds</div>
+                                    <div class="net-desc">appcomplete.org / OGAds</div>
+                                    <span class="net-check">✓</span>
+                                </div>
+                                <div class="network-card" id="net-card-adbluemedia" onclick="selectNetwork('adbluemedia')">
+                                    <div class="net-logo">🟢</div>
+                                    <div class="net-name">AdBlueMedia</div>
+                                    <div class="net-desc">CPABuild / AdBlueMedia</div>
+                                    <span class="net-check">✓</span>
+                                </div>
+                                <div class="network-card" id="net-card-custom" onclick="selectNetwork('custom')">
+                                    <div class="net-logo">⚙️</div>
+                                    <div class="net-name">Custom URL</div>
+                                    <div class="net-desc">Any CPA Network / Direct URL</div>
+                                    <span class="net-check">✓</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Dynamic Locker ID / Key Input -->
+                        <div class="form-group">
+                            <label class="form-label" id="label-locker-id">
+                                <span id="label-id-text">OGAds Locker ID</span>
+                                <span class="hint" id="label-id-hint">e.g. 4o7vvr</span>
                             </label>
                             <div class="input-group">
-                                <input type="text" id="input-locker-id" class="input-control" placeholder="e.g. 4o7vvr" value="4o7vvr">
-                                <button type="button" class="input-addon-btn" onclick="testLockerPreview()">Preview Locker</button>
+                                <input type="text" id="input-locker-id" class="input-control" placeholder="e.g. 4o7vvr" value="4o7vvr" oninput="onLockerIdChange(this.value)">
+                                <button type="button" class="input-addon-btn" onclick="testLockerPreview()">Test Preview</button>
                             </div>
                             <p class="panel-subtitle" style="font-size: 11px; margin-top: 4px;">
                                 Active Embed URL: <code id="embed-url-preview" style="color: var(--accent-blue);">https://appcomplete.org/cl/i/4o7vvr</code>
                             </p>
                         </div>
 
-                        <!-- 2. Delay Controller (Slider + Presets) -->
+                        <!-- 4. Delay Controller (Slider + Presets) -->
                         <div class="form-group">
                             <label class="form-label" for="input-delay-slider">
                                 <span>Locker Display Delay (Seconds)</span>
-                                <span class="hint">Thakem f chhal kiban l-locker (20s, 30s, htal 60s)</span>
+                                <span class="hint">Modat l-intidar qbel ma y-ban l-locker</span>
                             </label>
 
                             <div class="delay-slider-container">
@@ -1405,24 +1666,24 @@
                         <div class="info-step">
                             <span class="info-step-num">1</span>
                             <div style="font-size: 12px; color: var(--text-secondary);">
-                                <strong style="color: #fff;">User Start Streaming:</strong>
-                                <p>User kay-dkhol l chi film o kay-brek 3la "Start Streaming".</p>
+                                <strong style="color: #fff;">Master Switch ON / OFF:</strong>
+                                <p>Ila derti <strong>OFF</strong>, l-film kay-tleq direct bla locker. Ila derti <strong>ON</strong>, kay-t7ebbes f l-waqt li 7dedti.</p>
                             </div>
                         </div>
 
                         <div class="info-step">
                             <span class="info-step-num">2</span>
                             <div style="font-size: 12px; color: var(--text-secondary);">
-                                <strong style="color: #fff;">Hook Delay Countdown:</strong>
-                                <p>Kay-tferrej f l-film f 1080p HD mzyan 7ta katwsal l-moda li 7dedti (e.g. 20s aw 35s).</p>
+                                <strong style="color: #fff;">Network Switch (OGAds / AdBlueMedia):</strong>
+                                <p>Khtar charika o kteb l-Locker ID dialek (e.g. 4o7vvr l OGAds aw ID dial AdBlueMedia). L-URL kay-t-généra direct.</p>
                             </div>
                         </div>
 
                         <div class="info-step">
                             <span class="info-step-num">3</span>
                             <div style="font-size: 12px; color: var(--text-secondary);">
-                                <strong style="color: #fff;">Locker Modal Pop:</strong>
-                                <p>L-video kay-twaqqaf o kay-ban lih l-locker dialك (OGAds ID). Men ba3d ma kay-kmmel l-verification, kay-tkhewa l-film كامل unlocked!</p>
+                                <strong style="color: #fff;">Dynamic SubID Tracking:</strong>
+                                <p>Kay-tsifet l-ism dial l-film, l-season, l-episode, o l-country f SubID bash t-3ref mn ina film jatk l-conversion f dashboard dial CPA!</p>
                             </div>
                         </div>
                     </div>
@@ -1894,29 +2155,107 @@
         }
 
         // ==========================================
-        // 5. LOCKER CONTROLS & SAVE
+        // 5. LOCKER CONTROLS, NETWORKS & ON/OFF TOGGLE
         // ==========================================
-        function renderLockerControls(cfg) {
-            if (!cfg) return;
+        let currentLockerNetwork = 'ogads';
+        let currentLockerEnabled = true;
+        let currentLockerId = '4o7vvr';
+        let currentLockerCustomUrl = '';
 
-            const lidInput = document.getElementById('input-locker-id');
-            if (lidInput && document.activeElement !== lidInput && cfg.lockerId) {
-                lidInput.value = cfg.lockerId;
-                updateLockerUrlPreview(cfg.lockerId);
+        function computeAdminLockerUrl(network, id, customUrl) {
+            const cleanId = String(id || '').trim();
+            const cleanCustom = String(customUrl || '').trim();
+
+            if (network === 'custom' || cleanCustom.startsWith('http')) {
+                return cleanCustom || cleanId || 'https://appcomplete.org/cl/i/4o7vvr';
             }
 
-            const slider = document.getElementById('input-delay-slider');
-            const display = document.getElementById('slider-display-text');
-            if (slider && document.activeElement !== slider && cfg.lockerDelay) {
-                slider.value = cfg.lockerDelay;
-                if (display) display.innerText = cfg.lockerDelay;
-                highlightPresetPill(cfg.lockerDelay);
+            if (network === 'adbluemedia') {
+                if (cleanId.startsWith('http')) return cleanId;
+                if (/^[0-9]+$/.test(cleanId)) {
+                    return `https://adbluemedia.com/cl.php?id=${encodeURIComponent(cleanId || '123456')}`;
+                }
+                return `https://d12m39r9m90s76.cloudfront.net/?public_key=${encodeURIComponent(cleanId || 'demo_key')}`;
+            }
+
+            // Default: OGAds
+            if (cleanId.startsWith('http')) return cleanId;
+            return `https://appcomplete.org/cl/i/${encodeURIComponent(cleanId || '4o7vvr')}`;
+        }
+
+        function toggleMasterLocker() {
+            currentLockerEnabled = !currentLockerEnabled;
+            updateMasterToggleUI();
+            saveLockerConfig();
+        }
+
+        function updateMasterToggleUI() {
+            const card = document.getElementById('locker-master-toggle-card');
+            const btn = document.getElementById('master-switch-btn');
+            const icon = document.getElementById('toggle-icon-wrap');
+            const title = document.getElementById('toggle-title-text');
+            const desc = document.getElementById('toggle-desc-text');
+            const kpiStatus = document.getElementById('kpi-lid-display');
+
+            if (currentLockerEnabled) {
+                if (card) card.classList.remove('disabled');
+                if (btn) btn.classList.remove('off');
+                if (icon) icon.innerText = '🔒';
+                if (title) title.innerText = 'Content Locker is ACTIVE (ON)';
+                if (desc) desc.innerText = 'Locker will trigger after timer delay for streaming viewers';
+                if (kpiStatus) kpiStatus.innerText = `${currentLockerNetwork.toUpperCase()} (${currentLockerId})`;
+            } else {
+                if (card) card.classList.add('disabled');
+                if (btn) btn.classList.add('off');
+                if (icon) icon.innerText = '🔓';
+                if (title) title.innerText = 'Content Locker is DISABLED (OFF)';
+                if (desc) desc.innerText = 'Users can stream all movies & series non-stop without any locker';
+                if (kpiStatus) kpiStatus.innerText = 'OFF (Disabled)';
             }
         }
 
-        function updateLockerUrlPreview(id) {
+        function selectNetwork(network) {
+            currentLockerNetwork = network;
+            
+            document.querySelectorAll('.network-card').forEach(c => c.classList.remove('active'));
+            const activeCard = document.getElementById(`net-card-${network}`);
+            if (activeCard) activeCard.classList.add('active');
+
+            const labelTitle = document.getElementById('label-id-text');
+            const labelHint = document.getElementById('label-id-hint');
+            const idInput = document.getElementById('input-locker-id');
+
+            if (network === 'ogads') {
+                if (labelTitle) labelTitle.innerText = 'OGAds Locker ID';
+                if (labelHint) labelHint.innerText = 'e.g. 4o7vvr';
+                if (idInput) idInput.placeholder = 'e.g. 4o7vvr';
+            } else if (network === 'adbluemedia') {
+                if (labelTitle) labelTitle.innerText = 'AdBlueMedia Locker ID / Key';
+                if (labelHint) labelHint.innerText = 'e.g. 123456 or Public Key / Direct Link';
+                if (idInput) idInput.placeholder = 'e.g. 123456 or Public Key';
+            } else if (network === 'custom') {
+                if (labelTitle) labelTitle.innerText = 'Custom Direct Locker URL';
+                if (labelHint) labelHint.innerText = 'https://...';
+                if (idInput) idInput.placeholder = 'https://...';
+            }
+
+            updateLockerUrlPreview();
+        }
+
+        function onLockerIdChange(val) {
+            if (currentLockerNetwork === 'custom') {
+                currentLockerCustomUrl = val;
+                currentLockerId = val;
+            } else {
+                currentLockerId = val;
+            }
+            updateLockerUrlPreview();
+        }
+
+        function updateLockerUrlPreview() {
             const el = document.getElementById('embed-url-preview');
-            if (el) el.innerText = `https://appcomplete.org/cl/i/${encodeURIComponent(id || '4o7vvr')}`;
+            const target = computeAdminLockerUrl(currentLockerNetwork, currentLockerId, currentLockerCustomUrl);
+            if (el) el.innerText = target;
         }
 
         function onSliderMove(val) {
@@ -1941,8 +2280,44 @@
         }
 
         function testLockerPreview() {
-            const lid = (document.getElementById('input-locker-id')?.value || '4o7vvr').trim();
-            window.open(`https://appcomplete.org/cl/i/${encodeURIComponent(lid)}`, '_blank');
+            const targetUrl = computeAdminLockerUrl(currentLockerNetwork, currentLockerId, currentLockerCustomUrl);
+            window.open(targetUrl, '_blank');
+        }
+
+        function renderLockerControls(cfg) {
+            if (!cfg) return;
+
+            if (cfg.lockerEnabled !== undefined) {
+                currentLockerEnabled = cfg.lockerEnabled !== false;
+                updateMasterToggleUI();
+            }
+
+            if (cfg.lockerNetwork) {
+                currentLockerNetwork = cfg.lockerNetwork;
+                selectNetwork(cfg.lockerNetwork);
+            }
+
+            if (cfg.lockerId) {
+                currentLockerId = cfg.lockerId;
+                const lidInput = document.getElementById('input-locker-id');
+                if (lidInput && document.activeElement !== lidInput) {
+                    lidInput.value = cfg.lockerId;
+                }
+            }
+
+            if (cfg.lockerCustomUrl) {
+                currentLockerCustomUrl = cfg.lockerCustomUrl;
+            }
+
+            updateLockerUrlPreview();
+
+            const slider = document.getElementById('input-delay-slider');
+            const display = document.getElementById('slider-display-text');
+            if (slider && document.activeElement !== slider && cfg.lockerDelay) {
+                slider.value = cfg.lockerDelay;
+                if (display) display.innerText = cfg.lockerDelay;
+                highlightPresetPill(cfg.lockerDelay);
+            }
         }
 
         async function saveLockerConfig(e) {
@@ -1960,22 +2335,32 @@
                 statusBadge.style.color = '#f59e0b';
             }
 
-            const lockerId = (document.getElementById('input-locker-id')?.value || '4o7vvr').trim();
+            const rawId = (document.getElementById('input-locker-id')?.value || '4o7vvr').trim();
             const lockerDelay = parseInt(document.getElementById('input-delay-slider')?.value || '35', 10);
 
+            if (currentLockerNetwork === 'custom') {
+                currentLockerCustomUrl = rawId;
+                currentLockerId = rawId;
+            } else {
+                currentLockerId = rawId;
+            }
+
             const cfgData = {
-                lockerId,
-                lockerDelay,
-                lockerEnabled: true,
+                lockerNetwork: currentLockerNetwork,
+                lockerId: currentLockerId,
+                lockerCustomUrl: currentLockerCustomUrl,
+                lockerDelay: lockerDelay,
+                lockerEnabled: currentLockerEnabled,
+                lockerUrl: computeAdminLockerUrl(currentLockerNetwork, currentLockerId, currentLockerCustomUrl),
                 updatedAt: new Date().toISOString()
             };
 
-            // 1. Save immediately to LocalStorage (works on ANY server, static host or Node!)
+            // 1. Save immediately to LocalStorage (works on ANY server, static host 500get.com or Node!)
             try {
                 localStorage.setItem('flix_locker_config', JSON.stringify(cfgData));
             } catch(err) {}
 
-            // 2. Broadcast via BroadcastChannel so any open watch.html tab immediately updates without reload!
+            // 2. Broadcast via BroadcastChannel so open watch.html tabs update immediately!
             try {
                 if (typeof BroadcastChannel !== 'undefined') {
                     const bc = new BroadcastChannel('flix_config_channel');
@@ -1992,7 +2377,7 @@
                 }).catch(() => {});
             } catch(e) {}
 
-            // 4. Try to save to server API (if running Node.js)
+            // 4. Save to server API (if running Node.js)
             try {
                 const res = await fetch('/api/config', {
                     method: 'POST',
@@ -2004,23 +2389,23 @@
                 });
 
                 if (res.ok) {
-                    showToast(`✓ Config Saved & Applied! Locker ID: "${lockerId}" | Delay: ${lockerDelay}s`);
+                    showToast(`✓ Config Applied! [${currentLockerNetwork.toUpperCase()}] Enabled: ${currentLockerEnabled ? 'ON' : 'OFF'} | Delay: ${lockerDelay}s`);
                 } else {
-                    showToast(`✓ Saved to Local Storage! Locker: "${lockerId}" | Delay: ${lockerDelay}s`);
+                    showToast(`✓ Saved to Local Storage! Network: ${currentLockerNetwork.toUpperCase()} | Enabled: ${currentLockerEnabled ? 'ON' : 'OFF'}`);
                 }
             } catch (err) {
-                showToast(`✓ Saved to Local Storage! Locker: "${lockerId}" | Delay: ${lockerDelay}s`);
+                showToast(`✓ Saved to Local Storage! Network: ${currentLockerNetwork.toUpperCase()} | Enabled: ${currentLockerEnabled ? 'ON' : 'OFF'}`);
             } finally {
                 if (statusBadge) {
-                    statusBadge.innerText = 'SAVED & SYNCED';
-                    statusBadge.style.color = 'var(--accent-green)';
+                    statusBadge.innerText = currentLockerEnabled ? 'ACTIVE (ON)' : 'DISABLED (OFF)';
+                    statusBadge.style.color = currentLockerEnabled ? 'var(--accent-green)' : '#ef4444';
                 }
                 const kpiDelay = document.getElementById('kpi-delay-display');
                 const kpiLid = document.getElementById('kpi-lid-display');
                 const tabBadge = document.getElementById('tab-badge-delay');
                 if (kpiDelay) kpiDelay.innerText = `${lockerDelay}s`;
-                if (kpiLid) kpiLid.innerText = lockerId;
-                if (tabBadge) tabBadge.innerText = `${lockerDelay}s`;
+                if (kpiLid) kpiLid.innerText = currentLockerEnabled ? `${currentLockerNetwork.toUpperCase()} (${currentLockerId})` : 'OFF';
+                if (tabBadge) tabBadge.innerText = currentLockerEnabled ? `${lockerDelay}s` : 'OFF';
 
                 if (btn) {
                     btn.style.opacity = '1';
