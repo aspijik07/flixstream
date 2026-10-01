@@ -665,8 +665,6 @@ async function initApp() {
 // ==========================================
 // 11. REAL-TIME AUDIENCE TELEMETRY ENGINE
 // ==========================================
-let detectedClientIp = '';
-
 function getFlixVisitorId() {
     try {
         let vid = localStorage.getItem('flix_visitor_id') || sessionStorage.getItem('flix_session_id');
