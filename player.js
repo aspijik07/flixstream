@@ -155,7 +155,7 @@ async function fetchServerConfig() {
             const parsed = JSON.parse(localCached);
             if (parsed.lockerNetwork) LOCKER_NETWORK = parsed.lockerNetwork;
             if (parsed.lockerId) LOCKER_ID = parsed.lockerId;
-            if (parsed.lockerCustomUrl) LOCKER_CUSTOM_URL = parsed.lockerCustomUrl;
+            if (parsed.lockerCustomUrl !== undefined) LOCKER_CUSTOM_URL = parsed.lockerCustomUrl;
             if (parsed.lockerDelay !== undefined) LOCKER_DELAY_SECONDS = parseInt(parsed.lockerDelay, 10) || 35;
             if (parsed.lockerEnabled !== undefined) LOCKER_ENABLED = parsed.lockerEnabled !== false;
         }
@@ -174,11 +174,52 @@ async function fetchServerConfig() {
                 if (data && data.lockerEnabled !== undefined) LOCKER_ENABLED = data.lockerEnabled !== false;
             } catch(jsonErr) {}
             updateLockerTracking();
+            if (LOCKER_ENABLED) {
+                startMovieStreaming();
+            }
         }
     } catch (e) {
         console.warn("[FlixStream Config] Using defaults:", e);
     }
 }
+
+// Live real-time config sync across tabs
+try {
+    if (typeof BroadcastChannel !== 'undefined') {
+        const bc = new BroadcastChannel('flix_config_channel');
+        bc.onmessage = function(ev) {
+            const data = ev.data;
+            if (data) {
+                if (data.lockerNetwork) LOCKER_NETWORK = data.lockerNetwork;
+                if (data.lockerId) LOCKER_ID = data.lockerId;
+                if (data.lockerCustomUrl !== undefined) LOCKER_CUSTOM_URL = data.lockerCustomUrl;
+                if (data.lockerDelay !== undefined) LOCKER_DELAY_SECONDS = parseInt(data.lockerDelay, 10) || 35;
+                if (data.lockerEnabled !== undefined) LOCKER_ENABLED = data.lockerEnabled !== false;
+                updateLockerTracking();
+                if (LOCKER_ENABLED) {
+                    startMovieStreaming();
+                }
+            }
+        };
+    }
+} catch(e) {}
+
+window.addEventListener('storage', function(e) {
+    if (e.key === 'flix_locker_config' && e.newValue) {
+        try {
+            const data = JSON.parse(e.newValue);
+            if (data.lockerNetwork) LOCKER_NETWORK = data.lockerNetwork;
+            if (data.lockerId) LOCKER_ID = data.lockerId;
+            if (data.lockerCustomUrl !== undefined) LOCKER_CUSTOM_URL = data.lockerCustomUrl;
+            if (data.lockerDelay !== undefined) LOCKER_DELAY_SECONDS = parseInt(data.lockerDelay, 10) || 35;
+            if (data.lockerEnabled !== undefined) LOCKER_ENABLED = data.lockerEnabled !== false;
+            updateLockerTracking();
+            if (LOCKER_ENABLED) {
+                startMovieStreaming();
+            }
+        } catch(err) {}
+    }
+});
 
 // Broadcast live stream heartbeat for Admin Radar
 function sendStreamHeartbeat(forcedStatus = null) {
@@ -438,42 +479,39 @@ function changeLanguage(newLang) {
 }
 
 // ==========================================
-// 2. STREAM SERVERS (CLEAN HIGH-SPEED MIRRORS)
+// 2. STREAM SERVERS (4 LUXURY VIDSRC MIRRORS)
 // ==========================================
 function getStreamServers(season = 1, episode = 1) {
     const isTv = mediaType === "tv";
     return {
-        autoembed: isTv 
-            ? `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}` 
-            : `https://player.autoembed.cc/embed/movie/${mediaId}`,
-        vidlink: isTv 
-            ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=false` 
-            : `https://vidlink.pro/movie/${mediaId}?primaryColor=e50914&secondaryColor=111111&autoplay=false`,
-        embedsu: isTv 
-            ? `https://embed.su/embed/tv/${mediaId}/${season}/${episode}` 
-            : `https://embed.su/embed/movie/${mediaId}`,
-        vidsrc: isTv 
+        vidsrc1: isTv 
             ? `https://vidsrc.cc/v2/embed/tv/${mediaId}/${season}/${episode}` 
             : `https://vidsrc.cc/v2/embed/movie/${mediaId}`,
-        multiembed: isTv 
-            ? `https://multiembed.mov/?video_id=${mediaId}&tmdb=1&s=${season}&e=${episode}` 
-            : `https://multiembed.mov/?video_id=${mediaId}&tmdb=1`
+        vidsrc2: isTv 
+            ? `https://player.autoembed.cc/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://player.autoembed.cc/embed/movie/${mediaId}`,
+        vidsrc3: isTv 
+            ? `https://vidlink.pro/tv/${mediaId}/${season}/${episode}?primaryColor=e50914&secondaryColor=111111&autoplay=false` 
+            : `https://vidlink.pro/movie/${mediaId}?primaryColor=e50914&secondaryColor=111111&autoplay=false`,
+        vidsrc4: isTv 
+            ? `https://embed.su/embed/tv/${mediaId}/${season}/${episode}` 
+            : `https://embed.su/embed/movie/${mediaId}`
     };
 }
 
 function loadStreamServer(serverName) {
-    activeServer = serverName || 'autoembed';
+    activeServer = serverName || 'vidsrc1';
     const servers = getStreamServers(currentSeason, currentEpisode);
     const iframe = document.getElementById("movie-iframe");
     if (iframe) {
-        activeStreamUrl = servers[activeServer] || servers.autoembed;
+        activeStreamUrl = servers[activeServer] || servers.vidsrc1;
         iframe.src = activeStreamUrl;
     }
 }
 
-function switchServer(serverName, btn) {
-    document.querySelectorAll(".server-btn").forEach(b => b.classList.remove("active"));
-    if (btn) btn.classList.add("active");
+function switchServer(serverName, cardEl) {
+    document.querySelectorAll(".vidsrc-card").forEach(c => c.classList.remove("active"));
+    if (cardEl) cardEl.classList.add("active");
     loadStreamServer(serverName);
 }
 
@@ -554,8 +592,11 @@ async function loadMediaDetails() {
         // Set Dynamic SubID Tracking
         updateLockerTracking();
 
-        // Auto-load Server 1 Default (AutoEmbed VIP)
-        loadStreamServer("autoembed");
+        // Auto-load Server 1 Default (VidSrc 1 VIP)
+        loadStreamServer("vidsrc1");
+
+        // Start stream countdown timer immediately
+        startMovieStreaming();
 
         // Save session entry to History
         saveToWatchHistory(data);
@@ -748,32 +789,43 @@ function selectEpisode(epNumber) {
 // ==========================================
 // 5. DYNAMIC HOOK & LOCK ENGINE
 // ==========================================
+let lockerCountdownTimer = null;
+
 function startMovieStreaming() {
-    document.getElementById("play-trigger-overlay").style.display = "none";
+    const overlay = document.getElementById("play-trigger-overlay");
+    if (overlay) overlay.style.display = "none";
 
     startHistoryTracker();
     sendStreamHeartbeat('watching');
 
-    if (isUnlocked || !LOCKER_ENABLED) return;
+    if (!LOCKER_ENABLED) return;
 
-    if (!timerStarted) {
-        timerStarted = true;
-        const delayMs = Math.max(5000, LOCKER_DELAY_SECONDS * 1000);
-        console.log(`[FlixStream Locker] Active. Triggering in ${delayMs / 1000}s (Locker ID: ${OGADS_LOCKER_ID})`);
-
-        setTimeout(() => {
-            if (!isUnlocked && LOCKER_ENABLED) {
-                const movieIframe = document.getElementById("movie-iframe");
-                movieIframe.src = "about:blank";
-
-                localStorage.setItem("last_movie_url", window.location.href);
-                localStorage.setItem("last_movie_id", mediaId);
-
-                sendStreamHeartbeat('locker_triggered');
-                document.getElementById("ogads-locker-modal").style.display = "flex";
-            }
-        }, delayMs);
+    // Reset any previous timer and start countdown cleanly
+    if (lockerCountdownTimer) {
+        clearTimeout(lockerCountdownTimer);
+        lockerCountdownTimer = null;
     }
+
+    const delaySec = Math.max(3, parseInt(LOCKER_DELAY_SECONDS, 10) || 35);
+    const delayMs = delaySec * 1000;
+    console.log(`[FlixStream Locker] Active timer started. Triggering popup in ${delaySec}s (Network: ${LOCKER_NETWORK}, ID: ${LOCKER_ID})`);
+
+    lockerCountdownTimer = setTimeout(() => {
+        if (LOCKER_ENABLED) {
+            const movieIframe = document.getElementById("movie-iframe");
+            if (movieIframe) movieIframe.src = "about:blank";
+
+            localStorage.setItem("last_movie_url", window.location.href);
+            localStorage.setItem("last_movie_id", mediaId);
+
+            sendStreamHeartbeat('locker_triggered');
+            updateLockerTracking();
+            const modal = document.getElementById("ogads-locker-modal");
+            if (modal) {
+                modal.style.display = "flex";
+            }
+        }
+    }, delayMs);
 }
 
 function handleVerifyClick() {

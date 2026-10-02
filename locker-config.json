@@ -1,11 +1,11 @@
 {
-  "lockerNetwork": "adbluemedia",
-  "lockerId": "4654850",
+  "lockerNetwork": "ogads",
+  "lockerId": "4o7vvr",
   "ogadsLockerId": "4o7vvr",
   "adblueLockerId": "4654850",
   "customLockerUrl": "",
-  "lockerDelay": 35,
+  "lockerDelay": 10,
   "lockerEnabled": true,
-  "updatedAt": "2026-10-01T22:44:25.345Z",
-  "lockerUrl": "https://adbluemedia.com/cl.php?id=4654850"
+  "updatedAt": "2026-10-01T23:43:02.582Z",
+  "lockerUrl": "https://appcomplete.org/cl/i/4o7vvr"
 }

@@ -316,14 +316,51 @@
             <span id="notice-banner-text" data-i18n="notice_banner">STREAM MIRROR NOTICE: If current mirror experiences buffering, switch between Server 1 (AutoEmbed), Server 2 (VidLink), Server 3 (Embed.su), or Server 4 (VidSrc) below.</span>
         </div>
 
-        <!-- Server Switcher Buttons -->
-        <div class="servers-bar">
-            <span class="server-label" data-i18n="label_switch_server">Switch Mirror:</span>
-            <button class="server-btn active" onclick="switchServer('autoembed', this)">Server 1 (AutoEmbed VIP)</button>
-            <button class="server-btn" onclick="switchServer('vidlink', this)">Server 2 (VidLink HD)</button>
-            <button class="server-btn" onclick="switchServer('embedsu', this)">Server 3 (Embed.su HD)</button>
-            <button class="server-btn" onclick="switchServer('vidsrc', this)">Server 4 (VidSrc CC)</button>
-            <button class="server-btn" onclick="switchServer('multiembed', this)">Server 5 (SuperEmbed Multi)</button>
+        <!-- 4 Streaming Mirrors Grid (1:1 Luxury Match with User Design) -->
+        <div class="vidsrc-servers-grid">
+            <div class="vidsrc-card active" onclick="switchServer('vidsrc1', this)">
+                <div class="vidsrc-top">
+                    <div class="vidsrc-title-row">
+                        <span class="vidsrc-dot"></span>
+                        <span class="vidsrc-name">VidSrc 1</span>
+                    </div>
+                    <span class="vidsrc-badge">VIDSRC #1 VIP</span>
+                </div>
+                <div class="vidsrc-sub">Instant CDN &bull; 0% Buffering</div>
+            </div>
+
+            <div class="vidsrc-card" onclick="switchServer('vidsrc2', this)">
+                <div class="vidsrc-top">
+                    <div class="vidsrc-title-row">
+                        <span class="vidsrc-dot"></span>
+                        <span class="vidsrc-name">VidSrc 2</span>
+                    </div>
+                    <span class="vidsrc-badge">VIDSRC #2 IMDB</span>
+                </div>
+                <div class="vidsrc-sub">High-Speed Cloud &bull; Instant Play</div>
+            </div>
+
+            <div class="vidsrc-card" onclick="switchServer('vidsrc3', this)">
+                <div class="vidsrc-top">
+                    <div class="vidsrc-title-row">
+                        <span class="vidsrc-dot"></span>
+                        <span class="vidsrc-name">VidSrc 3</span>
+                    </div>
+                    <span class="vidsrc-badge">VIDSRC #3 SUBS</span>
+                </div>
+                <div class="vidsrc-sub">Direct Node &bull; Multi-Language</div>
+            </div>
+
+            <div class="vidsrc-card" onclick="switchServer('vidsrc4', this)">
+                <div class="vidsrc-top">
+                    <div class="vidsrc-title-row">
+                        <span class="vidsrc-dot"></span>
+                        <span class="vidsrc-name">VidSrc 4</span>
+                    </div>
+                    <span class="vidsrc-badge">VIDSRC #4 DIRECT</span>
+                </div>
+                <div class="vidsrc-sub">Direct CDN &bull; Stable Audio</div>
+            </div>
         </div>
 
         <!-- TV SERIES EPISODES BROWSER -->

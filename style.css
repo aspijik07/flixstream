@@ -747,20 +747,20 @@ body {
 }
 
 /* ==========================================
-   6. SERVER NOTICE & SERVERS BAR
+   6. LUXURY VIDSRC SERVERS BAR (1:1 with Screenshot)
    ========================================== */
 .server-notice-banner {
     display: flex;
     align-items: center;
     gap: 10px;
-    background: #161616;
-    border: 1px solid #262626;
+    background: #141418;
+    border: 1px solid #23232a;
     border-left: 3px solid #e50914;
     padding: 10px 14px;
-    border-radius: 6px;
+    border-radius: 8px;
     margin-top: 14px;
     font-size: 12px;
-    color: #b5b5b5;
+    color: #9ca3af;
 }
 
 .notice-icon {
@@ -768,40 +768,118 @@ body {
     flex-shrink: 0;
 }
 
-.server-notice-banner strong {
-    color: #ffffff;
+.vidsrc-servers-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+    width: 100%;
 }
 
-.servers-bar {
+@media (max-width: 900px) {
+    .vidsrc-servers-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vidsrc-servers-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
+.vidsrc-card {
+    background: #111114;
+    border: 1px solid #24242c;
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    position: relative;
+    user-select: none;
+}
+
+.vidsrc-card:hover {
+    border-color: rgba(229, 9, 20, 0.5);
+    background: #16161b;
+    transform: translateY(-1px);
+}
+
+.vidsrc-card.active {
+    border: 1.5px solid #e50914 !important;
+    background: linear-gradient(180deg, rgba(229, 9, 20, 0.18) 0%, rgba(18, 18, 22, 0.95) 100%) !important;
+    box-shadow: 0 0 16px rgba(229, 9, 20, 0.3), inset 0 0 12px rgba(229, 9, 20, 0.08) !important;
+}
+
+.vidsrc-top {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px;
 }
 
-.server-label {
-    font-size: 13px;
-    color: #888;
-    font-weight: 600;
+.vidsrc-title-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
 }
 
-.server-btn {
-    background: #181818;
-    border: 1px solid #333;
-    color: #ddd;
-    padding: 8px 16px;
-    border-radius: 5px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+.vidsrc-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6b7280;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
-.server-btn:hover, .server-btn.active {
+.vidsrc-card.active .vidsrc-dot {
     background: #e50914;
-    border-color: #e50914;
-    color: white;
+    box-shadow: 0 0 8px #e50914;
+}
+
+.vidsrc-name {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.2px;
+}
+
+.vidsrc-badge {
+    font-size: 9.5px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #9ca3af;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+
+.vidsrc-card.active .vidsrc-badge {
+    background: #e50914;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(229, 9, 20, 0.4);
+}
+
+.vidsrc-sub {
+    font-size: 11px;
+    color: #9ca3af;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+}
+
+.vidsrc-card.active .vidsrc-sub {
+    color: #d1d5db;
 }
 
 /* ==========================================
