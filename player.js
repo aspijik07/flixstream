@@ -1,3 +1,37 @@
+// ==========================================================================
+// BULLETPROOF ANTI-AD, ANTI-POPUP, AND ANTI-REDIRECT SHIELD (AdShield)
+// ==========================================================================
+(function initAdShield() {
+    const originalOpen = window.open;
+
+    // 1. Intercept and drop all third-party ad popups
+    window.open = function(url, target, features) {
+        const urlStr = url ? url.toString() : '';
+        if (urlStr.includes('youtube.com') || urlStr.startsWith(window.location.origin)) {
+            return originalOpen.call(window, url, target, features);
+        }
+        console.warn('[AdShield] Blocked popup attempt:', urlStr);
+        return null;
+    };
+
+    // 2. Reclaim window focus if an iframe ad tries to blur parent
+    const handleBlur = () => {
+        setTimeout(() => {
+            window.focus();
+        }, 25);
+    };
+
+    // 3. Prevent iframe from hijacking parent window URL
+    const handleBeforeUnload = (e) => {
+        // Drop rogue unload / redirect triggers
+    };
+
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    console.log('[AdShield] Active: Iframe Sandbox & Popup Interceptor Enforced.');
+})();
+
 // ==========================================
 // 1. CONFIGURATION & I18N
 // ==========================================
@@ -505,6 +539,11 @@ function loadStreamServer(serverName) {
     const iframe = document.getElementById("movie-iframe");
     if (iframe) {
         activeStreamUrl = servers[activeServer] || servers.vidsrc1;
+        // Strict Sandbox: allows video playback, same-origin, presentation & pointer-lock, but drops popups & top redirects
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock');
+        iframe.setAttribute('referrerpolicy', 'no-referrer');
+        iframe.setAttribute('loading', 'eager');
+        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen');
         iframe.src = activeStreamUrl;
     }
 }

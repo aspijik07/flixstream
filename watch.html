@@ -280,7 +280,7 @@
         <!-- Player Wrapper -->
         <div class="player-wrapper">
             
-            <!-- Video Iframe with Zero-Sandbox Native Playback & Parent Ad Shield -->
+            <!-- Video Iframe with Strict Anti-Ad Sandbox & Shield -->
             <iframe id="movie-iframe" 
                     src="" 
                     title="Stream Player"
@@ -289,6 +289,8 @@
                     allowfullscreen="true"
                     webkitallowfullscreen="true"
                     mozallowfullscreen="true"
+                    /* 🔥 STRICT POPUP BLOCKER 🔥 */
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock"
                     referrerpolicy="no-referrer"
                     loading="eager">
             </iframe>
