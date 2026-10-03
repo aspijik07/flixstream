@@ -211,11 +211,11 @@ async function fetchMedia(endpoint) {
     try {
         const tmdbLang = tmdbLangMap[currentLang] || "en-US";
         const separator = endpoint.includes("?") ? "&" : "?";
-        const response = await fetch(`${BASE_URL}${endpoint}${separator}api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
-        const data = await response.json();
+        const response = await fetch(`${BASE_URL}${endpoint}${separator}api_key=${TMDB_API_KEY}&language=${tmdbLang}`).catch(() => null);
+        if (!response || !response.ok) return [];
+        const data = await response.json().catch(() => ({}));
         return data.results || [];
     } catch (error) {
-        console.error("TMDB Fetch Error:", error);
         return [];
     }
 }
@@ -339,9 +339,9 @@ async function openPreviewModal(item, type = 'movie') {
     // Fetch details in active language
     try {
         const tmdbLang = tmdbLangMap[currentLang] || "en-US";
-        const detailRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
-        if (detailRes.ok) {
-            const detailData = await detailRes.json();
+        const detailRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}?api_key=${TMDB_API_KEY}&language=${tmdbLang}`).catch(() => null);
+        if (detailRes && detailRes.ok) {
+            const detailData = await detailRes.json().catch(() => ({}));
             
             if (detailData.overview) {
                 document.getElementById("modal-overview").innerText = detailData.overview;
@@ -363,24 +363,24 @@ async function openPreviewModal(item, type = 'movie') {
             });
         }
     } catch (e) {
-        console.error("Error loading modal details:", e);
+        console.warn("Detail fetch skipped:", e);
     }
 
     // Fetch Trailer
     try {
         const tmdbLang = tmdbLangMap[currentLang] || "en-US";
-        const vidRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=${tmdbLang}`);
+        const vidRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=${tmdbLang}`).catch(() => null);
         let videos = [];
-        if (vidRes.ok) {
-            const vidData = await vidRes.json();
+        if (vidRes && vidRes.ok) {
+            const vidData = await vidRes.json().catch(() => ({}));
             videos = vidData.results || [];
         }
         
         // Fallback to EN videos if none found in FR/ES/DE
         if (videos.length === 0) {
-            const fallbackVidRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=en-US`);
-            if (fallbackVidRes.ok) {
-                const fbData = await fallbackVidRes.json();
+            const fallbackVidRes = await fetch(`${BASE_URL}/${resolvedType}/${item.id}/videos?api_key=${TMDB_API_KEY}&language=en-US`).catch(() => null);
+            if (fallbackVidRes && fallbackVidRes.ok) {
+                const fbData = await fallbackVidRes.json().catch(() => ({}));
                 videos = fbData.results || [];
             }
         }

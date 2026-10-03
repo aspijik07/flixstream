@@ -1,0 +1,35 @@
+name: Automated Daily SEO Generator (pSEO)
+
+on:
+  schedule:
+    # Runs every day at 00:00 UTC (Midnight)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  generate-seo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Programmatic SEO Generator
+        run: node seo-generator.js
+
+      - name: Commit and Push Updated Articles & Sitemaps
+        run: |
+          git config --global user.name "FlixStream SEO Bot"
+          git config --global user.email "bot@500get.com"
+          git add articles.json sitemap.xml feed.xml seo-state.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 [Automated pSEO] Daily 10 Fresh Trending Articles & Sitemaps [skip ci]" && git push)

@@ -739,10 +739,62 @@ app.get('/api/articles', (req, res) => {
   res.json({ success: true, count: 0, articles: [] });
 });
 
+// ==========================================
+// 5. AUTOMATED DAILY pSEO ENGINE & SCHEDULER
+// ==========================================
+const SEO_STATE_FILE = path.join(__dirname, 'seo-state.json');
+
+function getSeoState() {
+  try {
+    if (fs.existsSync(SEO_STATE_FILE)) {
+      return JSON.parse(fs.readFileSync(SEO_STATE_FILE, 'utf-8'));
+    }
+  } catch(e) {}
+  return { lastGeneratedDate: null, totalGenerated: 0, lastRunTimestamp: null };
+}
+
+function saveSeoState(state) {
+  try {
+    fs.writeFileSync(SEO_STATE_FILE, JSON.stringify(state, null, 2), 'utf-8');
+  } catch(e) {}
+}
+
+let isGeneratingSeo = false;
+
+async function checkAndRunDailySeo(triggerSource = 'auto_scheduler') {
+  if (isGeneratingSeo) return { running: true };
+
+  const todayDate = new Date().toISOString().split('T')[0]; // e.g. "2026-10-03"
+  const state = getSeoState();
+
+  // If already ran today, no need to duplicate unless manual admin trigger
+  if (state.lastGeneratedDate === todayDate && triggerSource !== 'manual_admin') {
+    return { success: true, alreadyRunToday: true, lastDate: state.lastGeneratedDate, totalArticles: state.totalGenerated };
+  }
+
+  isGeneratingSeo = true;
+  console.log(`[Daily SEO Bot] 🚀 Triggering automated batch for date: ${todayDate} (Source: ${triggerSource})...`);
+
+  try {
+    const res = await runDailySeoGeneration();
+    state.lastGeneratedDate = todayDate;
+    state.lastRunTimestamp = new Date().toISOString();
+    state.totalGenerated = res.totalArticles || 0;
+    saveSeoState(state);
+    console.log(`[Daily SEO Bot] ✓ Completed successfully for ${todayDate}! Total: ${state.totalGenerated} articles.`);
+    return res;
+  } catch(err) {
+    console.error(`[Daily SEO Bot] ✗ Generation Error:`, err);
+    return { success: false, error: err.message };
+  } finally {
+    isGeneratingSeo = false;
+  }
+}
+
 app.post('/api/admin/generate-daily-seo', async (req, res) => {
   try {
-    console.log('[API] Triggering manual daily SEO generation...');
-    const result = await runDailySeoGeneration();
+    console.log('[API] Triggering manual daily SEO generation from admin...');
+    const result = await checkAndRunDailySeo('manual_admin');
     res.json(result);
   } catch (err) {
     console.error('[API] SEO Generation Error:', err);
@@ -750,8 +802,28 @@ app.post('/api/admin/generate-daily-seo', async (req, res) => {
   }
 });
 
+app.get('/api/admin/seo-status', (req, res) => {
+  const state = getSeoState();
+  const articlesFile = path.join(__dirname, 'articles.json');
+  let articleCount = 0;
+  if (fs.existsSync(articlesFile)) {
+    try {
+      articleCount = JSON.parse(fs.readFileSync(articlesFile, 'utf8')).length;
+    } catch(e) {}
+  }
+  const today = new Date().toISOString().split('T')[0];
+  res.json({
+    success: true,
+    lastGeneratedDate: state.lastGeneratedDate,
+    lastRunTimestamp: state.lastRunTimestamp,
+    totalArticles: articleCount,
+    todayRun: state.lastGeneratedDate === today,
+    isGenerating: isGeneratingSeo
+  });
+});
+
 // ==========================================
-// 5. STATIC ASSETS & CLEAN ROUTES
+// 6. STATIC ASSETS & CLEAN ROUTES
 // ==========================================
 app.use(express.static(__dirname, {
   setHeaders: (res, filePath) => {
@@ -788,21 +860,15 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// Automated Daily Cron: Generates 10 new trending articles every 24 hours
-const DAILY_INTERVAL_MS = 24 * 60 * 60 * 1000;
-setInterval(() => {
-  console.log('[Automated Cron] Running scheduled 24h daily SEO generation...');
-  runDailySeoGeneration().catch(e => console.error('[Cron Error]:', e));
-}, DAILY_INTERVAL_MS);
-
-// Run initial SEO check 10 seconds after boot
+// Run initial SEO check 4 seconds after boot
 setTimeout(() => {
-  const articlesFile = path.join(__dirname, 'articles.json');
-  if (!fs.existsSync(articlesFile)) {
-    console.log('[Boot SEO Check] Initializing daily trending SEO articles...');
-    runDailySeoGeneration().catch(e => console.error('[Boot SEO Error]:', e));
-  }
-}, 10000);
+  checkAndRunDailySeo('server_boot').catch(e => console.error('[Boot SEO Error]:', e));
+}, 4000);
+
+// Frequent check every 30 minutes to guarantee daily trigger
+setInterval(() => {
+  checkAndRunDailySeo('periodic_cron').catch(e => console.error('[Periodic SEO Error]:', e));
+}, 30 * 60 * 1000);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
